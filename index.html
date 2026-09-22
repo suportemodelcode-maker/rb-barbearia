@@ -21,7 +21,6 @@
 
   <div class="w-full max-w-md bg-zinc-950 min-h-screen shadow-2xl relative flex flex-col overflow-hidden">
     
-    <!-- TELA DE LOGIN -->
     <div id="view-login" class="flex flex-col items-center justify-center min-h-screen p-6 z-50 bg-zinc-950 absolute inset-0">
       <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-6">
         <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879a3 3 0 11-4.242-4.242L10.5 8.5m3.621 5.621l-5.621-5.621"/></svg>
@@ -35,7 +34,6 @@
       </button>
     </div>
 
-    <!-- ETAPA 1: SERVIÇOS -->
     <div id="step-services" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar">
       <header class="relative h-56 shrink-0">
         <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80" alt="Barbearia" class="absolute inset-0 w-full h-full object-cover">
@@ -51,9 +49,8 @@
       </header>
 
       <div class="p-6 space-y-3">
-        <!-- Corte Clássico -->
         <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <input type="radio" name="service" value="Corte Clássico" data-price="40" data-duration="30 min" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Corte Clássico" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Corte">
             <div class="flex-1">
@@ -65,9 +62,8 @@
           </div>
         </label>
 
-        <!-- Barba Completa -->
         <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <input type="radio" name="service" value="Barba Completa" data-price="30" data-duration="30 min" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Barba Completa" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Barba">
             <div class="flex-1">
@@ -79,9 +75,8 @@
           </div>
         </label>
 
-        <!-- Sobrancelha -->
         <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <input type="radio" name="service" value="Sobrancelha" data-price="15" data-duration="15 min" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Sobrancelha" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Sobrancelha">
             <div class="flex-1">
@@ -93,10 +88,9 @@
           </div>
         </label>
 
-        <!-- Combo Corte + Barba -->
         <label class="block relative p-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-zinc-900/60 to-amber-950/20 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
           <div class="absolute -top-2.5 right-4 bg-amber-500 text-zinc-950 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Mais pedido</div>
-          <input type="radio" name="service" value="Combo Corte + Barba" data-price="65" data-duration="1 hora" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Combo Corte + Barba" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Combo">
             <div class="flex-1">
@@ -116,7 +110,6 @@
       </div>
     </div>
 
-    <!-- ETAPA 2: DATA E HORA -->
     <div id="step-datetime" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar p-6">
       <header class="flex items-center gap-4 mb-6">
         <button onclick="switchTab('booking')" class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white">
@@ -136,12 +129,11 @@
 
       <div class="fixed bottom-16 max-w-md w-full left-1/2 -translate-x-1/2 p-4 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent">
         <button id="btn-save-appointment" disabled onclick="confirmBooking()" class="w-full py-4 rounded-2xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
-          Confirmar Agendamento
+          <span id="btn-save-text">Confirmar Agendamento</span>
         </button>
       </div>
     </div>
 
-    <!-- TELA 3: PERFIL E HISTÓRICO -->
     <div id="view-profile" class="hidden flex-col h-full pb-28 p-6 overflow-y-auto no-scrollbar">
       <h1 class="text-2xl font-bold text-white mb-6">Meu Perfil</h1>
       
@@ -175,7 +167,6 @@
       </button>
     </div>
 
-    <!-- BARRA INFERIOR -->
     <div id="bottom-bar" class="hidden fixed bottom-0 max-w-md w-full bg-zinc-950/90 backdrop-blur-md border-t border-zinc-800 flex justify-around p-3 z-40">
       <button onclick="switchTab('booking')" id="nav-btn-book" class="flex flex-col items-center gap-1 text-amber-500 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -193,6 +184,9 @@
     const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // COLE AQUI A URL GERADA NA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWAA18IOL7a0RHvNlOeCL2d90Pq2e2ylSkKIIrs657lhIwjurwArK3gpful1kkYXm_OA/exec';
 
     let user = null;
     let selectedService = null;
@@ -386,26 +380,97 @@
       }
     }
 
+    // CONFIRMAÇÃO COM GOOGLE CALENDAR
     async function confirmBooking() {
+      const btn = document.getElementById('btn-save-appointment');
+      const btnText = document.getElementById('btn-save-text');
+      btn.disabled = true;
+      btnText.innerText = "Sincronizando com a Agenda...";
+
+      const userName = document.getElementById('profile-name').innerText;
+      const userPhone = document.getElementById('profile-phone').value;
+      let calendarEventId = null;
+
+      // 1. Cria o evento no Google Calendar via Apps Script
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'create',
+              service: selectedService,
+              price: selectedPrice,
+              date: selectedDate,
+              time: selectedTime,
+              clientName: userName,
+              clientPhone: userPhone,
+              clientEmail: user.email
+            })
+          });
+          const result = await res.json();
+          if (result && result.eventId) {
+            calendarEventId = result.eventId;
+          }
+        } catch (e) {
+          console.error("Falha ao salvar no Google Calendar:", e);
+        }
+      }
+
+      // 2. Grava no banco com o calendar_event_id
       const { error } = await sb.from('appointments').insert([{
         user_id: user.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
-        time: selectedTime
+        time: selectedTime,
+        calendar_event_id: calendarEventId
       }]);
+
+      btnText.innerText = "Confirmar Agendamento";
 
       if (error) {
         alert('Erro detalhado: ' + error.message);
+        btn.disabled = false;
         return;
       }
 
+      // 3. WhatsApp da Barbearia
       const phoneBarber = "5551995738595";
-      const userName = document.getElementById('profile-name').innerText;
       const msg = `✂️ *NOVO AGENDAMENTO | RB Barbearia*\n\n👤 *Cliente:* ${userName}\n💈 *Serviço:* ${selectedService}\n📅 *Data:* ${selectedDate}\n⏰ *Horário:* ${selectedTime}\n💵 *Valor:* R$ ${selectedPrice},00`;
       
       window.open(`https://api.whatsapp.com/send?phone=${phoneBarber}&text=${encodeURIComponent(msg)}`, '_blank');
       switchTab('profile');
+    }
+
+    // CANCELAR AGENDAMENTO (Remove do Banco e do Google Calendar)
+    async function cancelAppointment(appointmentId, calendarEventId) {
+      if (!confirm('Deseja realmente cancelar este agendamento?')) return;
+
+      // 1. Remove do Google Calendar
+      if (calendarEventId && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'delete',
+              eventId: calendarEventId
+            })
+          });
+        } catch (e) {
+          console.error("Erro ao deletar da agenda:", e);
+        }
+      }
+
+      // 2. Remove do Supabase
+      const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
+      if (error) {
+        alert('Erro ao cancelar agendamento: ' + error.message);
+      } else {
+        alert('Agendamento cancelado com sucesso!');
+        loadHistory();
+      }
     }
 
     async function loadHistory() {
@@ -425,7 +490,12 @@
               <p class="font-bold text-white text-xs">${item.service}</p>
               <p class="text-zinc-400 text-[11px] mt-0.5">${item.date} às ${item.time}</p>
             </div>
-            <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
+            <div class="flex items-center gap-3">
+              <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
+              <button onclick="cancelAppointment('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
           </div>
         `;
       });
