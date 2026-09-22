@@ -30,7 +30,7 @@
         </div>
         <div>
           <h3 class="text-lg font-bold text-white">Cancelar Agendamento?</h3>
-          <p class="text-zinc-400 text-xs mt-1">Essa ação liberará o horário na barbearia e na agenda.</p>
+          <p class="text-zinc-400 text-xs mt-1">Essa ação liberará o horário na barbearia.</p>
         </div>
         <div class="flex gap-3 pt-2">
           <button onclick="closeCancelModal()" class="flex-1 py-3 rounded-xl font-semibold text-zinc-400 bg-zinc-800 hover:bg-zinc-700 hover:text-white transition-colors text-sm">
@@ -40,24 +40,6 @@
             Cancelar
           </button>
         </div>
-      </div>
-    </div>
-
-    <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-6">
-      <div class="bg-zinc-900 border border-amber-500/30 rounded-3xl p-6 w-full max-w-sm space-y-4 text-center shadow-2xl">
-        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 mx-auto flex items-center justify-center text-amber-500">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-        </div>
-        <div>
-          <h3 class="text-lg font-bold text-white">Quase lá!</h3>
-          <p class="text-zinc-400 text-xs mt-1">Para confirmar seus cortes e notificações, vincule seu WhatsApp abaixo:</p>
-        </div>
-        <div>
-          <input type="text" id="mandatory-phone-input" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full text-center tracking-widest text-lg font-semibold px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 transition-colors">
-        </div>
-        <button onclick="submitMandatoryPhone()" class="w-full py-3.5 rounded-xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-          Confirmar e Entrar
-        </button>
       </div>
     </div>
 
@@ -115,8 +97,6 @@
       </header>
 
       <div class="p-6 space-y-4">
-        
-        <!-- Corte Clássico -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Corte Clássico" data-duration="30" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
@@ -133,7 +113,6 @@
           </div>
         </label>
 
-        <!-- Barba Completa -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Barba Completa" data-duration="30" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
@@ -150,7 +129,6 @@
           </div>
         </label>
 
-        <!-- Sobrancelha: Aponta para a imagem hospedada no seu Vercel local -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Sobrancelha" data-duration="20" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
@@ -167,7 +145,6 @@
           </div>
         </label>
 
-        <!-- Combo Corte + Barba -->
         <label class="service-card block relative p-4 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-zinc-900/80 to-amber-950/20 cursor-pointer transition-all">
           <div class="absolute -top-2.5 right-5 bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Mais pedido</div>
           <input type="radio" name="service" value="Combo Corte + Barba" data-duration="60" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
@@ -280,11 +257,6 @@
     const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ==============================================================
-    // URL DO GOOGLE APPS SCRIPT
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWAA18IOL7a0RHvNlOeCL2d90Pq2e2ylSkKIIrs657lhIwjurwArK3gpful1kkYXm_OA/exec';
-    // ==============================================================
 
     let clientUser = null;
     let selectedService = null;
@@ -466,7 +438,7 @@
     async function signInWithGoogle() {
       await sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: 'https://rb-barbearia.vercel.app' }
+        options: { redirectTo: window.location.origin }
       });
     }
 
@@ -622,6 +594,7 @@
       const container = document.getElementById('time-grid-container');
       container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-zinc-500"><svg class="w-5 h-5 animate-spin mx-auto mb-2 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
 
+      // Busca diretamente no Supabase todos os agendamentos do dia (ignora o Google Agenda)
       const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').eq('date', targetDate);
 
       let occupiedIntervals = [];
@@ -678,49 +651,45 @@
       }
     }
 
+    // ==== OTIMIZAÇÃO: CRIAÇÃO COM SISTEMA ANTI-SPAM ====
     async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
+      const originalText = btn.innerText;
       btn.disabled = true;
-      btn.innerText = "Criando agendamento...";
+      btn.innerText = "Verificando...";
 
-      let calendarEventId = null;
-
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'create',
-              service: selectedService,
-              price: selectedPrice,
-              date: selectedDate,
-              time: selectedTime,
-              clientName: clientUser.name,
-              clientPhone: clientUser.phone,
-              clientEmail: clientUser.email || 'Não informado'
-            })
-          });
-          const result = await res.json();
-          if (result && result.eventId) {
-            calendarEventId = result.eventId;
-          }
-        } catch (e) {
-          console.error("Falha ao salvar no Google Calendar:", e);
-        }
+      // ANTI-SPAM: Limita o usuário a 2 agendamentos ativos na barbearia
+      const { data: existingApts } = await sb.from('appointments').select('id').eq('user_id', clientUser.id).neq('calendar_event_id', 'cancelled_by_barber');
+      
+      if (existingApts && existingApts.length >= 2) {
+        alert("🔒 Sistema de Segurança: Você já possui 2 agendamentos ativos. Por favor, aguarde ser atendido para marcar novos horários.");
+        btn.disabled = false;
+        btn.innerText = originalText;
+        return;
       }
 
-      const { error } = await sb.from('appointments').insert([{
+      // ANTI-SPAM EXTRA: Limite local do aparelho (Trolls)
+      const deviceSpamCount = localStorage.getItem('rb_spam_count') || 0;
+      if (parseInt(deviceSpamCount) >= 4) {
+        alert("🔒 Sistema de Segurança: O limite de agendamentos deste aparelho foi atingido para evitar spam na agenda.");
+        return;
+      }
+      localStorage.setItem('rb_spam_count', parseInt(deviceSpamCount) + 1);
+
+      btn.innerText = "Confirmando...";
+
+      // Salva DIRETO NO SUPABASE
+      const { data: newApt, error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: calendarEventId
-      }]);
+        calendar_event_id: 'internal_system' // Não precisa mais esperar o Google
+      }]).select('id').single();
 
       btn.disabled = false;
-      btn.innerText = "Confirmar Agendamento";
+      btn.innerText = originalText;
 
       if (error) {
         alert('Erro ao gravar agendamento: ' + error.message);
@@ -731,8 +700,8 @@
       switchTab('profile');
     }
 
-    function openCancelModal(appointmentId, calendarEventId) {
-      itemPendingCancellation = { appointmentId, calendarEventId };
+    function openCancelModal(appointmentId) {
+      itemPendingCancellation = { appointmentId };
       document.getElementById('modal-cancel-confirm').classList.remove('hidden');
     }
 
@@ -741,25 +710,14 @@
       document.getElementById('modal-cancel-confirm').classList.add('hidden');
     }
 
+    // Exclusão Instantânea no Supabase
     async function executeCancelAppointment() {
       if (!itemPendingCancellation) return;
-      const { appointmentId, calendarEventId } = itemPendingCancellation;
+      const { appointmentId } = itemPendingCancellation;
 
       const btn = document.getElementById('btn-confirm-cancel');
       btn.disabled = true;
       btn.innerText = "Cancelando...";
-
-      if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
-          });
-        } catch (e) {
-          console.error("Falha ao remover da agenda:", e);
-        }
-      }
 
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
@@ -784,6 +742,7 @@
 
       syncStatus.innerHTML = `<svg class="w-3 h-3 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Atualizando...`;
 
+      // Puxa histórico diretamente e apenas do Supabase
       const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
 
       if (error || !data || data.length === 0) {
@@ -792,35 +751,9 @@
         return;
       }
 
-      let activeEventIds = null;
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'list_future' })
-          });
-          const result = await res.json();
-          if (result && Array.isArray(result.eventIds)) {
-            activeEventIds = result.eventIds;
-          }
-        } catch (e) {
-          console.error("Falha ao buscar agenda:", e);
-        }
-      }
-
       let html = '';
       for (const item of data) {
-        let isCancelledByBarber = item.calendar_event_id === 'cancelled_by_barber';
-
-        if (!isCancelledByBarber && activeEventIds !== null && item.calendar_event_id && item.calendar_event_id !== 'pending_sync') {
-          const existsInCalendar = activeEventIds.includes(item.calendar_event_id) || activeEventIds.includes(item.calendar_event_id + '@google.com');
-          if (!existsInCalendar) {
-            isCancelledByBarber = true;
-            sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', item.id).then();
-          }
-        }
-
+        const isCancelledByBarber = item.calendar_event_id === 'cancelled_by_barber';
         const weekDay = getWeekDay(item.date);
 
         if (isCancelledByBarber) {
@@ -829,7 +762,7 @@
               <div>
                 <p class="font-bold text-red-400 text-sm line-through">${item.service}</p>
                 <p class="text-red-400/80 text-xs mt-1 line-through">${weekDay ? weekDay + ', ' : ''}${item.date} às ${item.time}</p>
-                <span class="inline-block mt-2 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">Cancelado pela barbearia</span>
+                <span class="inline-block mt-2 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">Cancelado pelo Barbeiro</span>
               </div>
               <div>
                 <p class="text-zinc-600 font-bold text-sm line-through">R$ ${item.price}</p>
@@ -845,7 +778,7 @@
               </div>
               <div class="flex items-center gap-3">
                 <p class="text-amber-400 font-bold text-sm">R$ ${item.price}</p>
-                <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors">
+                <button onclick="openCancelModal('${item.id}')" title="Cancelar Agendamento" class="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -856,6 +789,6 @@
       
       container.innerHTML = html;
       syncStatus.innerHTML = `<span class="text-emerald-500">Sincronizado</span>`;
-      setTimeout(() => syncStatus.innerHTML = '', 2500);
+      setTimeout(() => syncStatus.innerHTML = '', 2000);
     }
   </script></body></html>
