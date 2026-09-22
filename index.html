@@ -565,46 +565,51 @@
       }
     }
 
-    async function confirmBooking() {
+async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
       const btnText = document.getElementById('btn-save-text');
       btn.disabled = true;
-      btnText.innerText = "Sincronizando com a Agenda...";
+      btnText.innerText = "Confirmando...";
 
       let calendarEventId = null;
 
+      // Chama o Google Calendar, mas NÃO ESPERA ele terminar para seguir em frente.
       if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'create',
-              service: selectedService,
-              price: selectedPrice,
-              date: selectedDate,
-              time: selectedTime,
-              clientName: clientUser.name,
-              clientPhone: clientUser.phone,
-              clientEmail: clientUser.email || 'Não informado'
-            })
-          });
-          const result = await res.json();
-          if (result && result.eventId) {
-            calendarEventId = result.eventId;
-          }
-        } catch (e) {
-          console.error("Falha ao salvar no Google Calendar:", e);
-        }
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'create',
+            service: selectedService,
+            price: selectedPrice,
+            date: selectedDate,
+            time: selectedTime,
+            clientName: clientUser.name,
+            clientPhone: clientUser.phone,
+            clientEmail: clientUser.email || 'Não informado'
+          })
+        }).then(res => res.json())
+          .then(async (result) => {
+            // Quando a API do Google responder (pode demorar), atualiza o banco de dados silenciosamente
+            if (result && result.eventId) {
+              await sb.from('appointments').update({ calendar_event_id: result.eventId })
+                .eq('user_id', clientUser.id)
+                .eq('date', selectedDate)
+                .eq('time', selectedTime)
+                .eq('service', selectedService);
+            }
+          })
+          .catch(e => console.error("Falha silenciosa ao salvar no Google Calendar:", e));
       }
 
+      // Salva instantaneamente no Supabase e já libera o usuário
       const { error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: calendarEventId
+        calendar_event_id: 'pending_sync' // Marca como pendente de sincronização
       }]);
 
       btnText.innerText = "Confirmar Agendamento";
@@ -640,16 +645,16 @@
       btn.disabled = true;
       btn.innerText = "Cancelando...";
 
-      // Exclusão da agenda no Google roda em paralelo sem congelar a tela
-      if (calendarEventId && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+      // Exclusão da agenda no Google roda em segundo plano.
+      if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
-        }).catch(e => console.error("Erro ao deletar da agenda:", e));
+        }).catch(e => console.error("Erro silencioso ao deletar da agenda:", e));
       }
 
-      // Exclusão direta e instantânea no banco de dados
+      // Exclusão instantânea no banco de dados Supabase
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       btn.disabled = false;
