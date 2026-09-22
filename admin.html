@@ -120,11 +120,6 @@
       }
     }
 
-    function parseDateString(dStr) {
-      const p = dStr.split('/');
-      return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
-    }
-
     function timeToMinutes(tStr) {
       const p = tStr.split(':');
       return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
@@ -181,26 +176,7 @@
       const board = document.getElementById('kanban-board');
       board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">Carregando agendamentos...</div>`;
 
-      // 1. Gera as datas dos próximos 7 dias úteis
-      const daysList = [];
-      const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-      
-      let cursor = new Date();
-      while (daysList.length < 7) {
-        if (cursor.getDay() !== 0) { // Barbearia fecha aos domingos
-          const d = cursor.getDate().toString().padStart(2, '0');
-          const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
-          const y = cursor.getFullYear();
-          daysList.push({
-            label: `${d}/${m}/${y}`,
-            dayName: diasSemana[cursor.getDay()],
-            dayNumber: `${d}/${m}`
-          });
-        }
-        cursor.setDate(cursor.getDate() + 1);
-      }
-
-      // 2. Busca todos os agendamentos do Supabase
+      // 1. Busca TODOS os agendamentos ativos do Supabase sem filtrar data na query
       const { data: apts, error } = await sb.from('appointments').select(`
         id, service, date, time, price, calendar_event_id, user_id,
         profiles (full_name, phone)
@@ -211,7 +187,48 @@
         return;
       }
 
-      // 3. Atualiza Métricas Gerais
+      // 2. Extrai todas as datas únicas existentes na base + os próximos 7 dias úteis para garantir visibilidade total
+      const activeDatesSet = new Set();
+      if (apts) {
+        apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
+      }
+
+      const daysList = [];
+      const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+      
+      let cursor = new Date();
+      let addedCount = 0;
+      // Garante pelo menos os próximos 7 dias úteis
+      while (addedCount < 7) {
+        if (cursor.getDay() !== 0) {
+          const d = cursor.getDate().toString().padStart(2, '0');
+          const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
+          const y = cursor.getFullYear();
+          const dateStr = `${d}/${m}/${y}`;
+          activeDatesSet.add(dateStr);
+          addedCount++;
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      // Converte o Set para array e ordena cronologicamente (DD/MM/AAAA)
+      const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
+        const [dA, mA, yA] = a.split('/').map(Number);
+        const [dB, mB, yB] = b.split('/').map(Number);
+        return new Date(yA, mA - 1, dA) - new Date(yB, mB - 1, dB);
+      });
+
+      sortedDates.forEach(dateStr => {
+        const [dA, mA, yA] = dateStr.split('/').map(Number);
+        const dObj = new Date(yA, mA - 1, dA);
+        daysList.push({
+          label: dateStr,
+          dayName: diasSemana[dObj.getDay()] || 'Dia',
+          dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}`
+        });
+      });
+
+      // 3. Atualiza Métricas Gerais Globais
       let totalCuts = 0;
       let totalRevenue = 0;
 
@@ -229,13 +246,11 @@
       let boardHtml = '';
 
       daysList.forEach(day => {
-        // Filtra os agendamentos deste dia específico e ordena pelo horário
         const dayApts = apts.filter(a => a.date === day.label);
         dayApts.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
 
         let dayRevenue = 0;
         let dayCutsCount = 0;
-
         let cardsHtml = '';
 
         if (dayApts.length === 0) {
@@ -257,7 +272,6 @@
               dayCutsCount++;
             }
 
-            // Cores e estilos dos cards
             let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
             if (item.service.includes("Combo")) badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
             else if (item.service.includes("Barba")) badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
@@ -309,7 +323,6 @@
 
         boardHtml += `
           <div class="w-80 shrink-0 bg-zinc-900/60 border border-zinc-800/90 rounded-3xl flex flex-col max-h-[80vh] shadow-xl">
-            <!-- CABEÇALHO DA COLUNA -->
             <div class="p-4 border-b border-zinc-800/90 flex items-center justify-between bg-zinc-900/90 rounded-t-3xl">
               <div>
                 <span class="text-xs uppercase tracking-wider font-extrabold text-amber-500 block">${day.dayName}</span>
@@ -321,12 +334,10 @@
               </div>
             </div>
 
-            <!-- CARTÕES DO DIA -->
             <div class="p-3 space-y-3 overflow-y-auto flex-1 custom-scroll">
               ${cardsHtml}
             </div>
 
-            <!-- BOTÃO RÁPIDO DE BLOQUEIO NA COLUNA -->
             <div class="p-3 border-t border-zinc-800/80 bg-zinc-900/40 rounded-b-3xl">
               <button onclick="openBlockModal('${day.label}')" class="w-full py-2 bg-zinc-950 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-800 transition-colors">
                 + Bloquear Horário Neste Dia
