@@ -109,7 +109,7 @@
 
       <div class="p-6 space-y-3">
         <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <input type="radio" name="service" value="Corte Clássico" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Corte Clássico" data-duration="30" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Corte">
             <div class="flex-1">
@@ -121,7 +121,7 @@
           </div>
         </label>
         <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <input type="radio" name="service" value="Barba Completa" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Barba Completa" data-duration="30" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Barba">
             <div class="flex-1">
@@ -133,20 +133,20 @@
           </div>
         </label>
         <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <input type="radio" name="service" value="Sobrancelha" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Sobrancelha" data-duration="20" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Sobrancelha">
             <div class="flex-1">
               <p class="font-bold text-white text-sm">Sobrancelha</p>
               <p class="text-zinc-400 text-xs mt-0.5">Alinhamento na navalha</p>
-              <p class="text-zinc-500 text-[11px] mt-1">🕒 15 min</p>
+              <p class="text-zinc-500 text-[11px] mt-1">🕒 20 min</p>
             </div>
             <p class="text-amber-400 font-bold text-base">R$ 15</p>
           </div>
         </label>
         <label class="block relative p-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-zinc-900/60 to-amber-950/20 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
           <div class="absolute -top-2.5 right-4 bg-amber-500 text-zinc-950 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Mais pedido</div>
-          <input type="radio" name="service" value="Combo Corte + Barba" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
+          <input type="radio" name="service" value="Combo Corte + Barba" data-duration="60" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-3.5">
             <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Combo">
             <div class="flex-1">
@@ -178,7 +178,7 @@
       <div class="flex gap-2.5 overflow-x-auto no-scrollbar pb-4" id="date-scroll-container"></div>
 
       <div class="mt-6 mb-3 flex items-center justify-between">
-        <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Horários Noturnos</p>
+        <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Horários Disponíveis</p>
         <span class="text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">A partir das 18h</span>
       </div>
       <div class="grid grid-cols-3 gap-2.5" id="time-grid-container"></div>
@@ -248,6 +248,7 @@
 
     let clientUser = null;
     let selectedService = null;
+    let selectedDuration = 30;
     let selectedPrice = null;
     let selectedDate = null;
     let selectedTime = null;
@@ -494,6 +495,7 @@
       if (radio) {
         selectedService = radio.value;
         selectedPrice = radio.dataset.price;
+        selectedDuration = parseInt(radio.dataset.duration || 30, 10);
         const btn = document.getElementById('btn-to-step-datetime');
         btn.disabled = false;
         btn.className = 'w-full py-4 rounded-2xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)]';
@@ -505,7 +507,6 @@
       document.getElementById('step-datetime').classList.remove('hidden');
       document.getElementById('step-datetime').classList.add('flex');
       renderDateOptions();
-      renderTimeOptions();
     }
 
     function renderDateOptions() {
@@ -523,9 +524,10 @@
           let dayNum = d.getDate();
           let month = d.getMonth() + 1;
           let val = `${dayNum}/${month}/${d.getFullYear()}`;
+          const isFirst = (added === 0);
           html += `
             <label class="shrink-0 w-16 h-20 rounded-2xl border border-zinc-800 bg-zinc-900/50 flex flex-col items-center justify-center cursor-pointer transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
-              <input type="radio" name="book_date" value="${val}" class="peer sr-only" onchange="checkDateTimeSelection()">
+              <input type="radio" name="book_date" value="${val}" ${isFirst ? 'checked' : ''} class="peer sr-only" onchange="onDateChanged()">
               <span class="text-[11px] text-zinc-500 peer-checked:text-amber-500 uppercase font-semibold">${dayName}</span>
               <span class="text-xl font-bold text-white peer-checked:text-amber-400 mt-1">${dayNum}</span>
             </label>
@@ -535,29 +537,79 @@
         offset++;
       }
       container.innerHTML = html;
+      onDateChanged();
     }
 
-    function renderTimeOptions() {
+    function onDateChanged() {
+      const checked = document.querySelector('input[name="book_date"]:checked');
+      if (checked) {
+        selectedDate = checked.value;
+        renderTimeOptions(selectedDate);
+      }
+    }
+
+    // Helper: converte string de horário para minutos do dia
+    function timeToMinutes(timeStr) {
+      const parts = timeStr.split(':');
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    }
+
+    async function renderTimeOptions(targetDate) {
       const container = document.getElementById('time-grid-container');
+      container.innerHTML = `<div class="col-span-3 text-center py-6 text-xs text-zinc-500"><svg class="w-4 h-4 animate-spin mx-auto mb-1 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários vagos...</div>`;
+
+      // Busca agendamentos do dia em questão no Supabase
+      const { data: booked } = await sb.from('appointments').select('service, time').eq('date', targetDate);
+
+      // Mapeia os intervalos já ocupados
+      let occupiedIntervals = [];
+      if (booked && booked.length > 0) {
+        booked.forEach(b => {
+          const startMin = timeToMinutes(b.time);
+          let dur = 30;
+          if (b.service === "Combo Corte + Barba") dur = 60;
+          else if (b.service === "Sobrancelha") dur = 20;
+          occupiedIntervals.push({ start: startMin, end: startMin + dur });
+        });
+      }
+
       const slots = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
       let html = '';
+
       slots.forEach(slot => {
-        html += `
-          <label class="py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 text-center cursor-pointer transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500 text-zinc-400 has-[:checked]:text-zinc-950 font-semibold text-sm">
-            <input type="radio" name="book_time" value="${slot}" class="peer sr-only" onchange="checkDateTimeSelection()">
-            ${slot}
-          </label>
-        `;
+        const slotStart = timeToMinutes(slot);
+        const slotEnd = slotStart + selectedDuration;
+
+        // Verifica colisão do horário desejado com agendamentos existentes
+        const isOccupied = occupiedIntervals.some(interval => {
+          return (slotStart < interval.end && slotEnd > interval.start);
+        });
+
+        if (isOccupied) {
+          html += `
+            <div class="py-3 rounded-xl border border-zinc-900 bg-zinc-900/20 text-center opacity-40 cursor-not-allowed">
+              <span class="text-zinc-600 font-medium text-sm line-through block">${slot}</span>
+              <span class="text-[9px] text-red-500/70 uppercase font-semibold">Ocupado</span>
+            </div>
+          `;
+        } else {
+          html += `
+            <label class="py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 text-center cursor-pointer transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500 text-zinc-400 has-[:checked]:text-zinc-950 font-semibold text-sm">
+              <input type="radio" name="book_time" value="${slot}" class="peer sr-only" onchange="checkDateTimeSelection()">
+              ${slot}
+            </label>
+          `;
+        }
       });
+
       container.innerHTML = html;
+      document.getElementById('btn-save-appointment').disabled = true;
     }
 
     function checkDateTimeSelection() {
-      const d = document.querySelector('input[name="book_date"]:checked');
       const t = document.querySelector('input[name="book_time"]:checked');
       const btn = document.getElementById('btn-save-appointment');
-      if (d && t) {
-        selectedDate = d.value;
+      if (t) {
         selectedTime = t.value;
         btn.disabled = false;
       }
@@ -565,58 +617,54 @@
 
     async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
-      const originalText = btn.innerText;
       btn.disabled = true;
-      btn.innerText = "Confirmando...";
+      btn.innerText = "Agendando...";
 
-      let calendarEventId = null;
-
-      // Chama a sincronização com o Google Calendar
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'create',
-              service: selectedService,
-              price: selectedPrice,
-              date: selectedDate,
-              time: selectedTime,
-              clientName: clientUser.name,
-              clientPhone: clientUser.phone,
-              clientEmail: clientUser.email || 'Não informado'
-            })
-          });
-          const result = await res.json();
-          if (result && result.eventId) {
-            calendarEventId = result.eventId;
-          }
-        } catch (e) {
-          console.error("Falha ao salvar no Google Calendar:", e);
-        }
-      }
-
-      // Salva no Supabase já vinculado ao calendar_event_id retornado
-      const { error } = await sb.from('appointments').insert([{
+      // 1. Salva no banco de dados
+      const { data: newApt, error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: calendarEventId
-      }]);
-
-      btn.disabled = false;
-      btn.innerText = originalText;
+        calendar_event_id: 'pending_sync'
+      }]).select('id').single();
 
       if (error) {
         alert('Erro ao gravar agendamento: ' + error.message);
+        btn.disabled = false;
+        btn.innerText = "Confirmar Agendamento";
         return;
       }
 
-      showToast('Agendamento confirmado!');
+      // 2. Notificação e troca imediata de tela (sem redirecionar para o WhatsApp)
+      btn.disabled = false;
+      btn.innerText = "Confirmar Agendamento";
+      showToast('Horário agendado com sucesso!');
       switchTab('profile');
+
+      // 3. Criação assíncrona na Google Agenda em segundo plano
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'create',
+            service: selectedService,
+            price: selectedPrice,
+            date: selectedDate,
+            time: selectedTime,
+            clientName: clientUser.name,
+            clientPhone: clientUser.phone,
+            clientEmail: clientUser.email || 'Não informado'
+          })
+        }).then(res => res.json())
+          .then(async (result) => {
+            if (result && result.eventId) {
+              await sb.from('appointments').update({ calendar_event_id: result.eventId }).eq('id', newApt.id);
+            }
+          }).catch(console.error);
+      }
     }
 
     function openCancelModal(appointmentId, calendarEventId) {
@@ -635,7 +683,6 @@
 
       closeCancelModal();
 
-      // Deleta do Supabase
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       if (error) {
@@ -644,15 +691,14 @@
       }
 
       showToast('Agendamento cancelado!');
-      loadHistory();
+      loadHistory(); 
 
-      // Deleta do Google Calendar
-      if (calendarEventId && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+      if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
-        }).catch(e => console.error("Erro na exclusão da agenda:", e));
+        }).catch(console.error);
       }
     }
 
