@@ -17,10 +17,8 @@
 
   <div class="w-full max-w-md bg-zinc-950 min-h-screen shadow-2xl relative flex flex-col overflow-hidden">
     
-    <!-- Notificação Flutuante (Toast) -->
     <div id="toast-msg" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-zinc-950 text-xs font-bold px-4 py-2.5 rounded-full shadow-lg border border-emerald-400 transition-all"></div>
 
-    <!-- Modal Cancelamento de Agendamento -->
     <div id="modal-cancel-confirm" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-6">
       <div class="bg-zinc-900 border border-red-500/30 rounded-3xl p-6 w-full max-w-sm space-y-4 text-center shadow-2xl">
         <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 mx-auto flex items-center justify-center text-red-500">
@@ -41,7 +39,6 @@
       </div>
     </div>
 
-    <!-- Modal Telefone Obrigatório -->
     <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-6">
       <div class="bg-zinc-900 border border-amber-500/30 rounded-3xl p-6 w-full max-w-sm space-y-4 text-center shadow-2xl">
         <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 mx-auto flex items-center justify-center text-amber-500">
@@ -60,7 +57,6 @@
       </div>
     </div>
 
-    <!-- Tela de Login -->
     <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-zinc-950 absolute inset-0 overflow-y-auto no-scrollbar">
       <div class="text-center mb-8">
         <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-4">
@@ -97,7 +93,6 @@
       </div>
     </div>
 
-    <!-- Tela 1: Escolha de Serviço -->
     <div id="step-services" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar">
       <header class="relative h-56 shrink-0">
         <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80" alt="Barbearia" class="absolute inset-0 w-full h-full object-cover">
@@ -171,7 +166,6 @@
       </div>
     </div>
 
-    <!-- Tela 2: Escolha de Data e Horário -->
     <div id="step-datetime" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar p-6">
       <header class="flex items-center gap-4 mb-6">
         <button onclick="switchTab('booking')" class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white">
@@ -196,7 +190,6 @@
       </div>
     </div>
 
-    <!-- Tela 3: Perfil do Cliente -->
     <div id="view-profile" class="hidden flex-col h-full pb-28 p-6 overflow-y-auto no-scrollbar">
       <h1 class="text-2xl font-bold text-white mb-6">Meu Perfil</h1>
       
@@ -222,7 +215,10 @@
         </div>
       </div>
 
-      <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">Histórico de Cortes</h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Histórico de Cortes</h2>
+        <span id="sync-status" class="text-[9px] text-zinc-500 uppercase font-semibold flex items-center gap-1"></span>
+      </div>
       <div id="history-container" class="space-y-2.5 flex-1"></div>
 
       <button onclick="userSignOut()" class="mt-8 text-xs font-bold text-red-400 py-3 border border-red-500/20 rounded-xl bg-red-500/5 hover:bg-red-500/10 transition-colors text-center w-full">
@@ -230,7 +226,6 @@
       </button>
     </div>
 
-    <!-- Barra de Navegação Inferior -->
     <div id="bottom-bar" class="hidden fixed bottom-0 max-w-md w-full bg-zinc-950/90 backdrop-blur-md border-t border-zinc-800 flex justify-around p-3 z-30">
       <button onclick="switchTab('booking')" id="nav-btn-book" class="flex flex-col items-center gap-1 text-amber-500 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -565,15 +560,12 @@
       }
     }
 
-async function confirmBooking() {
+    async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
       const btnText = document.getElementById('btn-save-text');
       btn.disabled = true;
       btnText.innerText = "Confirmando...";
 
-      let calendarEventId = null;
-
-      // Chama o Google Calendar, mas NÃO ESPERA ele terminar para seguir em frente.
       if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
@@ -590,26 +582,21 @@ async function confirmBooking() {
           })
         }).then(res => res.json())
           .then(async (result) => {
-            // Quando a API do Google responder (pode demorar), atualiza o banco de dados silenciosamente
             if (result && result.eventId) {
               await sb.from('appointments').update({ calendar_event_id: result.eventId })
-                .eq('user_id', clientUser.id)
-                .eq('date', selectedDate)
-                .eq('time', selectedTime)
-                .eq('service', selectedService);
+                .eq('user_id', clientUser.id).eq('date', selectedDate).eq('time', selectedTime).eq('service', selectedService);
             }
           })
-          .catch(e => console.error("Falha silenciosa ao salvar no Google Calendar:", e));
+          .catch(e => console.error("Falha silenciosa Google Calendar:", e));
       }
 
-      // Salva instantaneamente no Supabase e já libera o usuário
       const { error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: 'pending_sync' // Marca como pendente de sincronização
+        calendar_event_id: 'pending_sync'
       }]);
 
       btnText.innerText = "Confirmar Agendamento";
@@ -645,16 +632,14 @@ async function confirmBooking() {
       btn.disabled = true;
       btn.innerText = "Cancelando...";
 
-      // Exclusão da agenda no Google roda em segundo plano.
       if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
-        }).catch(e => console.error("Erro silencioso ao deletar da agenda:", e));
+        }).catch(e => console.error("Erro deletar agenda:", e));
       }
 
-      // Exclusão instantânea no banco de dados Supabase
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       btn.disabled = false;
@@ -662,7 +647,7 @@ async function confirmBooking() {
       closeCancelModal();
 
       if (error) {
-        alert('Erro ao cancelar agendamento: ' + error.message);
+        alert('Erro ao cancelar: ' + error.message);
       } else {
         showToast('Agendamento cancelado!');
         loadHistory();
@@ -671,31 +656,73 @@ async function confirmBooking() {
 
     async function loadHistory() {
       const container = document.getElementById('history-container');
+      const syncStatus = document.getElementById('sync-status');
+      
       if (!clientUser) return;
+
+      syncStatus.innerHTML = `<svg class="w-3 h-3 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Atualizando...`;
+
       const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
 
       if (error || !data || data.length === 0) {
         container.innerHTML = `<p class="text-xs text-zinc-600 text-center py-6">Nenhum corte agendado até o momento.</p>`;
+        syncStatus.innerHTML = '';
         return;
       }
 
+      let activeEventIds = [];
+      try {
+        if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'list_future' })
+          });
+          const result = await res.json();
+          if (result && result.eventIds) {
+            activeEventIds = result.eventIds;
+          }
+        }
+      } catch (e) {
+        console.error("Falha ao sincronizar agenda:", e);
+      }
+
       let html = '';
-      data.forEach(item => {
-        html += `
-          <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
-            <div>
-              <p class="font-bold text-white text-xs">${item.service}</p>
-              <p class="text-zinc-400 text-[11px] mt-0.5">${item.date} às ${item.time}</p>
+      for (const item of data) {
+        const isPending = item.calendar_event_id === 'pending_sync';
+        const wasCancelledByBarber = !isPending && item.calendar_event_id && !activeEventIds.includes(item.calendar_event_id);
+
+        if (wasCancelledByBarber) {
+          sb.from('appointments').delete().eq('id', item.id).then();
+          
+          html += `
+            <div class="p-3.5 bg-red-950/20 border border-red-900/50 rounded-xl flex justify-between items-center opacity-70 grayscale">
+              <div>
+                <p class="font-bold text-red-400/80 text-xs line-through">${item.service}</p>
+                <p class="text-red-400/50 text-[11px] mt-0.5">Cancelado pela barbearia</p>
+              </div>
             </div>
-            <div class="flex items-center gap-3">
-              <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
-              <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              </button>
+          `;
+        } else {
+          html += `
+            <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-xs">${item.service}</p>
+                <p class="text-zinc-400 text-[11px] mt-0.5">${item.date} às ${item.time}</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
+                <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+        }
+      }
+      
       container.innerHTML = html;
+      syncStatus.innerHTML = `<span class="text-emerald-500">Sincronizado</span>`;
+      setTimeout(() => syncStatus.innerHTML = '', 3000);
     }
   </script></body></html>
