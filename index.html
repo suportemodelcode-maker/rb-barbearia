@@ -217,7 +217,6 @@
 
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Histórico de Cortes</h2>
-        <span id="sync-status" class="text-[10px] text-zinc-500 uppercase font-semibold flex items-center gap-1"></span>
       </div>
       <div id="history-container" class="space-y-2.5 flex-1"></div>
 
@@ -271,6 +270,16 @@
       } else {
         input.value = v;
       }
+    }
+
+    function getWeekDay(dateStr) {
+      const parts = dateStr.split('/');
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      const d = new Date(year, month, day);
+      const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      return dias[d.getDay()];
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -557,13 +566,11 @@
       const container = document.getElementById('time-grid-container');
       container.innerHTML = `<div class="col-span-3 text-center py-6 text-xs text-zinc-500"><svg class="w-4 h-4 animate-spin mx-auto mb-1 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
 
-      // Considera apenas agendamentos que NÃO foram cancelados pelo barbeiro
       const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').eq('date', targetDate);
 
       let occupiedIntervals = [];
       if (booked && booked.length > 0) {
         booked.forEach(b => {
-          // Se tiver sido marcado como cancelado na agenda, libera o horário
           if (b.calendar_event_id === 'cancelled_by_barber') return;
 
           const startMin = timeToMinutes(b.time);
@@ -715,7 +722,6 @@
 
     async function loadHistory() {
       const container = document.getElementById('history-container');
-      const syncStatus = document.getElementById('sync-status');
       if (!clientUser) return;
 
       const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
@@ -725,7 +731,6 @@
         return;
       }
 
-      // Consulta de verificação de integridade com o Google Calendar
       let activeEventIds = null;
       if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         try {
@@ -745,24 +750,24 @@
 
       let html = '';
       for (const item of data) {
-        // Se a chamada da agenda respondeu com sucesso, verificamos se o evento foi apagado pelo barbeiro
         let isCancelledByBarber = item.calendar_event_id === 'cancelled_by_barber';
 
         if (!isCancelledByBarber && activeEventIds !== null && item.calendar_event_id && item.calendar_event_id !== 'pending_sync') {
           const existsInCalendar = activeEventIds.includes(item.calendar_event_id) || activeEventIds.includes(item.calendar_event_id + '@google.com');
           if (!existsInCalendar) {
             isCancelledByBarber = true;
-            // Atualiza no banco sem apagar, garantindo a exibição permanente com o aviso
             sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', item.id).then();
           }
         }
+
+        const weekDay = getWeekDay(item.date);
 
         if (isCancelledByBarber) {
           html += `
             <div class="p-3.5 bg-red-950/20 border border-red-900/40 rounded-xl flex justify-between items-center opacity-75">
               <div>
                 <p class="font-bold text-red-400 text-xs line-through">${item.service}</p>
-                <p class="text-red-400/80 text-[11px] mt-0.5 line-through">${item.date} às ${item.time}</p>
+                <p class="text-red-400/80 text-[11px] mt-0.5 line-through">${weekDay}, ${item.date} às ${item.time}</p>
                 <span class="inline-block mt-1 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">Cancelado pela barbearia</span>
               </div>
               <div>
@@ -775,7 +780,7 @@
             <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
               <div>
                 <p class="font-bold text-white text-xs">${item.service}</p>
-                <p class="text-zinc-400 text-[11px] mt-0.5">${item.date} às ${item.time}</p>
+                <p class="text-zinc-400 text-[11px] mt-0.5"><span class="text-amber-500 font-semibold">${weekDay}</span>, ${item.date} às ${item.time}</p>
               </div>
               <div class="flex items-center gap-3">
                 <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
