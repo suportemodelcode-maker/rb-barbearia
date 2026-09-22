@@ -13,6 +13,11 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     input, select { font-size: 16px !important; }
+    
+    /* Efeito de pulse para o serviço selecionado */
+    .service-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .service-card:has(input:checked) { transform: scale(1.02); box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); border-color: #f59e0b; }
+    .service-card:has(input:checked) .service-img { border-color: #f59e0b; }
   </style></head><body class="antialiased min-h-screen flex justify-center bg-zinc-950 select-none">
 
   <div class="w-full max-w-md bg-zinc-950 min-h-screen shadow-2xl relative flex flex-col overflow-hidden">
@@ -95,72 +100,98 @@
 
     <div id="step-services" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar">
       <header class="relative h-56 shrink-0">
-        <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80" alt="Barbearia" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent"></div>
+        <!-- Nova capa: Barber Pole clássico -->
+        <img src="https://images.unsplash.com/photo-1590426573887-1de4fb852926?q=80&w=800" alt="Barbearia" class="absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/30"></div>
         <div class="absolute top-4 left-6 right-6 flex justify-between items-center">
-          <span class="px-3 py-1 bg-zinc-950/60 backdrop-blur-md rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/20">Aberto hoje</span>
-          <img id="nav-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80" class="w-8 h-8 rounded-full border border-amber-500/40 object-cover cursor-pointer" onclick="switchTab('profile')">
+          <span class="px-3 py-1 bg-zinc-950/80 backdrop-blur-md rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">Aberto hoje</span>
+          <img id="nav-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80" class="w-9 h-9 rounded-full border border-amber-500/60 object-cover cursor-pointer shadow-lg" onclick="switchTab('profile')">
         </div>
-        <div class="absolute bottom-4 left-6">
-          <h1 class="font-elegant text-3xl text-white">RB <span class="text-amber-500 italic">Barbearia</span></h1>
-          <p class="text-zinc-400 text-xs mt-0.5">Selecione o serviço para agendar</p>
+        <div class="absolute bottom-5 left-6">
+          <h1 class="font-elegant text-4xl text-white tracking-wide">RB <span class="text-amber-500 italic">Barbearia</span></h1>
+          <p class="text-zinc-300 text-xs mt-1 font-medium tracking-wide">Selecione o serviço para agendar</p>
         </div>
       </header>
 
-      <div class="p-6 space-y-3">
-        <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
+      <div class="p-6 space-y-4">
+        
+        <!-- Corte Clássico -->
+        <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Corte Clássico" data-duration="30" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
-          <div class="flex items-center gap-3.5">
-            <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Corte">
+          <div class="flex items-center gap-4">
+            <!-- Imagem focada no corte de cabelo -->
+            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Corte">
             <div class="flex-1">
-              <p class="font-bold text-white text-sm">Corte Clássico</p>
+              <p class="font-bold text-white text-[15px]">Corte Clássico</p>
               <p class="text-zinc-400 text-xs mt-0.5">Tesoura ou máquina</p>
-              <p class="text-zinc-500 text-[11px] mt-1">🕒 30 min</p>
+              <div class="flex items-center gap-1.5 mt-2">
+                <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-zinc-500 text-[11px] font-medium">30 min</span>
+              </div>
             </div>
-            <p class="text-amber-400 font-bold text-base">R$ 40</p>
+            <p class="text-amber-400 font-bold text-lg">R$ 40</p>
           </div>
         </label>
-        <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
+
+        <!-- Barba Completa -->
+        <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Barba Completa" data-duration="30" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
-          <div class="flex items-center gap-3.5">
-            <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Barba">
+          <div class="flex items-center gap-4">
+            <!-- Imagem focada na barba -->
+            <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Barba">
             <div class="flex-1">
-              <p class="font-bold text-white text-sm">Barba Completa</p>
+              <p class="font-bold text-white text-[15px]">Barba Completa</p>
               <p class="text-zinc-400 text-xs mt-0.5">Toalha quente e navalha</p>
-              <p class="text-zinc-500 text-[11px] mt-1">🕒 30 min</p>
+              <div class="flex items-center gap-1.5 mt-2">
+                <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-zinc-500 text-[11px] font-medium">30 min</span>
+              </div>
             </div>
-            <p class="text-amber-400 font-bold text-base">R$ 30</p>
+            <p class="text-amber-400 font-bold text-lg">R$ 30</p>
           </div>
         </label>
-        <label class="block relative p-3 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
+
+        <!-- Sobrancelha -->
+        <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Sobrancelha" data-duration="20" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
-          <div class="flex items-center gap-3.5">
-            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Sobrancelha">
+          <div class="flex items-center gap-4">
+            <!-- Nova imagem focada na sobrancelha masculina sendo feita pelo barbeiro -->
+            <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Sobrancelha">
             <div class="flex-1">
-              <p class="font-bold text-white text-sm">Sobrancelha</p>
+              <p class="font-bold text-white text-[15px]">Sobrancelha</p>
               <p class="text-zinc-400 text-xs mt-0.5">Alinhamento na navalha</p>
-              <p class="text-zinc-500 text-[11px] mt-1">🕒 20 min</p>
+              <div class="flex items-center gap-1.5 mt-2">
+                <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-zinc-500 text-[11px] font-medium">20 min</span>
+              </div>
             </div>
-            <p class="text-amber-400 font-bold text-base">R$ 15</p>
+            <p class="text-amber-400 font-bold text-lg">R$ 15</p>
           </div>
         </label>
-        <label class="block relative p-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-zinc-900/60 to-amber-950/20 cursor-pointer has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 transition-all">
-          <div class="absolute -top-2.5 right-4 bg-amber-500 text-zinc-950 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Mais pedido</div>
+
+        <!-- Combo Corte + Barba -->
+        <label class="service-card block relative p-4 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-zinc-900/80 to-amber-950/20 cursor-pointer transition-all">
+          <div class="absolute -top-2.5 right-5 bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Mais pedido</div>
           <input type="radio" name="service" value="Combo Corte + Barba" data-duration="60" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
-          <div class="flex items-center gap-3.5">
-            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&q=80" class="w-14 h-14 rounded-xl object-cover" alt="Combo">
+          <div class="flex items-center gap-4">
+            <!-- Imagem focada no combo (cliente completo) -->
+            <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-amber-500/40 transition-colors" alt="Combo">
             <div class="flex-1">
-              <p class="font-bold text-white text-sm">Combo Corte + Barba</p>
+              <p class="font-bold text-white text-[15px]">Combo Corte + Barba</p>
               <p class="text-zinc-400 text-xs mt-0.5">Experiência completa</p>
-              <p class="text-zinc-500 text-[11px] mt-1">🕒 1 hora</p>
+              <div class="flex items-center gap-1.5 mt-2">
+                <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-zinc-500 text-[11px] font-medium">1 hora</span>
+              </div>
             </div>
-            <p class="text-amber-400 font-bold text-base">R$ 65</p>
+            <p class="text-amber-400 font-bold text-lg">R$ 65</p>
           </div>
         </label>
+
       </div>
 
-      <div class="fixed bottom-16 max-w-md w-full p-4 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent">
-        <button id="btn-to-step-datetime" disabled onclick="goToDateTime()" class="w-full py-4 rounded-2xl font-bold text-zinc-500 bg-zinc-900 border border-zinc-800 disabled:opacity-40 transition-all">
+      <div class="fixed bottom-16 max-w-md w-full p-5 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent">
+        <button id="btn-to-step-datetime" disabled onclick="goToDateTime()" class="w-full py-4 rounded-xl font-bold text-zinc-500 bg-zinc-900 border border-zinc-800 disabled:opacity-40 transition-all text-[15px]">
           Avançar para Horário
         </button>
       </div>
@@ -168,64 +199,65 @@
 
     <div id="step-datetime" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar p-6">
       <header class="flex items-center gap-4 mb-6">
-        <button onclick="switchTab('booking')" class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white">
+        <button onclick="switchTab('booking')" class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
-        <h2 class="text-xl font-bold text-white">Escolha Data e Hora</h2>
+        <h2 class="text-xl font-bold text-white tracking-wide">Escolha Data e Hora</h2>
       </header>
 
       <p class="text-xs font-semibold text-zinc-400 mb-3 uppercase tracking-wider">Próximos Dias</p>
-      <div class="flex gap-2.5 overflow-x-auto no-scrollbar pb-4" id="date-scroll-container"></div>
+      <div class="flex gap-3 overflow-x-auto no-scrollbar pb-4" id="date-scroll-container"></div>
 
-      <div class="mt-6 mb-3 flex items-center justify-between">
+      <div class="mt-6 mb-4 flex items-center justify-between">
         <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Horários Disponíveis</p>
         <span class="text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">A partir das 18h</span>
       </div>
-      <div class="grid grid-cols-3 gap-2.5" id="time-grid-container"></div>
+      <div class="grid grid-cols-3 gap-3" id="time-grid-container"></div>
 
-      <div class="fixed bottom-16 max-w-md w-full left-1/2 -translate-x-1/2 p-4 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent">
-        <button id="btn-save-appointment" disabled onclick="confirmBooking()" class="w-full py-4 rounded-2xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.25)]">
+      <div class="fixed bottom-16 max-w-md w-full left-1/2 -translate-x-1/2 p-5 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent">
+        <button id="btn-save-appointment" disabled onclick="confirmBooking()" class="w-full py-4 rounded-xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.25)] text-[15px]">
           <span id="btn-save-text">Confirmar Agendamento</span>
         </button>
       </div>
     </div>
 
     <div id="view-profile" class="hidden flex-col h-full pb-28 p-6 overflow-y-auto no-scrollbar">
-      <h1 class="text-2xl font-bold text-white mb-6">Meu Perfil</h1>
+      <h1 class="text-2xl font-bold text-white mb-6 tracking-wide">Meu Perfil</h1>
       
-      <div class="flex items-center gap-5 bg-zinc-900/50 border border-zinc-800/80 p-4 rounded-2xl mb-6">
+      <div class="flex items-center gap-5 bg-zinc-900/60 border border-zinc-800/80 p-5 rounded-2xl mb-8 shadow-sm">
         <div class="relative w-16 h-16 shrink-0">
-          <img id="avatar-img" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80" class="w-16 h-16 rounded-full object-cover border-2 border-amber-500/50">
+          <img id="avatar-img" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80" class="w-16 h-16 rounded-full object-cover border-2 border-amber-500/50 shadow-md">
           <input type="file" id="file-avatar" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="uploadAvatar(event)">
-          <div class="absolute bottom-0 right-0 bg-amber-500 p-1 rounded-full text-zinc-950">
+          <div class="absolute bottom-0 right-0 bg-amber-500 p-1.5 rounded-full text-zinc-950 shadow-sm">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </div>
         </div>
         <div class="flex-1 overflow-hidden">
-          <p id="profile-name" class="font-bold text-white text-base truncate">Carregando...</p>
-          <p id="profile-email" class="text-xs text-zinc-400 truncate">...</p>
+          <p id="profile-name" class="font-bold text-white text-lg truncate">Carregando...</p>
+          <p id="profile-email" class="text-xs text-zinc-400 truncate mt-0.5">...</p>
         </div>
       </div>
 
-      <div class="space-y-2 mb-8">
-        <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block">Telefone / WhatsApp</label>
+      <div class="space-y-2.5 mb-8">
+        <label class="text-xs font-semibold text-zinc-400 uppercase tracking-wider block ml-1">Telefone / WhatsApp</label>
         <div class="flex gap-2">
-          <input type="text" id="profile-phone" oninput="maskPhone(this)" class="flex-1 px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm" placeholder="(51) 99999-9999">
-          <button onclick="savePhone()" class="px-4 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs transition-colors">Salvar</button>
+          <input type="text" id="profile-phone" oninput="maskPhone(this)" class="flex-1 px-4 py-3.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm transition-colors" placeholder="(51) 99999-9999">
+          <button onclick="savePhone()" class="px-5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs transition-colors shadow-sm">Salvar</button>
         </div>
       </div>
 
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Histórico de Cortes</h2>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider ml-1">Histórico de Cortes</h2>
+        <span id="sync-status" class="text-[10px] text-zinc-500 uppercase font-semibold flex items-center gap-1.5"></span>
       </div>
-      <div id="history-container" class="space-y-2.5 flex-1"></div>
+      <div id="history-container" class="space-y-3 flex-1"></div>
 
-      <button onclick="userSignOut()" class="mt-8 text-xs font-bold text-red-400 py-3 border border-red-500/20 rounded-xl bg-red-500/5 hover:bg-red-500/10 transition-colors text-center w-full">
+      <button onclick="userSignOut()" class="mt-10 text-xs font-bold text-red-400 py-3.5 border border-red-500/20 rounded-xl bg-red-500/5 hover:bg-red-500/10 transition-colors text-center w-full">
         Encerrar Sessão
       </button>
     </div>
 
-    <div id="bottom-bar" class="hidden fixed bottom-0 max-w-md w-full bg-zinc-950/90 backdrop-blur-md border-t border-zinc-800 flex justify-around p-3 z-30">
+    <div id="bottom-bar" class="hidden fixed bottom-0 max-w-md w-full bg-zinc-950/90 backdrop-blur-lg border-t border-zinc-800/80 flex justify-around p-3 z-30 shadow-[0_-5px_15px_rgba(0,0,0,0.3)]">
       <button onclick="switchTab('booking')" id="nav-btn-book" class="flex flex-col items-center gap-1 text-amber-500 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         <span class="text-[10px] font-semibold">Agendar</span>
@@ -508,7 +540,7 @@
         selectedDuration = parseInt(radio.dataset.duration || 30, 10);
         const btn = document.getElementById('btn-to-step-datetime');
         btn.disabled = false;
-        btn.className = 'w-full py-4 rounded-2xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)]';
+        btn.className = 'w-full py-4 rounded-xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.25)] text-[15px]';
       }
     }
 
@@ -565,7 +597,7 @@
 
     async function renderTimeOptions(targetDate) {
       const container = document.getElementById('time-grid-container');
-      container.innerHTML = `<div class="col-span-3 text-center py-6 text-xs text-zinc-500"><svg class="w-4 h-4 animate-spin mx-auto mb-1 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
+      container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-zinc-500"><svg class="w-5 h-5 animate-spin mx-auto mb-2 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
 
       const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').eq('date', targetDate);
 
@@ -595,14 +627,14 @@
 
         if (isOccupied) {
           html += `
-            <div class="py-3 rounded-xl border border-zinc-900 bg-zinc-900/20 text-center opacity-40 cursor-not-allowed">
+            <div class="py-3.5 rounded-xl border border-zinc-900 bg-zinc-900/20 text-center opacity-40 cursor-not-allowed">
               <span class="text-zinc-600 font-medium text-sm line-through block">${slot}</span>
               <span class="text-[9px] text-red-500/70 uppercase font-semibold">Ocupado</span>
             </div>
           `;
         } else {
           html += `
-            <label class="py-3 rounded-xl border border-zinc-800 bg-zinc-900/50 text-center cursor-pointer transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500 text-zinc-400 has-[:checked]:text-zinc-950 font-semibold text-sm">
+            <label class="py-3.5 rounded-xl border border-zinc-800 bg-zinc-900/50 text-center cursor-pointer transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500 text-zinc-400 has-[:checked]:text-zinc-950 font-semibold text-sm hover:bg-zinc-800">
               <input type="radio" name="book_time" value="${slot}" class="peer sr-only" onchange="checkDateTimeSelection()">
               ${slot}
             </label>
@@ -723,12 +755,17 @@
 
     async function loadHistory() {
       const container = document.getElementById('history-container');
+      const syncStatus = document.getElementById('sync-status');
+      
       if (!clientUser) return;
+
+      syncStatus.innerHTML = `<svg class="w-3 h-3 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Atualizando...`;
 
       const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
 
       if (error || !data || data.length === 0) {
-        container.innerHTML = `<p class="text-xs text-zinc-600 text-center py-6">Nenhum corte agendado até o momento.</p>`;
+        container.innerHTML = `<p class="text-xs text-zinc-600 text-center py-8 bg-zinc-900/30 rounded-xl border border-zinc-800/50">Nenhum corte agendado até o momento.</p>`;
+        syncStatus.innerHTML = '';
         return;
       }
 
@@ -765,27 +802,27 @@
 
         if (isCancelledByBarber) {
           html += `
-            <div class="p-3.5 bg-red-950/20 border border-red-900/40 rounded-xl flex justify-between items-center opacity-75">
+            <div class="p-4 bg-red-950/20 border border-red-900/40 rounded-2xl flex justify-between items-center opacity-75">
               <div>
-                <p class="font-bold text-red-400 text-xs line-through">${item.service}</p>
-                <p class="text-red-400/80 text-[11px] mt-0.5 line-through">${weekDay ? weekDay + ', ' : ''}${item.date} às ${item.time}</p>
-                <span class="inline-block mt-1 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">Cancelado pela barbearia</span>
+                <p class="font-bold text-red-400 text-sm line-through">${item.service}</p>
+                <p class="text-red-400/80 text-xs mt-1 line-through">${weekDay ? weekDay + ', ' : ''}${item.date} às ${item.time}</p>
+                <span class="inline-block mt-2 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">Cancelado pela barbearia</span>
               </div>
               <div>
-                <p class="text-zinc-600 font-bold text-xs line-through">R$ ${item.price}</p>
+                <p class="text-zinc-600 font-bold text-sm line-through">R$ ${item.price}</p>
               </div>
             </div>
           `;
         } else {
           html += `
-            <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
+            <div class="p-4 bg-zinc-900/70 border border-zinc-800/80 rounded-2xl flex justify-between items-center shadow-sm">
               <div>
-                <p class="font-bold text-white text-xs">${item.service}</p>
-                <p class="text-zinc-400 text-[11px] mt-0.5"><span class="text-amber-500 font-semibold">${weekDay ? weekDay + ', ' : ''}</span>${item.date} às ${item.time}</p>
+                <p class="font-bold text-white text-sm">${item.service}</p>
+                <p class="text-zinc-400 text-xs mt-1"><span class="text-amber-500 font-semibold">${weekDay ? weekDay + ', ' : ''}</span>${item.date} às ${item.time}</p>
               </div>
               <div class="flex items-center gap-3">
-                <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
-                <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                <p class="text-amber-400 font-bold text-sm">R$ ${item.price}</p>
+                <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -795,5 +832,7 @@
       }
       
       container.innerHTML = html;
+      syncStatus.innerHTML = `<span class="text-emerald-500">Sincronizado</span>`;
+      setTimeout(() => syncStatus.innerHTML = '', 2500);
     }
   </script></body></html>
