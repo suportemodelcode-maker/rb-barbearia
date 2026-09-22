@@ -558,9 +558,11 @@
         d.setDate(d.getDate() + offset);
         if (d.getDay() !== 0) {
           let dayName = dias[d.getDay()];
-          let dayNum = d.getDate();
-          let month = d.getMonth() + 1;
+          // CORREÇÃO: Força o zero antes dos dias e meses menores que 10
+          let dayNum = String(d.getDate()).padStart(2, '0');
+          let month = String(d.getMonth() + 1).padStart(2, '0');
           let val = `${dayNum}/${month}/${d.getFullYear()}`;
+          
           const isFirst = (added === 0);
           html += `
             <label class="shrink-0 w-16 h-20 rounded-2xl border border-zinc-800 bg-zinc-900/50 flex flex-col items-center justify-center cursor-pointer transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
@@ -594,7 +596,6 @@
       const container = document.getElementById('time-grid-container');
       container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-zinc-500"><svg class="w-5 h-5 animate-spin mx-auto mb-2 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
 
-      // Busca diretamente no Supabase todos os agendamentos do dia (ignora o Google Agenda)
       const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').eq('date', targetDate);
 
       let occupiedIntervals = [];
@@ -604,8 +605,9 @@
 
           const startMin = timeToMinutes(b.time);
           let dur = 30;
-          if (b.service === "Combo Corte + Barba") dur = 60;
-          else if (b.service === "Sobrancelha") dur = 20;
+          if (b.service.includes("Combo")) dur = 60;
+          else if (b.service.includes("Sobrancelha")) dur = 20;
+          
           occupiedIntervals.push({ start: startMin, end: startMin + dur });
         });
       }
@@ -651,14 +653,12 @@
       }
     }
 
-    // ==== OTIMIZAÇÃO: CRIAÇÃO COM SISTEMA ANTI-SPAM ====
     async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
       const originalText = btn.innerText;
       btn.disabled = true;
       btn.innerText = "Verificando...";
 
-      // ANTI-SPAM: Limita o usuário a 2 agendamentos ativos na barbearia
       const { data: existingApts } = await sb.from('appointments').select('id').eq('user_id', clientUser.id).neq('calendar_event_id', 'cancelled_by_barber');
       
       if (existingApts && existingApts.length >= 2) {
@@ -668,7 +668,6 @@
         return;
       }
 
-      // ANTI-SPAM EXTRA: Limite local do aparelho (Trolls)
       const deviceSpamCount = localStorage.getItem('rb_spam_count') || 0;
       if (parseInt(deviceSpamCount) >= 4) {
         alert("🔒 Sistema de Segurança: O limite de agendamentos deste aparelho foi atingido para evitar spam na agenda.");
@@ -678,14 +677,13 @@
 
       btn.innerText = "Confirmando...";
 
-      // Salva DIRETO NO SUPABASE
       const { data: newApt, error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: 'internal_system' // Não precisa mais esperar o Google
+        calendar_event_id: 'internal_system' 
       }]).select('id').single();
 
       btn.disabled = false;
@@ -710,7 +708,6 @@
       document.getElementById('modal-cancel-confirm').classList.add('hidden');
     }
 
-    // Exclusão Instantânea no Supabase
     async function executeCancelAppointment() {
       if (!itemPendingCancellation) return;
       const { appointmentId } = itemPendingCancellation;
@@ -742,7 +739,6 @@
 
       syncStatus.innerHTML = `<svg class="w-3 h-3 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Atualizando...`;
 
-      // Puxa histórico diretamente e apenas do Supabase
       const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
 
       if (error || !data || data.length === 0) {
