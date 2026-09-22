@@ -379,11 +379,11 @@
     }
 
     async function signInWithGoogle() {
-      await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin }
-      });
-    }
+  await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: 'https://rb-barbearia.vercel.app' }
+  });
+}
 
     async function userSignOut() {
       localStorage.removeItem('rb_client_session');
