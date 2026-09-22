@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Barbeiro | RB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fff; }
+    /* Estilização Customizada do FullCalendar para Modo Escuro */
+    .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid { border-color: #27272a; }
+    .fc-col-header-cell-cushion { color: #f59e0b; padding: 10px; font-weight: 600; text-transform: uppercase; }
+    .fc-timegrid-slot-label-cushion { color: #a1a1aa; font-weight: 500; }
+    .fc-timegrid-event { border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); cursor: pointer; border: none; }
+    .fc-event-main { padding: 4px; font-size: 11px; }
+    .fc-event-main strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .fc-button-primary { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #09090b !important; font-weight: 700 !important; border-radius: 8px !important; text-transform: capitalize !important;}
+    .fc-button-primary:hover { background-color: #d97706 !important; }
+    .fc-toolbar-title { font-size: 1.25rem !important; font-weight: 700 !important;}
+    .fc-day-today { background-color: rgba(245, 158, 11, 0.05) !important; }
+  </style></head><body class="antialiased min-h-screen p-4 md:p-8">
+
+  <!-- Autenticação Simples de Segurança -->
+  <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-6">
+    <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl w-full max-w-sm text-center shadow-2xl">
+      <h2 class="text-2xl font-bold text-white mb-2">Painel de Controle</h2>
+      <p class="text-sm text-zinc-400 mb-6">Acesso restrito à barbearia</p>
+      <input type="password" id="admin-pass" placeholder="Senha de Acesso" class="w-full p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:border-amber-500 outline-none mb-4 text-center tracking-widest">
+      <button onclick="checkAdmin()" class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl shadow-lg transition-colors">Acessar Agenda</button>
+    </div>
+  </div>
+
+  <!-- Cabeçalho do Painel -->
+  <div id="app-screen" class="hidden max-w-6xl mx-auto flex flex-col h-[90vh]">
+    <header class="flex justify-between items-center mb-6 bg-zinc-900 p-4 border border-zinc-800 rounded-2xl shadow-lg">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Agenda Exclusiva RB</h1>
+        <p class="text-xs text-amber-500 font-semibold mt-1">Sincronizada em tempo real com os clientes</p>
+      </div>
+      <button onclick="location.reload()" class="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold transition-colors border border-zinc-700">Atualizar</button>
+    </header>
+
+    <!-- Calendário Renderizado Aqui -->
+    <div class="flex-1 bg-zinc-900 border border-zinc-800 p-4 rounded-2xl overflow-hidden shadow-2xl relative">
+      <div id="loading" class="absolute inset-0 bg-zinc-900/80 backdrop-blur flex items-center justify-center z-10">
+        <svg class="w-10 h-10 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+      </div>
+      <div id="calendar" class="h-full w-full"></div>
+    </div>
+  </div>
+
+  <script>
+    // SENHA DA BARBEARIA (Pode mudar aqui no código depois)
+    const ADMIN_PASSWORD = "rb"; 
+
+    function checkAdmin() {
+      const pass = document.getElementById('admin-pass').value;
+      if (pass === ADMIN_PASSWORD) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-screen').classList.remove('hidden');
+        initCalendar();
+      } else {
+        alert("Senha incorreta!");
+      }
+    }
+
+    const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let calendar;
+
+    function getServiceDuration(serviceName) {
+      if (serviceName.includes("Combo")) return 60;
+      if (serviceName.includes("Sobrancelha")) return 20;
+      return 30; // Corte Clássico e Barba Completa
+    }
+
+    function getServiceColor(serviceName) {
+      if (serviceName === "BLOQUEIO") return '#ef4444'; // Vermelho
+      if (serviceName.includes("Combo")) return '#f59e0b'; // Laranja/Amber
+      if (serviceName.includes("Sobrancelha")) return '#a855f7'; // Roxo
+      if (serviceName.includes("Barba")) return '#22c55e'; // Verde
+      return '#3b82f6'; // Azul p/ Corte Clássico
+    }
+
+    // Pega a string DD/MM/YYYY e HH:MM e transforma no formato ISO do calendário (YYYY-MM-DDTHH:MM:00)
+    function parseToIso(dateStr, timeStr) {
+      const parts = dateStr.split('/');
+      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}T${timeStr}:00`;
+    }
+
+    async function fetchAppointments() {
+      document.getElementById('loading').style.display = 'flex';
+      
+      const { data, error } = await sb.from('appointments').select(`
+        id, service, date, time, price, calendar_event_id,
+        profiles (full_name, phone)
+      `).neq('calendar_event_id', 'cancelled_by_barber');
+
+      document.getElementById('loading').style.display = 'none';
+
+      if (error) { alert("Erro ao carregar dados: " + error.message); return []; }
+
+      return data.map(apt => {
+        const startIso = parseToIso(apt.date, apt.time);
+        
+        // Calcula a duração somando minutos na data ISO
+        const startDate = new Date(startIso);
+        const duration = getServiceDuration(apt.service);
+        const endDate = new Date(startDate.getTime() + duration * 60000);
+        
+        // Formata o cliente (se não tiver perfil, é o admin/bloqueio)
+        const clientName = apt.profiles ? apt.profiles.full_name : "Barbearia";
+        const clientPhone = apt.profiles && apt.profiles.phone ? apt.profiles.phone : "";
+
+        return {
+          id: apt.id,
+          title: apt.service === 'BLOQUEIO' ? 'Bloqueio' : `${apt.service} - ${clientName}`,
+          start: startIso,
+          end: endDate.toISOString(),
+          backgroundColor: getServiceColor(apt.service),
+          extendedProps: {
+            clientName: clientName,
+            clientPhone: clientPhone,
+            service: apt.service,
+            price: apt.price
+          }
+        };
+      });
+    }
+
+    async function initCalendar() {
+      const calendarEl = document.getElementById('calendar');
+      
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek', // Mostra a semana inteira em colunas
+        locale: 'pt-br',
+        slotMinTime: '17:00:00', // Horário de abertura da agenda
+        slotMaxTime: '23:00:00', // Horário final da agenda
+        allDaySlot: false,
+        height: '100%',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: async function(info, successCallback, failureCallback) {
+          const events = await fetchAppointments();
+          successCallback(events);
+        },
+        eventContent: function(arg) {
+          // Customiza como o texto aparece dentro do bloco do calendário
+          const p = arg.event.extendedProps;
+          if (p.service === 'BLOQUEIO') {
+            return { html: `<div class="fc-event-main"><strong>🚫 BLOQUEADO</strong></div>` };
+          }
+          return {
+            html: `<div class="fc-event-main">
+                     <strong>${p.clientName}</strong>
+                     ${p.service} <br>
+                     ${p.clientPhone ? '📱 ' + p.clientPhone : ''}
+                   </div>`
+          };
+        },
+        dateClick: async function(info) {
+          // CLICAR EM HORÁRIO VAGO = CRIAR BLOQUEIO
+          const conf = confirm(`Deseja bloquear a agenda no dia ${info.dateStr.replace('T', ' às ')}?`);
+          if (conf) {
+            const dateObj = new Date(info.dateStr);
+            const dia = dateObj.getDate().toString().padStart(2, '0') + '/' + (dateObj.getMonth() + 1).toString().padStart(2, '0') + '/' + dateObj.getFullYear();
+            const hora = dateObj.getHours().toString().padStart(2, '0') + ':' + dateObj.getMinutes().toString().padStart(2, '0');
+
+            await sb.from('appointments').insert([{
+              user_id: 'admin-barber',
+              service: 'BLOQUEIO',
+              price: 0,
+              date: dia,
+              time: hora,
+              calendar_event_id: 'internal_system'
+            }]);
+            calendar.refetchEvents();
+          }
+        },
+        eventClick: async function(info) {
+          // CLICAR EM EVENTO = VER DETALHES OU CANCELAR
+          const ev = info.event;
+          const p = ev.extendedProps;
+          let msg = p.service === 'BLOQUEIO' 
+            ? 'Remover este bloqueio e liberar o horário para os clientes?' 
+            : `Cliente: ${p.clientName}\nTelefone: ${p.clientPhone}\nServiço: ${p.service}\n\nDeseja CANCELAR este agendamento?`;
+          
+          if (confirm(msg)) {
+            if (p.service === 'BLOQUEIO') {
+              await sb.from('appointments').delete().eq('id', ev.id);
+            } else {
+              // Marca como cancelado pelo barbeiro para aparecer vermelho no app do cliente
+              await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', ev.id);
+            }
+            calendar.refetchEvents();
+          }
+        }
+      });
+      
+      calendar.render();
+    }
+  </script></body></html>
