@@ -244,7 +244,10 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWAA18IOL7a0RHvNlOeCL2d90Pq2e2ylSkKIIrs657lhIwjurwArK3gpful1kkYXm_OA/exec';
+    // ==============================================================
+    // COLE SUA URL DO GOOGLE APPS SCRIPT AQUI ABAIXO:
+    const GOOGLE_SCRIPT_URL = 'COLE_A_NOVA_URL_AQUI';
+    // ==============================================================
 
     let clientUser = null;
     let selectedService = null;
@@ -406,8 +409,9 @@
       document.getElementById('avatar-img').src = userPhoto;
       document.getElementById('nav-avatar').src = userPhoto;
 
-      loadHistory();
-      switchTab('booking');
+      // Restaura a última tela que o usuário acessou
+      const lastTab = localStorage.getItem('rb_active_tab') || 'booking';
+      switchTab(lastTab);
     }
 
     async function signInWithGoogle() {
@@ -419,11 +423,15 @@
 
     async function userSignOut() {
       localStorage.removeItem('rb_client_session');
+      localStorage.removeItem('rb_active_tab');
       try { await sb.auth.signOut(); } catch(e) {}
       window.location.reload();
     }
 
     function switchTab(tab) {
+      // Salva na memória do celular qual aba ele está
+      localStorage.setItem('rb_active_tab', tab);
+
       document.getElementById('step-services').classList.add('hidden');
       document.getElementById('step-datetime').classList.add('hidden');
       document.getElementById('view-profile').classList.add('hidden');
@@ -560,51 +568,21 @@
       }
     }
 
+    // ==== OTIMIZAÇÃO: CRIAÇÃO INSTANTÂNEA ====
     async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
-      const btnText = document.getElementById('btn-save-text');
+      const originalText = btn.innerText;
       btn.disabled = true;
-      btnText.innerText = "Criando agendamento...";
 
-      let calendarEventId = null;
-
-      // Criação sincronizada: aguarda o Google Calendar retornar o eventId para não deixar IDs vazios
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'create',
-              service: selectedService,
-              price: selectedPrice,
-              date: selectedDate,
-              time: selectedTime,
-              clientName: clientUser.name,
-              clientPhone: clientUser.phone,
-              clientEmail: clientUser.email || 'Não informado'
-            })
-          });
-          const result = await res.json();
-          if (result && result.eventId) {
-            calendarEventId = result.eventId;
-          }
-        } catch (e) {
-          console.error("Falha ao comunicar com Google Calendar:", e);
-        }
-      }
-
-      // Salva no Supabase já com o ID real do Google Calendar
-      const { error } = await sb.from('appointments').insert([{
+      // 1. Salva no banco de dados IMEDIATAMENTE (rápido)
+      const { data: newApt, error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: calendarEventId
-      }]);
-
-      btnText.innerText = "Confirmar Agendamento";
+        calendar_event_id: 'pending_sync'
+      }]).select('id').single();
 
       if (error) {
         alert('Erro ao gravar agendamento: ' + error.message);
@@ -612,11 +590,38 @@
         return;
       }
 
+      // 2. Libera a tela IMEDIATAMENTE para o usuário não ficar esperando
+      btn.disabled = false;
+      btn.innerText = originalText;
+      showToast('Agendamento salvo!');
+      switchTab('profile'); // Envia para aba perfil
+      
       const phoneBarber = "5551995738595";
       const msg = `✂️ *NOVO AGENDAMENTO | RB Barbearia*\n\n👤 *Cliente:* ${clientUser.name}\n📱 *WhatsApp:* ${clientUser.phone}\n💈 *Serviço:* ${selectedService}\n📅 *Data:* ${selectedDate}\n⏰ *Horário:* ${selectedTime}\n💵 *Valor:* R$ ${selectedPrice},00`;
-      
       window.open(`https://api.whatsapp.com/send?phone=${phoneBarber}&text=${encodeURIComponent(msg)}`, '_blank');
-      switchTab('profile');
+
+      // 3. Sincroniza com o Google Calendar INVISÍVEL EM 2º PLANO
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'create',
+            service: selectedService,
+            price: selectedPrice,
+            date: selectedDate,
+            time: selectedTime,
+            clientName: clientUser.name,
+            clientPhone: clientUser.phone,
+            clientEmail: clientUser.email || 'Não informado'
+          })
+        }).then(res => res.json())
+          .then(async (result) => {
+            if (result && result.eventId) {
+              await sb.from('appointments').update({ calendar_event_id: result.eventId }).eq('id', newApt.id);
+            }
+          }).catch(console.error);
+      }
     }
 
     function openCancelModal(appointmentId, calendarEventId) {
@@ -629,39 +634,33 @@
       document.getElementById('modal-cancel-confirm').classList.add('hidden');
     }
 
+    // ==== OTIMIZAÇÃO: EXCLUSÃO INSTANTÂNEA ====
     async function executeCancelAppointment() {
       if (!itemPendingCancellation) return;
       const { appointmentId, calendarEventId } = itemPendingCancellation;
 
-      const btn = document.getElementById('btn-confirm-cancel');
-      btn.disabled = true;
-      btn.innerText = "Removendo da agenda...";
-
-      // Exclusão no Google Calendar
-      if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        try {
-          await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
-          });
-        } catch (e) {
-          console.error("Falha ao remover da agenda:", e);
-        }
-      }
-
-      // Exclusão no Supabase
-      const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
-
-      btn.disabled = false;
-      btn.innerText = "Cancelar";
+      // 1. Fecha o popup de confirmação imediatamente
       closeCancelModal();
+
+      // 2. Apaga do banco de dados imediatamente (rápido)
+      const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       if (error) {
         alert('Erro ao cancelar: ' + error.message);
-      } else {
-        showToast('Agendamento cancelado com sucesso!');
-        loadHistory();
+        return;
+      }
+
+      // 3. Atualiza a tela imediatamente e mostra notificação
+      showToast('Agendamento cancelado!');
+      loadHistory(); 
+
+      // 4. Apaga do Google Calendar INVISÍVEL EM 2º PLANO
+      if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
+        }).catch(e => console.error("Erro na exclusão da agenda:", e));
       }
     }
 
@@ -700,14 +699,12 @@
 
       let html = '';
       for (const item of data) {
-        // Se tem calendar_event_id cadastrado e ele não está mais na lista de eventos ativos do Google Calendar
         const wasCancelledByBarber = item.calendar_event_id && 
                                      activeEventIds.length > 0 && 
                                      !activeEventIds.includes(item.calendar_event_id) &&
                                      !activeEventIds.includes(item.calendar_event_id + '@google.com');
 
         if (wasCancelledByBarber) {
-          // Deleta do banco para manter a sincronização limpa
           sb.from('appointments').delete().eq('id', item.id).then();
           
           html += `
