@@ -1,50 +1,261 @@
-      se ( passo === 2 ) {   
-        const date = document.querySelector ( 'input[name="date"]: checked ' ) ; 
-        const time = document.querySelector ( 'input[name="time"]: checked ' ) ; 
-        se ( data && hora ) {  
-          reserva.data = data.valor ;​​​​ 
-          reserva.dateLabel = data.dataset.label ;​​​​​​ 
-          reserva.tempo = tempo.valor ;​​​​ 
-          let btn = document.getElementById ( 'btn - next - 2' ) ; 
-          btn.disabled = false ;​​  
-          btn.classList.replace ( ' bg-zinc - 600' , ' bg-amber-500 ' ) ; 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RB Barbearia | Agendamento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; }
+    .font-elegant { font-family: 'Playfair Display', serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    input { font-size: 16px !important; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex justify-center bg-zinc-950">
+
+  <div class="w-full max-w-md bg-zinc-900 min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+    
+    <header class="pt-10 pb-6 px-6 text-center border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
+      <h1 class="font-elegant text-3xl text-white tracking-wide">RB <span class="text-amber-500 italic">Barbearia</span></h1>
+      <p class="text-zinc-400 text-xs mt-1 uppercase tracking-widest">Agendamento Online</p>
+    </header>
+
+    <div id="step-1" class="flex-1 overflow-y-auto p-6 space-y-6">
+      <div>
+        <h2 class="font-elegant text-xl text-white mb-1">Selecione o Serviço</h2>
+        <p class="text-zinc-500 text-sm mb-4">Escolha a opção desejada abaixo.</p>
+      </div>
+
+      <div class="space-y-3">
+        <label class="block relative p-4 rounded-xl border border-zinc-800 bg-zinc-950 hover:border-amber-500/50 cursor-pointer transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
+          <input type="radio" name="service" value="Corte" data-price="40" data-time="30 min" class="peer sr-only" onchange="enableNext(1)">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-base">Corte de Cabelo</p>
+              <p class="text-zinc-400 text-xs mt-0.5">Duração: 30 min</p>
+            </div>
+            <p class="text-amber-400 font-semibold">R$ 40</p>
+          </div>
+        </label>
+
+        <label class="block relative p-4 rounded-xl border border-zinc-800 bg-zinc-950 hover:border-amber-500/50 cursor-pointer transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
+          <input type="radio" name="service" value="Barba" data-price="30" data-time="30 min" class="peer sr-only" onchange="enableNext(1)">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-base">Barba Completa</p>
+              <p class="text-zinc-400 text-xs mt-0.5">Duração: 30 min</p>
+            </div>
+            <p class="text-amber-400 font-semibold">R$ 30</p>
+          </div>
+        </label>
+
+        <label class="block relative p-4 rounded-xl border border-zinc-800 bg-zinc-950 hover:border-amber-500/50 cursor-pointer transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
+          <input type="radio" name="service" value="Sobrancelha" data-price="15" data-time="15 min" class="peer sr-only" onchange="enableNext(1)">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-base">Sobrancelha</p>
+              <p class="text-zinc-400 text-xs mt-0.5">Duração: 15 min</p>
+            </div>
+            <p class="text-amber-400 font-semibold">R$ 15</p>
+          </div>
+        </label>
+
+        <label class="block relative p-4 rounded-xl border border-amber-500/30 bg-gradient-to-r from-zinc-950 to-amber-950/20 hover:border-amber-500 cursor-pointer transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/20">
+          <input type="radio" name="service" value="Combo Corte + Barba" data-price="65" data-time="1 hora" class="peer sr-only" onchange="enableNext(1)">
+          <div class="absolute -top-3 right-4 bg-amber-500 text-zinc-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Mais Pedido</div>
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="font-bold text-white text-base">Combo Corte + Barba</p>
+              <p class="text-zinc-400 text-xs mt-0.5">Duração: 1 hora</p>
+            </div>
+            <p class="text-amber-400 font-semibold">R$ 65</p>
+          </div>
+        </label>
+      </div>
+
+      <button id="btn-next-1" disabled onclick="goToStep(2)" class="w-full mt-6 py-4 rounded-xl font-bold text-zinc-900 bg-zinc-600 disabled:opacity-50 transition-colors">
+        Continuar
+      </button>
+    </div>
+
+    <div id="step-2" class="flex-1 overflow-y-auto p-6 hidden flex-col">
+      <button onclick="goToStep(1)" class="text-amber-500 text-sm font-semibold mb-6 flex items-center gap-1">
+        &larr; Voltar
+      </button>
+
+      <div>
+        <h2 class="font-elegant text-xl text-white mb-4">Data e Horário</h2>
+      </div>
+
+      <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="date-container"></div>
+
+      <div class="mt-8 mb-4 flex items-center justify-between">
+        <p class="text-sm font-semibold text-zinc-300">Horários disponíveis</p>
+        <span class="text-xs text-amber-500 px-2 py-1 bg-amber-500/10 rounded-md">A partir das 18h</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3" id="time-container"></div>
+
+      <div class="mt-auto pt-8">
+        <button id="btn-next-2" disabled onclick="goToStep(3)" class="w-full py-4 rounded-xl font-bold text-zinc-900 bg-zinc-600 disabled:opacity-50 transition-colors">
+          Confirmar Horário
+        </button>
+      </div>
+    </div>
+
+    <div id="step-3" class="flex-1 overflow-y-auto p-6 hidden flex-col">
+      <button onclick="goToStep(2)" class="text-amber-500 text-sm font-semibold mb-6 flex items-center gap-1">
+        &larr; Voltar
+      </button>
+
+      <h2 class="font-elegant text-xl text-white mb-6">Quase lá!</h2>
+
+      <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-4 mb-6">
+        <p class="text-xs text-zinc-500 uppercase tracking-widest mb-2">Resumo do Agendamento</p>
+        <p class="font-bold text-white text-lg" id="summary-service">Corte de Cabelo</p>
+        <p class="text-amber-400 font-semibold mb-3" id="summary-price">R$ 40</p>
+        <div class="flex items-center gap-2 text-sm text-zinc-300">
+          <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          <span id="summary-datetime"></span>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-zinc-400 mb-1">Seu Nome</label>
+          <input type="text" id="clientName" placeholder="Ex: João Silva" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 transition-colors" onkeyup="enableNext(3)">
+        </div>
+      </div>
+
+      <div class="mt-auto pt-8">
+        <button id="btn-finish" disabled onclick="finishBooking()" class="w-full py-4 rounded-xl font-bold text-zinc-950 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 transition-colors flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.01 2.01c-5.52 0-10 4.48-10 10 0 1.95.56 3.78 1.54 5.31L2.2 22l4.82-1.35c1.48.88 3.19 1.36 5.01 1.36 5.51 0 10-4.48 10-10s-4.48-10-10.02-10zm5.66 14.54c-.26.74-1.52 1.4-2.12 1.47-.5.06-1.15.17-3.32-.73-2.61-1.09-4.32-3.8-4.45-3.98-.13-.17-1.07-1.42-1.07-2.72s.67-1.95.91-2.21c.23-.25.51-.31.68-.31s.34 0 .49.02c.16.02.38-.06.59.45.22.53.71 1.73.78 1.86.06.13.11.28.02.47-.08.18-.13.3-.26.45-.13.15-.27.33-.39.45-.13.13-.27.27-.12.53.15.26.66 1.1 1.42 1.78.98.88 1.81 1.15 2.07 1.28.26.13.41.11.57-.08.15-.2.66-.77.84-1.04.18-.26.36-.22.59-.13.23.09 1.48.7 1.74.83.25.13.43.2.49.31.06.11.06.64-.2 1.38z"/></svg>
+          Confirmar pelo WhatsApp
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let booking = {
+      service: '', price: 0, duration: '', date: '', dateLabel: '', time: '', client: ''
+    };
+
+    function generateDates() {
+      const container = document.getElementById('date-container');
+      const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      let html = '';
+      let addDays = 0;
+      let count = 0;
+
+      while(count < 6) {
+        let d = new Date();
+        d.setDate(d.getDate() + addDays);
+        if (d.getDay() !== 0) {
+          let dayName = diasSemana[d.getDay()];
+          let dayNum = d.getDate();
+          let month = d.getMonth() + 1;
+          let fullDate = `${dayNum}/${month}/${d.getFullYear()}`;
+          let displayStr = `${dayName}, ${dayNum}/${month}`;
+
+          html += `
+            <label class="shrink-0 w-16 h-20 rounded-xl border border-zinc-800 bg-zinc-950 flex flex-col items-center justify-center cursor-pointer transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
+              <input type="radio" name="date" value="${fullDate}" data-label="${displayStr}" class="peer sr-only" onchange="enableNext(2)">
+              <span class="text-xs text-zinc-500 peer-checked:text-amber-500 font-medium">${dayName}</span>
+              <span class="text-xl font-bold text-white peer-checked:text-amber-400 mt-1">${dayNum}</span>
+            </label>
+          `;
+          count++;
+        }
+        addDays++;
+      }
+      container.innerHTML = html;
+    }
+
+    function generateTimes() {
+      const container = document.getElementById('time-container');
+      const times = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
+      let html = '';
+      
+      times.forEach(t => {
+        html += `
+          <label class="py-3 rounded-lg border border-zinc-800 bg-zinc-950 text-center cursor-pointer transition-colors has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500 text-zinc-400 has-[:checked]:text-zinc-950 has-[:checked]:font-bold">
+            <input type="radio" name="time" value="${t}" class="peer sr-only" onchange="enableNext(2)">
+            ${t}
+          </label>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function enableNext(step) {
+      if (step === 1) {
+        const selected = document.querySelector('input[name="service"]:checked');
+        if (selected) {
+          booking.service = selected.value;
+          booking.price = selected.dataset.price;
+          booking.duration = selected.dataset.time;
+          let btn = document.getElementById('btn-next-1');
+          btn.disabled = false;
+          btn.classList.remove('bg-zinc-600', 'opacity-50');
+          btn.classList.add('bg-amber-500', 'hover:bg-amber-400');
         }
       }
-      se ( passo === 3 ) {   
-        const nome = document.getElementById ( ' clientName ' ) . value ; 
-        document.getElementById ( ' btn - finish ' ) . disabled = nome.length < 3 ;   
+      if (step === 2) {
+        const date = document.querySelector('input[name="date"]:checked');
+        const time = document.querySelector('input[name="time"]:checked');
+        if (date && time) {
+          booking.date = date.value;
+          booking.dateLabel = date.dataset.label;
+          booking.time = time.value;
+          let btn = document.getElementById('btn-next-2');
+          btn.disabled = false;
+          btn.classList.remove('bg-zinc-600', 'opacity-50');
+          btn.classList.add('bg-amber-500', 'hover:bg-amber-400');
+        }
+      }
+      if (step === 3) {
+        const nome = document.getElementById('clientName').value;
+        document.getElementById('btn-finish').disabled = nome.trim().length < 3;
       }
     }
 
-    função irParaEtapa ( passo ) {  
-      document.getElementById ( ' step - 1' ) . classList.add ( ' hidden ' ) ;
-      document.getElementById ( ' step - 2' ) . classList.add ( ' hidden ' ) ;
-      document.getElementById ( ' step - 3' ) . classList.add ( ' hidden ' ) ;
+    function goToStep(step) {
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.add('hidden');
+      document.getElementById('step-3').classList.add('hidden');
       
-      se ( passo === 2 ) {  
-        gerarDatas ( ) ;
-        gerarTempos ( ) ;
+      if(step === 2) {
+        generateDates();
+        generateTimes();
       }
       
-      se ( passo === 3 ) {  
-        document.getElementById ( ' summary - service ' ) . innerText = booking.service ; 
-        document.getElementById ( 'summary - price ' ) . innerText = ` R $ $ { booking.price } ` ;  
-        document.getElementById ( ' summary - datetime ' ) . innerText = ` $ { booking.dateLabel } às $ { booking.time } ` ;  
+      if(step === 3) {
+        document.getElementById('summary-service').innerText = booking.service;
+        document.getElementById('summary-price').innerText = `R$ ${booking.price}`;
+        document.getElementById('summary-datetime').innerText = `${booking.dateLabel} às ${booking.time}`;
       }
 
-      document.getElementById ( ` step - $ { step } ` ) .classList.remove ( ' hidden ' ) ;​
-      document.getElementById ( ` step - $ { step } ` ) .classList.add ( ' flex ' ) ;​
+      const target = document.getElementById(`step-${step}`);
+      target.classList.remove('hidden');
+      target.classList.add('flex');
     }
 
-    função finalizarReserva ( ) {  
-      const nome = document.getElementById ( ' clientName ' ) . value ; 
-      const numeroBarbearia = "5551995738595" ; //Seu número configurado  
+    function finishBooking() {
+      const nome = document.getElementById('clientName').value;
+      const numeroBarbearia = "5551995738595";
       
-      const msg = ` ✂️ *NOVO AGENDAMENTO | RB Barbearia* ✂️\n\n👤 *Cliente:* ${ nome } \n💈 *Serviço:* ${ booking . serviço } \n📅 *Dados:* ${ reserva . data } \n⏰ *Horário:* ${ reserva . horário } \n💵 *Valor:* R$ ${ reserva . preço } ,00\n\nConfirma meu horário? ` ; 
+      const msg = `✂️ *NOVO AGENDAMENTO | RB Barbearia* ✂️\n\n👤 *Cliente:* ${nome}\n💈 *Serviço:* ${booking.service}\n📅 *Data:* ${booking.date}\n⏰ *Horário:* ${booking.time}\n💵 *Valor:* R$ ${booking.price},00\n\nConfirma meu horário?`;
       
-      const url = ` https://api.whatsapp.com/send?phone= ${ numeroBarbearia } &text= ${ encodeURIComponent ( msg ) } ` ; 
-      janela.abrir ( url , ' _blank ' ) ; 
+      const url = `https://api.whatsapp.com/send?phone=${numeroBarbearia}&text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
     }
-  </script>​​
-</body>​​
-</ html >
+  </script>
+</body>
+</html>
