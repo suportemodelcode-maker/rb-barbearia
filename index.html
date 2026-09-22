@@ -17,6 +17,8 @@
     .service-card { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
     .service-card:has(input:checked) { transform: scale(1.02); box-shadow: 0 0 20px rgba(245, 158, 11, 0.18); border-color: #f59e0b; }
     .service-card:has(input:checked) .service-img { border-color: #f59e0b; }
+    .service-card:has(input:checked) .service-icon-box { border-color: #f59e0b; background-color: rgba(245, 158, 11, 0.15); }
+    .service-card:has(input:checked) .service-icon-svg { color: #f59e0b; }
   </style></head><body class="antialiased min-h-screen flex justify-center bg-zinc-950 select-none">
 
   <div class="w-full max-w-md bg-zinc-950 min-h-screen shadow-2xl relative flex flex-col overflow-hidden">
@@ -150,11 +152,16 @@
           </div>
         </label>
 
-        <!-- Sobrancelha (Navalha no rosto) -->
+        <!-- Sobrancelha (Ícone de Navalha estilizado) -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Sobrancelha" data-duration="20" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
-            <img src="https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=300" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Design Sobrancelha">
+            <div class="service-icon-box w-16 h-16 rounded-xl border border-zinc-700/80 bg-zinc-900/80 flex items-center justify-center transition-colors shrink-0">
+              <svg class="service-icon-svg w-8 h-8 text-amber-500 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                <!-- Ícone Navalhete / Navalha de Barbearia -->
+                <path d="M19.78 4.22a2.5 2.5 0 0 0-3.54 0L12 8.46l-.71-.71a1 1 0 0 0-1.41 0l-7.07 7.07a1 1 0 0 0 0 1.41l3.54 3.54a1 1 0 0 0 1.41 0l7.07-7.07a1 1 0 0 0 0-1.41l-.71-.71 4.24-4.24a2.5 2.5 0 0 0 0-3.54l-.58-.58zm-1.41 1.41l.58.58a.5.5 0 0 1 0 .71L14.71 11.16l-1.29-1.29 4.24-4.24a.5.5 0 0 1 .71 0zm-6.65 6.07l-6.36 6.36-2.12-2.12 6.36-6.36 2.12 2.12z"/>
+              </svg>
+            </div>
             <div class="flex-1">
               <p class="font-bold text-white text-[15px]">Sobrancelha</p>
               <p class="text-zinc-400 text-xs mt-0.5">Alinhamento na navalha</p>
