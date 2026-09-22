@@ -342,20 +342,6 @@
       });
     });
 
-    async function submitMandatoryPhone() {
-      const input = document.getElementById('mandatory-phone-input');
-      const clean = input.value.replace(/\D/g, '');
-      if (clean.length < 10) {
-        alert('Por favor, digite um número de WhatsApp válido com DDD.');
-        return;
-      }
-
-      await sb.from('profiles').update({ phone: input.value }).eq('id', clientUser.id);
-      clientUser.phone = input.value;
-      document.getElementById('modal-mandatory-phone').classList.add('hidden');
-      enterApp();
-    }
-
     async function loginWithPhoneDirect() {
       try {
         const nameInput = document.getElementById('direct-name').value.trim();
@@ -558,7 +544,8 @@
         d.setDate(d.getDate() + offset);
         if (d.getDay() !== 0) {
           let dayName = dias[d.getDay()];
-          // CORREÇÃO: Força o zero antes dos dias e meses menores que 10
+          
+          // ATUALIZAÇÃO 1: Força os zeros duplos nos dias e meses que o cliente seleciona.
           let dayNum = String(d.getDate()).padStart(2, '0');
           let month = String(d.getMonth() + 1).padStart(2, '0');
           let val = `${dayNum}/${month}/${d.getFullYear()}`;
@@ -596,7 +583,13 @@
       const container = document.getElementById('time-grid-container');
       container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-zinc-500"><svg class="w-5 h-5 animate-spin mx-auto mb-2 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
 
-      const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').eq('date', targetDate);
+      // ATUALIZAÇÃO 2: Pesquisa no formato atualizado (com zero) E também no formato legado, evitando que agendamentos antigos desapareçam e furem a agenda.
+      const parts = targetDate.split('/');
+      const targetDateNoZero = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}/${parts[2]}`;
+
+      const { data: booked } = await sb.from('appointments')
+        .select('service, time, calendar_event_id')
+        .in('date', [targetDate, targetDateNoZero]);
 
       let occupiedIntervals = [];
       if (booked && booked.length > 0) {
