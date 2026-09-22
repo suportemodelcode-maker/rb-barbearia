@@ -26,7 +26,7 @@
         </div>
         <div>
           <h3 class="text-lg font-bold text-white">Cancelar Agendamento?</h3>
-          <p class="text-zinc-400 text-xs mt-1">Essa ação liberará o horário na barbearia.</p>
+          <p class="text-zinc-400 text-xs mt-1">Essa ação liberará o horário na barbearia e na agenda.</p>
         </div>
         <div class="flex gap-3 pt-2">
           <button onclick="closeCancelModal()" class="flex-1 py-3 rounded-xl font-semibold text-zinc-400 bg-zinc-800 hover:bg-zinc-700 hover:text-white transition-colors text-sm">
@@ -564,39 +564,44 @@
       const btn = document.getElementById('btn-save-appointment');
       const btnText = document.getElementById('btn-save-text');
       btn.disabled = true;
-      btnText.innerText = "Confirmando...";
+      btnText.innerText = "Criando agendamento...";
 
+      let calendarEventId = null;
+
+      // Criação sincronizada: aguarda o Google Calendar retornar o eventId para não deixar IDs vazios
       if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'create',
-            service: selectedService,
-            price: selectedPrice,
-            date: selectedDate,
-            time: selectedTime,
-            clientName: clientUser.name,
-            clientPhone: clientUser.phone,
-            clientEmail: clientUser.email || 'Não informado'
-          })
-        }).then(res => res.json())
-          .then(async (result) => {
-            if (result && result.eventId) {
-              await sb.from('appointments').update({ calendar_event_id: result.eventId })
-                .eq('user_id', clientUser.id).eq('date', selectedDate).eq('time', selectedTime).eq('service', selectedService);
-            }
-          })
-          .catch(e => console.error("Falha silenciosa Google Calendar:", e));
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'create',
+              service: selectedService,
+              price: selectedPrice,
+              date: selectedDate,
+              time: selectedTime,
+              clientName: clientUser.name,
+              clientPhone: clientUser.phone,
+              clientEmail: clientUser.email || 'Não informado'
+            })
+          });
+          const result = await res.json();
+          if (result && result.eventId) {
+            calendarEventId = result.eventId;
+          }
+        } catch (e) {
+          console.error("Falha ao comunicar com Google Calendar:", e);
+        }
       }
 
+      // Salva no Supabase já com o ID real do Google Calendar
       const { error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: 'pending_sync'
+        calendar_event_id: calendarEventId
       }]);
 
       btnText.innerText = "Confirmar Agendamento";
@@ -630,16 +635,22 @@
 
       const btn = document.getElementById('btn-confirm-cancel');
       btn.disabled = true;
-      btn.innerText = "Cancelando...";
+      btn.innerText = "Removendo da agenda...";
 
+      // Exclusão no Google Calendar
       if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
-        }).catch(e => console.error("Erro deletar agenda:", e));
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'delete', eventId: calendarEventId })
+          });
+        } catch (e) {
+          console.error("Falha ao remover da agenda:", e);
+        }
       }
 
+      // Exclusão no Supabase
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       btn.disabled = false;
@@ -649,7 +660,7 @@
       if (error) {
         alert('Erro ao cancelar: ' + error.message);
       } else {
-        showToast('Agendamento cancelado!');
+        showToast('Agendamento cancelado com sucesso!');
         loadHistory();
       }
     }
@@ -689,17 +700,21 @@
 
       let html = '';
       for (const item of data) {
-        const isPending = item.calendar_event_id === 'pending_sync';
-        const wasCancelledByBarber = !isPending && item.calendar_event_id && !activeEventIds.includes(item.calendar_event_id);
+        // Se tem calendar_event_id cadastrado e ele não está mais na lista de eventos ativos do Google Calendar
+        const wasCancelledByBarber = item.calendar_event_id && 
+                                     activeEventIds.length > 0 && 
+                                     !activeEventIds.includes(item.calendar_event_id) &&
+                                     !activeEventIds.includes(item.calendar_event_id + '@google.com');
 
         if (wasCancelledByBarber) {
+          // Deleta do banco para manter a sincronização limpa
           sb.from('appointments').delete().eq('id', item.id).then();
           
           html += `
-            <div class="p-3.5 bg-red-950/20 border border-red-900/50 rounded-xl flex justify-between items-center opacity-70 grayscale">
+            <div class="p-3.5 bg-red-950/20 border border-red-900/50 rounded-xl flex justify-between items-center opacity-70">
               <div>
-                <p class="font-bold text-red-400/80 text-xs line-through">${item.service}</p>
-                <p class="text-red-400/50 text-[11px] mt-0.5">Cancelado pela barbearia</p>
+                <p class="font-bold text-red-400 text-xs line-through">${item.service}</p>
+                <p class="text-red-400/60 text-[11px] mt-0.5">Cancelado pelo barbeiro na agenda</p>
               </div>
             </div>
           `;
@@ -723,6 +738,6 @@
       
       container.innerHTML = html;
       syncStatus.innerHTML = `<span class="text-emerald-500">Sincronizado</span>`;
-      setTimeout(() => syncStatus.innerHTML = '', 3000);
+      setTimeout(() => syncStatus.innerHTML = '', 2500);
     }
   </script></body></html>
