@@ -64,7 +64,6 @@
   <!-- APLICAÇÃO PRINCIPAL -->
   <div id="main-panel" class="hidden flex-1 flex flex-col p-4 md:p-6 max-w-[1600px] w-full mx-auto">
     
-    <!-- BARRA SUPERIOR E MÉTRICAS -->
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900 border border-zinc-800 p-5 rounded-2xl mb-6 shadow-lg">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
@@ -76,7 +75,6 @@
         </div>
       </div>
 
-      <!-- MÉTRICAS -->
       <div class="flex flex-wrap items-center gap-3">
         <div class="bg-zinc-950 border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
           <span class="text-xs text-zinc-400 uppercase font-semibold">Agendamentos</span>
@@ -96,11 +94,7 @@
       </div>
     </header>
 
-    <!-- QUADRO KANBAN DE COLUNAS -->
-    <main id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto custom-scroll pb-6 items-start">
-      <!-- Colunas renderizadas via JavaScript -->
-    </main>
-
+    <main id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto custom-scroll pb-6 items-start"></main>
   </div>
 
   <script>
@@ -134,14 +128,13 @@
       document.getElementById('modal-block').classList.add('hidden');
     }
 
-    // Retorna a URL da imagem correspondente ao serviço
     function getServiceImage(serviceName) {
       if (!serviceName) return '';
       if (serviceName.includes("Combo")) return "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80";
       if (serviceName.includes("Barba")) return "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80";
       if (serviceName.includes("Sobrancelha")) return "./sobrancelha.jpeg";
       if (serviceName.includes("Corte")) return "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80";
-      return "https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=300&auto=format&fit=crop&q=80"; // fallback
+      return "https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=300&auto=format&fit=crop&q=80";
     }
 
     async function confirmBlock() {
@@ -186,7 +179,6 @@
       const board = document.getElementById('kanban-board');
       board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">Carregando agendamentos...</div>`;
 
-      // 1. Busca TODOS os agendamentos ativos
       const { data: apts, error } = await sb.from('appointments').select(`
         id, service, date, time, price, calendar_event_id, user_id,
         profiles (full_name, phone)
@@ -197,7 +189,18 @@
         return;
       }
 
-      // 2. Coleta datas com agendamentos e projeta os próximos 20 dias úteis (~4 semanas)
+      // CORREÇÃO: Normaliza todas as datas do Supabase adicionando zero onde faltar (Ex: 22/9/2026 para 22/09/2026)
+      if (apts) {
+        apts.forEach(a => {
+          if (a.date) {
+            let parts = a.date.split('/');
+            if (parts.length === 3) {
+              a.date = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
+            }
+          }
+        });
+      }
+
       const activeDatesSet = new Set();
       if (apts) {
         apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
@@ -208,7 +211,6 @@
       
       let cursor = new Date();
       let addedCount = 0;
-      // Garante os próximos 20 dias úteis na visualização
       while (addedCount < 20) {
         if (cursor.getDay() !== 0) {
           const d = cursor.getDate().toString().padStart(2, '0');
@@ -221,7 +223,6 @@
         cursor.setDate(cursor.getDate() + 1);
       }
 
-      // Ordena cronologicamente
       const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
         const [dA, mA, yA] = a.split('/').map(Number);
         const [dB, mB, yB] = b.split('/').map(Number);
@@ -238,7 +239,6 @@
         });
       });
 
-      // 3. Métricas
       let totalCuts = 0;
       let totalRevenue = 0;
 
@@ -252,7 +252,6 @@
       document.getElementById('metric-total-cuts').innerText = totalCuts;
       document.getElementById('metric-total-revenue').innerText = `R$ ${totalRevenue}`;
 
-      // 4. Renderiza as Colunas
       let boardHtml = '';
 
       daysList.forEach(day => {
@@ -276,7 +275,7 @@
             const rawPhone = item.profiles ? item.profiles.phone : '';
             const cleanPhone = (rawPhone || '').replace(/\D/g, '');
             const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
-            const serviceImg = getServiceImage(item.service); // Pega a imagem baseada no nome
+            const serviceImg = getServiceImage(item.service);
 
             if (!isBlock) {
               dayRevenue += parseFloat(item.price || 0);
@@ -299,7 +298,6 @@
                 </div>
               `;
             } else {
-              // CARTÃO DO CLIENTE COM IMAGEM
               cardsHtml += `
                 <div class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-4 transition-all shadow-md space-y-3">
                   <div class="flex items-center justify-between">
