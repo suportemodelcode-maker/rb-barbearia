@@ -244,10 +244,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ==============================================================
-    // COLE SUA URL DO GOOGLE APPS SCRIPT AQUI ABAIXO:
-    const GOOGLE_SCRIPT_URL = 'COLE_A_NOVA_URL_AQUI';
-    // ==============================================================
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWAA18IOL7a0RHvNlOeCL2d90Pq2e2ylSkKIIrs657lhIwjurwArK3gpful1kkYXm_OA/exec';
 
     let clientUser = null;
     let selectedService = null;
@@ -409,7 +406,6 @@
       document.getElementById('avatar-img').src = userPhoto;
       document.getElementById('nav-avatar').src = userPhoto;
 
-      // Restaura a última tela que o usuário acessou
       const lastTab = localStorage.getItem('rb_active_tab') || 'booking';
       switchTab(lastTab);
     }
@@ -429,7 +425,6 @@
     }
 
     function switchTab(tab) {
-      // Salva na memória do celular qual aba ele está
       localStorage.setItem('rb_active_tab', tab);
 
       document.getElementById('step-services').classList.add('hidden');
@@ -568,60 +563,60 @@
       }
     }
 
-    // ==== OTIMIZAÇÃO: CRIAÇÃO INSTANTÂNEA ====
     async function confirmBooking() {
       const btn = document.getElementById('btn-save-appointment');
       const originalText = btn.innerText;
       btn.disabled = true;
+      btn.innerText = "Confirmando...";
 
-      // 1. Salva no banco de dados IMEDIATAMENTE (rápido)
-      const { data: newApt, error } = await sb.from('appointments').insert([{
+      let calendarEventId = null;
+
+      // Chama a sincronização com o Google Calendar
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'create',
+              service: selectedService,
+              price: selectedPrice,
+              date: selectedDate,
+              time: selectedTime,
+              clientName: clientUser.name,
+              clientPhone: clientUser.phone,
+              clientEmail: clientUser.email || 'Não informado'
+            })
+          });
+          const result = await res.json();
+          if (result && result.eventId) {
+            calendarEventId = result.eventId;
+          }
+        } catch (e) {
+          console.error("Falha ao salvar no Google Calendar:", e);
+        }
+      }
+
+      // Salva no Supabase já vinculado ao calendar_event_id retornado
+      const { error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
         price: parseFloat(selectedPrice),
         date: selectedDate,
         time: selectedTime,
-        calendar_event_id: 'pending_sync'
-      }]).select('id').single();
+        calendar_event_id: calendarEventId
+      }]);
+
+      btn.disabled = false;
+      btn.innerText = originalText;
 
       if (error) {
         alert('Erro ao gravar agendamento: ' + error.message);
-        btn.disabled = false;
         return;
       }
 
-      // 2. Libera a tela IMEDIATAMENTE para o usuário não ficar esperando
-      btn.disabled = false;
-      btn.innerText = originalText;
-      showToast('Agendamento salvo!');
-      switchTab('profile'); // Envia para aba perfil
-      
-      const phoneBarber = "5551995738595";
-      const msg = `✂️ *NOVO AGENDAMENTO | RB Barbearia*\n\n👤 *Cliente:* ${clientUser.name}\n📱 *WhatsApp:* ${clientUser.phone}\n💈 *Serviço:* ${selectedService}\n📅 *Data:* ${selectedDate}\n⏰ *Horário:* ${selectedTime}\n💵 *Valor:* R$ ${selectedPrice},00`;
-      window.open(`https://api.whatsapp.com/send?phone=${phoneBarber}&text=${encodeURIComponent(msg)}`, '_blank');
-
-      // 3. Sincroniza com o Google Calendar INVISÍVEL EM 2º PLANO
-      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
-        fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'create',
-            service: selectedService,
-            price: selectedPrice,
-            date: selectedDate,
-            time: selectedTime,
-            clientName: clientUser.name,
-            clientPhone: clientUser.phone,
-            clientEmail: clientUser.email || 'Não informado'
-          })
-        }).then(res => res.json())
-          .then(async (result) => {
-            if (result && result.eventId) {
-              await sb.from('appointments').update({ calendar_event_id: result.eventId }).eq('id', newApt.id);
-            }
-          }).catch(console.error);
-      }
+      showToast('Agendamento confirmado!');
+      switchTab('profile');
     }
 
     function openCancelModal(appointmentId, calendarEventId) {
@@ -634,15 +629,13 @@
       document.getElementById('modal-cancel-confirm').classList.add('hidden');
     }
 
-    // ==== OTIMIZAÇÃO: EXCLUSÃO INSTANTÂNEA ====
     async function executeCancelAppointment() {
       if (!itemPendingCancellation) return;
       const { appointmentId, calendarEventId } = itemPendingCancellation;
 
-      // 1. Fecha o popup de confirmação imediatamente
       closeCancelModal();
 
-      // 2. Apaga do banco de dados imediatamente (rápido)
+      // Deleta do Supabase
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       if (error) {
@@ -650,12 +643,11 @@
         return;
       }
 
-      // 3. Atualiza a tela imediatamente e mostra notificação
       showToast('Agendamento cancelado!');
-      loadHistory(); 
+      loadHistory();
 
-      // 4. Apaga do Google Calendar INVISÍVEL EM 2º PLANO
-      if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+      // Deleta do Google Calendar
+      if (calendarEventId && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
