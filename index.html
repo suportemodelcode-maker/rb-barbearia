@@ -116,6 +116,7 @@
 
       <div class="p-6 space-y-4">
         
+        <!-- Corte Clássico -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Corte Clássico" data-duration="30" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
@@ -132,6 +133,7 @@
           </div>
         </label>
 
+        <!-- Barba Completa -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Barba Completa" data-duration="30" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
@@ -148,11 +150,11 @@
           </div>
         </label>
 
-        <!-- Sobrancelha corrigida para detalhe de navalha reta -->
+        <!-- Sobrancelha (Navalha no rosto) -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Sobrancelha" data-duration="20" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
-            <img src="https://images.unsplash.com/photo-1600627225432-82de96999068?w=300&auto=format&fit=crop&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Design Sobrancelha">
+            <img src="https://images.pexels.com/photos/3998429/pexels-photo-3998429.jpeg?auto=compress&cs=tinysrgb&w=300" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Design Sobrancelha">
             <div class="flex-1">
               <p class="font-bold text-white text-[15px]">Sobrancelha</p>
               <p class="text-zinc-400 text-xs mt-0.5">Alinhamento na navalha</p>
@@ -165,6 +167,7 @@
           </div>
         </label>
 
+        <!-- Combo Corte + Barba -->
         <label class="service-card block relative p-4 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-zinc-900/80 to-amber-950/20 cursor-pointer transition-all">
           <div class="absolute -top-2.5 right-5 bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Mais pedido</div>
           <input type="radio" name="service" value="Combo Corte + Barba" data-duration="60" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
