@@ -1,208 +1,341 @@
 <!DOCTYPE html><html lang="pt-BR"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel do Barbeiro | RB</title>
+  <title>Painel Kanban | RB Barbearia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fff; }
-    /* Estilização Customizada do FullCalendar para Modo Escuro */
-    .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid { border-color: #27272a; }
-    .fc-col-header-cell-cushion { color: #f59e0b; padding: 10px; font-weight: 600; text-transform: uppercase; }
-    .fc-timegrid-slot-label-cushion { color: #a1a1aa; font-weight: 500; }
-    .fc-timegrid-event { border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); cursor: pointer; border: none; }
-    .fc-event-main { padding: 4px; font-size: 11px; }
-    .fc-event-main strong { display: block; font-size: 13px; margin-bottom: 2px; }
-    .fc-button-primary { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #09090b !important; font-weight: 700 !important; border-radius: 8px !important; text-transform: capitalize !important;}
-    .fc-button-primary:hover { background-color: #d97706 !important; }
-    .fc-toolbar-title { font-size: 1.25rem !important; font-weight: 700 !important;}
-    .fc-day-today { background-color: rgba(245, 158, 11, 0.05) !important; }
-  </style></head><body class="antialiased min-h-screen p-4 md:p-8">
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f4f4f5; }
+    .custom-scroll::-webkit-scrollbar { height: 8px; width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #18181b; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+  </style></head><body class="min-h-screen flex flex-col bg-zinc-950 select-none">
 
-  <!-- Autenticação Simples de Segurança -->
-  <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-6">
-    <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl w-full max-w-sm text-center shadow-2xl">
-      <h2 class="text-2xl font-bold text-white mb-2">Painel de Controle</h2>
-      <p class="text-sm text-zinc-400 mb-6">Acesso restrito à barbearia</p>
-      <input type="password" id="admin-pass" placeholder="Senha de Acesso" class="w-full p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:border-amber-500 outline-none mb-4 text-center tracking-widest">
-      <button onclick="checkAdmin()" class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl shadow-lg transition-colors">Acessar Agenda</button>
+  <!-- TELA DE SENHA -->
+  <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-4 text-amber-500">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      </div>
+      <h2 class="text-2xl font-bold text-white">Painel RB</h2>
+      <p class="text-xs text-zinc-400 mt-1 mb-6">Acesso exclusivo do barbeiro</p>
+      <input type="password" id="admin-pass" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') checkAdmin()" class="w-full py-3.5 px-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:border-amber-500 outline-none mb-4 text-center tracking-widest text-lg">
+      <button onclick="checkAdmin()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl shadow-lg transition-all">Acessar Agenda</button>
     </div>
   </div>
 
-  <!-- Cabeçalho do Painel -->
-  <div id="app-screen" class="hidden max-w-6xl mx-auto flex flex-col h-[90vh]">
-    <header class="flex justify-between items-center mb-6 bg-zinc-900 p-4 border border-zinc-800 rounded-2xl shadow-lg">
-      <div>
-        <h1 class="text-2xl font-bold text-white">Agenda Exclusiva RB</h1>
-        <p class="text-xs text-amber-500 font-semibold mt-1">Sincronizada em tempo real com os clientes</p>
+  <!-- MODAL PARA BLOQUEAR HORÁRIO -->
+  <div id="modal-block" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-white text-lg">Bloquear Horário</h3>
+        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white text-sm">✕</button>
       </div>
-      <button onclick="location.reload()" class="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm font-bold transition-colors border border-zinc-700">Atualizar</button>
+      <div>
+        <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Data (DD/MM/AAAA)</label>
+        <input type="text" id="block-date" placeholder="Ex: 22/09/2026" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm">
+      </div>
+      <div>
+        <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Horário</label>
+        <select id="block-time" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm">
+          <option value="18:00">18:00</option>
+          <option value="18:30">18:30</option>
+          <option value="19:00">19:00</option>
+          <option value="19:30">19:30</option>
+          <option value="20:00">20:00</option>
+          <option value="20:30">20:30</option>
+          <option value="21:00">21:00</option>
+          <option value="21:30">21:30</option>
+          <option value="22:00">22:00</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Motivo (Opcional)</label>
+        <input type="text" id="block-reason" placeholder="Ex: Intervalo, Almoço, Folga" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm">
+      </div>
+      <button onclick="confirmBlock()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg">Confirmar Bloqueio</button>
+    </div>
+  </div>
+
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <div id="main-panel" class="hidden flex-1 flex flex-col p-4 md:p-6 max-w-[1600px] w-full mx-auto">
+    
+    <!-- BARRA SUPERIOR E MÉTRICAS -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900 border border-zinc-800 p-5 rounded-2xl mb-6 shadow-lg">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-wide">Quadro de Cortes RB</h1>
+          <p class="text-xs text-zinc-400">Visualização de agendamentos em cartões estilo Kanban</p>
+        </div>
+      </div>
+
+      <!-- MÉTRICAS -->
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="bg-zinc-950 border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+          <span class="text-xs text-zinc-400 uppercase font-semibold">Agendamentos</span>
+          <span id="metric-total-cuts" class="text-lg font-bold text-white">0</span>
+        </div>
+        <div class="bg-zinc-950 border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+          <span class="text-xs text-zinc-400 uppercase font-semibold">Previsão Faturamento</span>
+          <span id="metric-total-revenue" class="text-lg font-bold text-emerald-400">R$ 0</span>
+        </div>
+        <button onclick="openBlockModal()" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-500/30 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+          <span>🚫 Bloquear Horário</span>
+        </button>
+        <button onclick="loadKanban()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-md flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Atualizar
+        </button>
+      </div>
     </header>
 
-    <!-- Calendário Renderizado Aqui -->
-    <div class="flex-1 bg-zinc-900 border border-zinc-800 p-4 rounded-2xl overflow-hidden shadow-2xl relative">
-      <div id="loading" class="absolute inset-0 bg-zinc-900/80 backdrop-blur flex items-center justify-center z-10">
-        <svg class="w-10 h-10 animate-spin text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-      </div>
-      <div id="calendar" class="h-full w-full"></div>
-    </div>
+    <!-- QUADRO KANBAN DE COLUNAS -->
+    <main id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto custom-scroll pb-6 items-start">
+      <!-- Colunas renderizadas via JavaScript -->
+    </main>
+
   </div>
 
   <script>
-    // SENHA DA BARBEARIA (Pode mudar aqui no código depois)
-    const ADMIN_PASSWORD = "rb"; 
+    const ADMIN_PASSWORD = "rb";
+    const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function checkAdmin() {
       const pass = document.getElementById('admin-pass').value;
       if (pass === ADMIN_PASSWORD) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-screen').classList.remove('hidden');
-        initCalendar();
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('main-panel').classList.remove('hidden');
+        loadKanban();
       } else {
         alert("Senha incorreta!");
       }
     }
 
-    const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let calendar;
-
-    function getServiceDuration(serviceName) {
-      if (serviceName.includes("Combo")) return 60;
-      if (serviceName.includes("Sobrancelha")) return 20;
-      return 30; // Corte Clássico e Barba Completa
+    function parseDateString(dStr) {
+      const p = dStr.split('/');
+      return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
     }
 
-    function getServiceColor(serviceName) {
-      if (serviceName === "BLOQUEIO") return '#ef4444'; // Vermelho
-      if (serviceName.includes("Combo")) return '#f59e0b'; // Laranja/Amber
-      if (serviceName.includes("Sobrancelha")) return '#a855f7'; // Roxo
-      if (serviceName.includes("Barba")) return '#22c55e'; // Verde
-      return '#3b82f6'; // Azul p/ Corte Clássico
+    function timeToMinutes(tStr) {
+      const p = tStr.split(':');
+      return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
     }
 
-    // Pega a string DD/MM/YYYY e HH:MM e transforma no formato ISO do calendário (YYYY-MM-DDTHH:MM:00)
-    function parseToIso(dateStr, timeStr) {
-      const parts = dateStr.split('/');
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}T${timeStr}:00`;
+    function openBlockModal(suggestedDate = '') {
+      document.getElementById('block-date').value = suggestedDate;
+      document.getElementById('modal-block').classList.remove('hidden');
     }
 
-    async function fetchAppointments() {
-      document.getElementById('loading').style.display = 'flex';
+    function closeBlockModal() {
+      document.getElementById('modal-block').classList.add('hidden');
+    }
+
+    async function confirmBlock() {
+      const date = document.getElementById('block-date').value.trim();
+      const time = document.getElementById('block-time').value;
+      const reason = document.getElementById('block-reason').value.trim() || 'Horário Bloqueado';
+
+      if (!date.includes('/') || date.length < 8) {
+        alert('Digite a data no formato DD/MM/AAAA (Ex: 22/09/2026)');
+        return;
+      }
+
+      await sb.from('appointments').insert([{
+        user_id: 'admin-barber',
+        service: `🚫 ${reason}`,
+        price: 0,
+        date: date,
+        time: time,
+        calendar_event_id: 'blocked_time'
+      }]);
+
+      closeBlockModal();
+      loadKanban();
+    }
+
+    async function deleteAppointment(id, isBlocked) {
+      const msg = isBlocked 
+        ? "Deseja liberar este horário para agendamento?" 
+        : "Deseja realmente CANCELAR este agendamento do cliente?";
       
-      const { data, error } = await sb.from('appointments').select(`
-        id, service, date, time, price, calendar_event_id,
+      if (confirm(msg)) {
+        if (isBlocked) {
+          await sb.from('appointments').delete().eq('id', id);
+        } else {
+          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', id);
+        }
+        loadKanban();
+      }
+    }
+
+    async function loadKanban() {
+      const board = document.getElementById('kanban-board');
+      board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">Carregando agendamentos...</div>`;
+
+      // 1. Gera as datas dos próximos 7 dias úteis
+      const daysList = [];
+      const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+      
+      let cursor = new Date();
+      while (daysList.length < 7) {
+        if (cursor.getDay() !== 0) { // Barbearia fecha aos domingos
+          const d = cursor.getDate().toString().padStart(2, '0');
+          const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
+          const y = cursor.getFullYear();
+          daysList.push({
+            label: `${d}/${m}/${y}`,
+            dayName: diasSemana[cursor.getDay()],
+            dayNumber: `${d}/${m}`
+          });
+        }
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      // 2. Busca todos os agendamentos do Supabase
+      const { data: apts, error } = await sb.from('appointments').select(`
+        id, service, date, time, price, calendar_event_id, user_id,
         profiles (full_name, phone)
       `).neq('calendar_event_id', 'cancelled_by_barber');
 
-      document.getElementById('loading').style.display = 'none';
+      if (error) {
+        board.innerHTML = `<div class="p-8 text-red-500">Erro: ${error.message}</div>`;
+        return;
+      }
 
-      if (error) { alert("Erro ao carregar dados: " + error.message); return []; }
+      // 3. Atualiza Métricas Gerais
+      let totalCuts = 0;
+      let totalRevenue = 0;
 
-      return data.map(apt => {
-        const startIso = parseToIso(apt.date, apt.time);
-        
-        // Calcula a duração somando minutos na data ISO
-        const startDate = new Date(startIso);
-        const duration = getServiceDuration(apt.service);
-        const endDate = new Date(startDate.getTime() + duration * 60000);
-        
-        // Formata o cliente (se não tiver perfil, é o admin/bloqueio)
-        const clientName = apt.profiles ? apt.profiles.full_name : "Barbearia";
-        const clientPhone = apt.profiles && apt.profiles.phone ? apt.profiles.phone : "";
-
-        return {
-          id: apt.id,
-          title: apt.service === 'BLOQUEIO' ? 'Bloqueio' : `${apt.service} - ${clientName}`,
-          start: startIso,
-          end: endDate.toISOString(),
-          backgroundColor: getServiceColor(apt.service),
-          extendedProps: {
-            clientName: clientName,
-            clientPhone: clientPhone,
-            service: apt.service,
-            price: apt.price
-          }
-        };
-      });
-    }
-
-    async function initCalendar() {
-      const calendarEl = document.getElementById('calendar');
-      
-      calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek', // Mostra a semana inteira em colunas
-        locale: 'pt-br',
-        slotMinTime: '17:00:00', // Horário de abertura da agenda
-        slotMaxTime: '23:00:00', // Horário final da agenda
-        allDaySlot: false,
-        height: '100%',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: async function(info, successCallback, failureCallback) {
-          const events = await fetchAppointments();
-          successCallback(events);
-        },
-        eventContent: function(arg) {
-          // Customiza como o texto aparece dentro do bloco do calendário
-          const p = arg.event.extendedProps;
-          if (p.service === 'BLOQUEIO') {
-            return { html: `<div class="fc-event-main"><strong>🚫 BLOQUEADO</strong></div>` };
-          }
-          return {
-            html: `<div class="fc-event-main">
-                     <strong>${p.clientName}</strong>
-                     ${p.service} <br>
-                     ${p.clientPhone ? '📱 ' + p.clientPhone : ''}
-                   </div>`
-          };
-        },
-        dateClick: async function(info) {
-          // CLICAR EM HORÁRIO VAGO = CRIAR BLOQUEIO
-          const conf = confirm(`Deseja bloquear a agenda no dia ${info.dateStr.replace('T', ' às ')}?`);
-          if (conf) {
-            const dateObj = new Date(info.dateStr);
-            const dia = dateObj.getDate().toString().padStart(2, '0') + '/' + (dateObj.getMonth() + 1).toString().padStart(2, '0') + '/' + dateObj.getFullYear();
-            const hora = dateObj.getHours().toString().padStart(2, '0') + ':' + dateObj.getMinutes().toString().padStart(2, '0');
-
-            await sb.from('appointments').insert([{
-              user_id: 'admin-barber',
-              service: 'BLOQUEIO',
-              price: 0,
-              date: dia,
-              time: hora,
-              calendar_event_id: 'internal_system'
-            }]);
-            calendar.refetchEvents();
-          }
-        },
-        eventClick: async function(info) {
-          // CLICAR EM EVENTO = VER DETALHES OU CANCELAR
-          const ev = info.event;
-          const p = ev.extendedProps;
-          let msg = p.service === 'BLOQUEIO' 
-            ? 'Remover este bloqueio e liberar o horário para os clientes?' 
-            : `Cliente: ${p.clientName}\nTelefone: ${p.clientPhone}\nServiço: ${p.service}\n\nDeseja CANCELAR este agendamento?`;
-          
-          if (confirm(msg)) {
-            if (p.service === 'BLOQUEIO') {
-              await sb.from('appointments').delete().eq('id', ev.id);
-            } else {
-              // Marca como cancelado pelo barbeiro para aparecer vermelho no app do cliente
-              await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', ev.id);
-            }
-            calendar.refetchEvents();
-          }
+      apts.forEach(a => {
+        if (!a.service.startsWith('🚫')) {
+          totalCuts++;
+          totalRevenue += parseFloat(a.price || 0);
         }
       });
-      
-      calendar.render();
+
+      document.getElementById('metric-total-cuts').innerText = totalCuts;
+      document.getElementById('metric-total-revenue').innerText = `R$ ${totalRevenue}`;
+
+      // 4. Renderiza Colunas do Kanban
+      let boardHtml = '';
+
+      daysList.forEach(day => {
+        // Filtra os agendamentos deste dia específico e ordena pelo horário
+        const dayApts = apts.filter(a => a.date === day.label);
+        dayApts.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+
+        let dayRevenue = 0;
+        let dayCutsCount = 0;
+
+        let cardsHtml = '';
+
+        if (dayApts.length === 0) {
+          cardsHtml = `
+            <div class="h-36 border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600">
+              <span class="text-xs">Nenhum agendamento</span>
+            </div>
+          `;
+        } else {
+          dayApts.forEach(item => {
+            const isBlock = item.service.startsWith('🚫');
+            const clientName = item.profiles ? (item.profiles.full_name || 'Cliente') : (isBlock ? 'Barbearia' : 'Não informado');
+            const rawPhone = item.profiles ? item.profiles.phone : '';
+            const cleanPhone = (rawPhone || '').replace(/\D/g, '');
+            const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
+
+            if (!isBlock) {
+              dayRevenue += parseFloat(item.price || 0);
+              dayCutsCount++;
+            }
+
+            // Cores e estilos dos cards
+            let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+            if (item.service.includes("Combo")) badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+            else if (item.service.includes("Barba")) badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+            else if (item.service.includes("Sobrancelha")) badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+
+            if (isBlock) {
+              cardsHtml += `
+                <div class="bg-red-950/20 border border-red-900/40 rounded-2xl p-4 relative group">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">🕒 ${item.time}</span>
+                    <button onclick="deleteAppointment('${item.id}', true)" title="Liberar horário" class="text-zinc-500 hover:text-red-400 text-xs">Liberar ✕</button>
+                  </div>
+                  <p class="font-bold text-white text-sm mt-2">${item.service}</p>
+                </div>
+              `;
+            } else {
+              cardsHtml += `
+                <div class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-4 transition-all shadow-md space-y-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                      🕒 ${item.time}
+                    </span>
+                    <span class="text-xs font-bold text-white">R$ ${item.price}</span>
+                  </div>
+
+                  <div>
+                    <p class="font-bold text-white text-[15px] truncate">${clientName}</p>
+                    <span class="inline-block text-[11px] font-semibold px-2 py-0.5 rounded border mt-1 ${badgeColor}">
+                      ${item.service}
+                    </span>
+                  </div>
+
+                  <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs">
+                    ${cleanPhone ? `
+                      <a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                        <span>💬 WhatsApp</span>
+                      </a>
+                    ` : `<span class="text-zinc-500">Sem telefone</span>`}
+                    
+                    <button onclick="deleteAppointment('${item.id}', false)" title="Cancelar Agendamento" class="text-zinc-500 hover:text-red-400 font-medium">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              `;
+            }
+          });
+        }
+
+        boardHtml += `
+          <div class="w-80 shrink-0 bg-zinc-900/60 border border-zinc-800/90 rounded-3xl flex flex-col max-h-[80vh] shadow-xl">
+            <!-- CABEÇALHO DA COLUNA -->
+            <div class="p-4 border-b border-zinc-800/90 flex items-center justify-between bg-zinc-900/90 rounded-t-3xl">
+              <div>
+                <span class="text-xs uppercase tracking-wider font-extrabold text-amber-500 block">${day.dayName}</span>
+                <span class="text-sm font-bold text-white">${day.dayNumber}</span>
+              </div>
+              <div class="text-right">
+                <span class="text-[11px] font-bold text-zinc-400 block">${dayCutsCount} cortes</span>
+                <span class="text-xs font-extrabold text-emerald-400">R$ ${dayRevenue}</span>
+              </div>
+            </div>
+
+            <!-- CARTÕES DO DIA -->
+            <div class="p-3 space-y-3 overflow-y-auto flex-1 custom-scroll">
+              ${cardsHtml}
+            </div>
+
+            <!-- BOTÃO RÁPIDO DE BLOQUEIO NA COLUNA -->
+            <div class="p-3 border-t border-zinc-800/80 bg-zinc-900/40 rounded-b-3xl">
+              <button onclick="openBlockModal('${day.label}')" class="w-full py-2 bg-zinc-950 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-800 transition-colors">
+                + Bloquear Horário Neste Dia
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      board.innerHTML = boardHtml;
     }
   </script></body></html>
