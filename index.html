@@ -273,13 +273,14 @@
     }
 
     function getWeekDay(dateStr) {
+      if (!dateStr) return '';
       const parts = dateStr.split('/');
       const day = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const year = parseInt(parts[2], 10);
       const d = new Date(year, month, day);
       const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-      return dias[d.getDay()];
+      return dias[d.getDay()] || '';
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -767,7 +768,7 @@
             <div class="p-3.5 bg-red-950/20 border border-red-900/40 rounded-xl flex justify-between items-center opacity-75">
               <div>
                 <p class="font-bold text-red-400 text-xs line-through">${item.service}</p>
-                <p class="text-red-400/80 text-[11px] mt-0.5 line-through">${weekDay}, ${item.date} às ${item.time}</p>
+                <p class="text-red-400/80 text-[11px] mt-0.5 line-through">${weekDay ? weekDay + ', ' : ''}${item.date} às ${item.time}</p>
                 <span class="inline-block mt-1 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">Cancelado pela barbearia</span>
               </div>
               <div>
@@ -780,7 +781,7 @@
             <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
               <div>
                 <p class="font-bold text-white text-xs">${item.service}</p>
-                <p class="text-zinc-400 text-[11px] mt-0.5"><span class="text-amber-500 font-semibold">${weekDay}</span>, ${item.date} às ${item.time}</p>
+                <p class="text-zinc-400 text-[11px] mt-0.5"><span class="text-amber-500 font-semibold">${weekDay ? weekDay + ', ' : ''}</span>${item.date} às ${item.time}</p>
               </div>
               <div class="flex items-center gap-3">
                 <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
