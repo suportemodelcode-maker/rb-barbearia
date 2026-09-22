@@ -217,6 +217,7 @@
 
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Histórico de Cortes</h2>
+        <span id="sync-status" class="text-[10px] text-zinc-500 uppercase font-semibold flex items-center gap-1"></span>
       </div>
       <div id="history-container" class="space-y-2.5 flex-1"></div>
 
@@ -556,11 +557,15 @@
       const container = document.getElementById('time-grid-container');
       container.innerHTML = `<div class="col-span-3 text-center py-6 text-xs text-zinc-500"><svg class="w-4 h-4 animate-spin mx-auto mb-1 text-amber-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Verificando horários...</div>`;
 
-      const { data: booked } = await sb.from('appointments').select('service, time').eq('date', targetDate);
+      // Considera apenas agendamentos que NÃO foram cancelados pelo barbeiro
+      const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').eq('date', targetDate);
 
       let occupiedIntervals = [];
       if (booked && booked.length > 0) {
         booked.forEach(b => {
+          // Se tiver sido marcado como cancelado na agenda, libera o horário
+          if (b.calendar_event_id === 'cancelled_by_barber') return;
+
           const startMin = timeToMinutes(b.time);
           let dur = 30;
           if (b.service === "Combo Corte + Barba") dur = 60;
@@ -617,7 +622,6 @@
 
       let calendarEventId = null;
 
-      // Chama a criação na Google Agenda de forma síncrona para garantir o ID antes de salvar
       if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         try {
           const res = await fetch(GOOGLE_SCRIPT_URL, {
@@ -643,7 +647,6 @@
         }
       }
 
-      // Salva no Supabase já vinculado ao calendar_event_id retornado
       const { error } = await sb.from('appointments').insert([{
         user_id: clientUser.id,
         service: selectedService,
@@ -683,7 +686,6 @@
       btn.disabled = true;
       btn.innerText = "Cancelando...";
 
-      // Exclusão no Google Calendar
       if (calendarEventId && calendarEventId !== 'pending_sync' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
         try {
           await fetch(GOOGLE_SCRIPT_URL, {
@@ -696,7 +698,6 @@
         }
       }
 
-      // Exclusão no Supabase
       const { error } = await sb.from('appointments').delete().eq('id', appointmentId);
 
       btn.disabled = false;
@@ -714,9 +715,9 @@
 
     async function loadHistory() {
       const container = document.getElementById('history-container');
+      const syncStatus = document.getElementById('sync-status');
       if (!clientUser) return;
 
-      // Busca diretamente no Supabase sem exclusões automáticas fantasmas
       const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
 
       if (error || !data || data.length === 0) {
@@ -724,23 +725,68 @@
         return;
       }
 
+      // Consulta de verificação de integridade com o Google Calendar
+      let activeEventIds = null;
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'list_future' })
+          });
+          const result = await res.json();
+          if (result && Array.isArray(result.eventIds)) {
+            activeEventIds = result.eventIds;
+          }
+        } catch (e) {
+          console.error("Falha ao buscar agenda:", e);
+        }
+      }
+
       let html = '';
-      data.forEach(item => {
-        html += `
-          <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
-            <div>
-              <p class="font-bold text-white text-xs">${item.service}</p>
-              <p class="text-zinc-400 text-[11px] mt-0.5">${item.date} às ${item.time}</p>
+      for (const item of data) {
+        // Se a chamada da agenda respondeu com sucesso, verificamos se o evento foi apagado pelo barbeiro
+        let isCancelledByBarber = item.calendar_event_id === 'cancelled_by_barber';
+
+        if (!isCancelledByBarber && activeEventIds !== null && item.calendar_event_id && item.calendar_event_id !== 'pending_sync') {
+          const existsInCalendar = activeEventIds.includes(item.calendar_event_id) || activeEventIds.includes(item.calendar_event_id + '@google.com');
+          if (!existsInCalendar) {
+            isCancelledByBarber = true;
+            // Atualiza no banco sem apagar, garantindo a exibição permanente com o aviso
+            sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', item.id).then();
+          }
+        }
+
+        if (isCancelledByBarber) {
+          html += `
+            <div class="p-3.5 bg-red-950/20 border border-red-900/40 rounded-xl flex justify-between items-center opacity-75">
+              <div>
+                <p class="font-bold text-red-400 text-xs line-through">${item.service}</p>
+                <p class="text-red-400/80 text-[11px] mt-0.5 line-through">${item.date} às ${item.time}</p>
+                <span class="inline-block mt-1 text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">Cancelado pela barbearia</span>
+              </div>
+              <div>
+                <p class="text-zinc-600 font-bold text-xs line-through">R$ ${item.price}</p>
+              </div>
             </div>
-            <div class="flex items-center gap-3">
-              <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
-              <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              </button>
+          `;
+        } else {
+          html += `
+            <div class="p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl flex justify-between items-center">
+              <div>
+                <p class="font-bold text-white text-xs">${item.service}</p>
+                <p class="text-zinc-400 text-[11px] mt-0.5">${item.date} às ${item.time}</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <p class="text-amber-400 font-bold text-xs">R$ ${item.price}</p>
+                <button onclick="openCancelModal('${item.id}', '${item.calendar_event_id || ''}')" title="Cancelar Agendamento" class="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+        }
+      }
       
       container.innerHTML = html;
     }
