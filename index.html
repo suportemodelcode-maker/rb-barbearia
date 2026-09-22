@@ -64,9 +64,9 @@
     <!-- TELA DE LOGIN -->
     <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-zinc-950 absolute inset-0 overflow-y-auto no-scrollbar">
       <div class="text-center mb-8">
-        <!-- Ícone Barber Pole Substituindo a Tesoura -->
+        <!-- Ícone idêntico ao Barber Pole usado na tela de agendamento -->
         <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.15)] mx-auto mb-5 flex items-center justify-center bg-zinc-900">
-          <img src="https://images.unsplash.com/photo-1534778356534-d3d45b6df1da?w=400&q=80" alt="Barber Pole" class="w-full h-full object-cover">
+          <img src="https://images.unsplash.com/photo-1593062096033-9a26b09da705?w=400&q=80" alt="Barber Pole" class="w-full h-full object-cover">
         </div>
         
         <h1 class="font-elegant text-4xl text-white">RB <span class="text-amber-500 italic">Barbearia</span></h1>
@@ -103,8 +103,8 @@
     <!-- TELA DE SERVIÇOS -->
     <div id="step-services" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar">
       <header class="relative h-56 shrink-0">
-        <!-- Capa Corrigida -->
-        <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80" alt="Barbearia" class="absolute inset-0 w-full h-full object-cover">
+        <!-- Capa Interior com Barber Pole -->
+        <img src="https://images.unsplash.com/photo-1593062096033-9a26b09da705?w=800&q=80" alt="Barbearia" class="absolute inset-0 w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/30"></div>
         <div class="absolute top-4 left-6 right-6 flex justify-between items-center">
           <span class="px-3 py-1 bg-zinc-950/80 backdrop-blur-md rounded-full text-[11px] font-semibold text-emerald-400 border border-emerald-500/30 shadow-sm">Aberto hoje</span>
@@ -118,11 +118,11 @@
 
       <div class="p-6 space-y-4">
         
-        <!-- Corte Clássico -->
+        <!-- Corte Clássico (Nova imagem de corte de cabelo) -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Corte Clássico" data-duration="30" data-price="40" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
-            <img src="https://images.unsplash.com/photo-1593062096033-9a26b09da705?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Corte">
+            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Corte Clássico">
             <div class="flex-1">
               <p class="font-bold text-white text-[15px]">Corte Clássico</p>
               <p class="text-zinc-400 text-xs mt-0.5">Tesoura ou máquina</p>
@@ -135,11 +135,11 @@
           </div>
         </label>
 
-        <!-- Barba Completa -->
+        <!-- Barba Completa (Imagem da cadeira/ferramentas focadas) -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Barba Completa" data-duration="30" data-price="30" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
-            <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Barba">
+            <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-zinc-700 transition-colors" alt="Barba Completa">
             <div class="flex-1">
               <p class="font-bold text-white text-[15px]">Barba Completa</p>
               <p class="text-zinc-400 text-xs mt-0.5">Toalha quente e navalha</p>
@@ -152,7 +152,7 @@
           </div>
         </label>
 
-        <!-- Sobrancelha -->
+        <!-- Sobrancelha (Nova imagem: barbeiro alinhando no rosto) -->
         <label class="service-card block relative p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 cursor-pointer transition-all">
           <input type="radio" name="service" value="Sobrancelha" data-duration="20" data-price="15" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
@@ -169,12 +169,12 @@
           </div>
         </label>
 
-        <!-- Combo Corte + Barba -->
+        <!-- Combo Corte + Barba (Nova imagem: experiência completa) -->
         <label class="service-card block relative p-4 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-zinc-900/80 to-amber-950/20 cursor-pointer transition-all">
           <div class="absolute -top-2.5 right-5 bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Mais pedido</div>
           <input type="radio" name="service" value="Combo Corte + Barba" data-duration="60" data-price="65" class="peer sr-only" onchange="enableBookingBtn()">
           <div class="flex items-center gap-4">
-            <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-amber-500/40 transition-colors" alt="Combo">
+            <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=200&q=80" class="service-img w-16 h-16 rounded-xl object-cover border border-amber-500/40 transition-colors" alt="Combo">
             <div class="flex-1">
               <p class="font-bold text-white text-[15px]">Combo Corte + Barba</p>
               <p class="text-zinc-400 text-xs mt-0.5">Experiência completa</p>
@@ -196,7 +196,6 @@
       </div>
     </div>
 
-    <!-- TELA DE AGENDAMENTO (HORÁRIOS) -->
     <div id="step-datetime" class="hidden flex-col h-full pb-28 overflow-y-auto no-scrollbar p-6">
       <header class="flex items-center gap-4 mb-6">
         <button onclick="switchTab('booking')" class="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
@@ -221,7 +220,6 @@
       </div>
     </div>
 
-    <!-- TELA DE PERFIL -->
     <div id="view-profile" class="hidden flex-col h-full pb-28 p-6 overflow-y-auto no-scrollbar">
       <h1 class="text-2xl font-bold text-white mb-6 tracking-wide">Meu Perfil</h1>
       
