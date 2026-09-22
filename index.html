@@ -1,0 +1,50 @@
+      se ( passo === 2 ) {   
+        const date = document.querySelector ( 'input[name="date"]: checked ' ) ; 
+        const time = document.querySelector ( 'input[name="time"]: checked ' ) ; 
+        se ( data && hora ) {  
+          reserva.data = data.valor ;​​​​ 
+          reserva.dateLabel = data.dataset.label ;​​​​​​ 
+          reserva.tempo = tempo.valor ;​​​​ 
+          let btn = document.getElementById ( 'btn - next - 2' ) ; 
+          btn.disabled = false ;​​  
+          btn.classList.replace ( ' bg-zinc - 600' , ' bg-amber-500 ' ) ; 
+        }
+      }
+      se ( passo === 3 ) {   
+        const nome = document.getElementById ( ' clientName ' ) . value ; 
+        document.getElementById ( ' btn - finish ' ) . disabled = nome.length < 3 ;   
+      }
+    }
+
+    função irParaEtapa ( passo ) {  
+      document.getElementById ( ' step - 1' ) . classList.add ( ' hidden ' ) ;
+      document.getElementById ( ' step - 2' ) . classList.add ( ' hidden ' ) ;
+      document.getElementById ( ' step - 3' ) . classList.add ( ' hidden ' ) ;
+      
+      se ( passo === 2 ) {  
+        gerarDatas ( ) ;
+        gerarTempos ( ) ;
+      }
+      
+      se ( passo === 3 ) {  
+        document.getElementById ( ' summary - service ' ) . innerText = booking.service ; 
+        document.getElementById ( 'summary - price ' ) . innerText = ` R $ $ { booking.price } ` ;  
+        document.getElementById ( ' summary - datetime ' ) . innerText = ` $ { booking.dateLabel } às $ { booking.time } ` ;  
+      }
+
+      document.getElementById ( ` step - $ { step } ` ) .classList.remove ( ' hidden ' ) ;​
+      document.getElementById ( ` step - $ { step } ` ) .classList.add ( ' flex ' ) ;​
+    }
+
+    função finalizarReserva ( ) {  
+      const nome = document.getElementById ( ' clientName ' ) . value ; 
+      const numeroBarbearia = "5551995738595" ; //Seu número configurado  
+      
+      const msg = ` ✂️ *NOVO AGENDAMENTO | RB Barbearia* ✂️\n\n👤 *Cliente:* ${ nome } \n💈 *Serviço:* ${ booking . serviço } \n📅 *Dados:* ${ reserva . data } \n⏰ *Horário:* ${ reserva . horário } \n💵 *Valor:* R$ ${ reserva . preço } ,00\n\nConfirma meu horário? ` ; 
+      
+      const url = ` https://api.whatsapp.com/send?phone= ${ numeroBarbearia } &text= ${ encodeURIComponent ( msg ) } ` ; 
+      janela.abrir ( url , ' _blank ' ) ; 
+    }
+  </script>​​
+</body>​​
+</ html >
