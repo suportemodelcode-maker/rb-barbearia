@@ -134,6 +134,16 @@
       document.getElementById('modal-block').classList.add('hidden');
     }
 
+    // Retorna a URL da imagem correspondente ao serviço
+    function getServiceImage(serviceName) {
+      if (!serviceName) return '';
+      if (serviceName.includes("Combo")) return "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80";
+      if (serviceName.includes("Barba")) return "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80";
+      if (serviceName.includes("Sobrancelha")) return "./sobrancelha.jpeg";
+      if (serviceName.includes("Corte")) return "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80";
+      return "https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=300&auto=format&fit=crop&q=80"; // fallback
+    }
+
     async function confirmBlock() {
       const date = document.getElementById('block-date').value.trim();
       const time = document.getElementById('block-time').value;
@@ -176,7 +186,7 @@
       const board = document.getElementById('kanban-board');
       board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">Carregando agendamentos...</div>`;
 
-      // 1. Busca TODOS os agendamentos ativos do Supabase sem filtrar data na query
+      // 1. Busca TODOS os agendamentos ativos
       const { data: apts, error } = await sb.from('appointments').select(`
         id, service, date, time, price, calendar_event_id, user_id,
         profiles (full_name, phone)
@@ -187,7 +197,7 @@
         return;
       }
 
-      // 2. Extrai todas as datas únicas existentes na base + os próximos 7 dias úteis para garantir visibilidade total
+      // 2. Coleta datas com agendamentos e projeta os próximos 20 dias úteis (~4 semanas)
       const activeDatesSet = new Set();
       if (apts) {
         apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
@@ -198,8 +208,8 @@
       
       let cursor = new Date();
       let addedCount = 0;
-      // Garante pelo menos os próximos 7 dias úteis
-      while (addedCount < 7) {
+      // Garante os próximos 20 dias úteis na visualização
+      while (addedCount < 20) {
         if (cursor.getDay() !== 0) {
           const d = cursor.getDate().toString().padStart(2, '0');
           const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
@@ -211,7 +221,7 @@
         cursor.setDate(cursor.getDate() + 1);
       }
 
-      // Converte o Set para array e ordena cronologicamente (DD/MM/AAAA)
+      // Ordena cronologicamente
       const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
         const [dA, mA, yA] = a.split('/').map(Number);
         const [dB, mB, yB] = b.split('/').map(Number);
@@ -228,7 +238,7 @@
         });
       });
 
-      // 3. Atualiza Métricas Gerais Globais
+      // 3. Métricas
       let totalCuts = 0;
       let totalRevenue = 0;
 
@@ -242,7 +252,7 @@
       document.getElementById('metric-total-cuts').innerText = totalCuts;
       document.getElementById('metric-total-revenue').innerText = `R$ ${totalRevenue}`;
 
-      // 4. Renderiza Colunas do Kanban
+      // 4. Renderiza as Colunas
       let boardHtml = '';
 
       daysList.forEach(day => {
@@ -266,6 +276,7 @@
             const rawPhone = item.profiles ? item.profiles.phone : '';
             const cleanPhone = (rawPhone || '').replace(/\D/g, '');
             const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
+            const serviceImg = getServiceImage(item.service); // Pega a imagem baseada no nome
 
             if (!isBlock) {
               dayRevenue += parseFloat(item.price || 0);
@@ -288,6 +299,7 @@
                 </div>
               `;
             } else {
+              // CARTÃO DO CLIENTE COM IMAGEM
               cardsHtml += `
                 <div class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-4 transition-all shadow-md space-y-3">
                   <div class="flex items-center justify-between">
@@ -297,11 +309,14 @@
                     <span class="text-xs font-bold text-white">R$ ${item.price}</span>
                   </div>
 
-                  <div>
-                    <p class="font-bold text-white text-[15px] truncate">${clientName}</p>
-                    <span class="inline-block text-[11px] font-semibold px-2 py-0.5 rounded border mt-1 ${badgeColor}">
-                      ${item.service}
-                    </span>
+                  <div class="flex items-center gap-3">
+                    <img src="${serviceImg}" class="w-10 h-10 rounded-lg object-cover border border-zinc-700" alt="Serviço">
+                    <div class="flex-1 overflow-hidden">
+                      <p class="font-bold text-white text-[14px] truncate">${clientName}</p>
+                      <span class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded border mt-1 ${badgeColor}">
+                        ${item.service}
+                      </span>
+                    </div>
                   </div>
 
                   <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs">
