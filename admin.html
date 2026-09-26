@@ -349,6 +349,9 @@
 
       let conflictClient = null;
       if (existingApts && existingApts.length > 0) {
+        const blockStart = startMin;
+        const blockEnd = endMin + 30; // O último horário incluído no bloqueio consome 30 min da agenda
+
         for (const apt of existingApts) {
           const aptStart = timeToMinutes(apt.time);
           let dur = 30;
@@ -356,7 +359,7 @@
           else if (apt.service.includes("Sobrancelha")) dur = 20;
           const aptEnd = aptStart + dur;
 
-          if (aptStart <= endMin && aptEnd > startMin) {
+          if (aptStart < blockEnd && aptEnd > blockStart) {
             conflictClient = {
               name: apt.profiles?.full_name || 'Cliente',
               time: apt.time
@@ -561,14 +564,16 @@
         const isBlock = item.calendar_event_id === 'blocked_time' || (item.service && item.service.startsWith('🚫'));
         if (isBlock) {
           if (!currentBlock) {
-            currentBlock = { ...item, type: 'block', end_time: add30Mins(item.time), block_ids: [item.id] };
+            // Nova lógica: O end_time recebe inicialmente o próprio horário bloqueado
+            currentBlock = { ...item, type: 'block', end_time: item.time, block_ids: [item.id] };
           } else {
-            if (currentBlock.end_time === item.time && currentBlock.service === item.service) {
-              currentBlock.end_time = add30Mins(item.time);
+            // Compara se o item atual é 30min após o end_time atual
+            if (add30Mins(currentBlock.end_time) === item.time && currentBlock.service === item.service) {
+              currentBlock.end_time = item.time; // Estende o bloco para o novo horário
               currentBlock.block_ids.push(item.id);
             } else {
               merged.push(currentBlock);
-              currentBlock = { ...item, type: 'block', end_time: add30Mins(item.time), block_ids: [item.id] };
+              currentBlock = { ...item, type: 'block', end_time: item.time, block_ids: [item.id] };
             }
           }
         } else {
@@ -588,13 +593,16 @@
 
       if (isBlock) {
         const idsStr = item.block_ids.join(',');
+        // Nova Lógica visual: Se for um slot só, mostra "Às 18:00". Se for intervalo, "Das 18:00 até 19:30"
+        const timeDisplay = item.time === item.end_time ? `Às ${item.time}` : `Das ${item.time} até ${item.end_time}`;
+        
         return `
           <div class="bg-red-950/20 border border-red-900/40 rounded-2xl p-4 relative shrink-0">
             <div class="flex items-center justify-between mb-2">
               <span class="text-[11px] font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">🚫 Faixa Bloqueada</span>
               <button onclick="deleteAppointment('${idsStr}', true)" class="text-zinc-400 hover:text-red-400 text-xs font-bold bg-zinc-900 px-2 py-1 rounded border border-zinc-800 transition-colors">Liberar ✕</button>
             </div>
-            <p class="font-bold text-zinc-300 text-[15px]">Das ${item.time} às ${item.end_time}</p>
+            <p class="font-bold text-zinc-300 text-[15px]">${timeDisplay}</p>
             <p class="text-xs text-zinc-500 mt-1">${(item.service || '').replace('🚫 ', '')}</p>
           </div>`;
       } else {
