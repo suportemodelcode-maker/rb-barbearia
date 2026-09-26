@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pt-PT"><head>
+<!DOCTYPE html><html lang="pt-BR"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Kanban | RB Barbearia</title>
@@ -27,12 +27,30 @@
       <p class="text-xs text-zinc-400 mt-1 mb-6">Acesso exclusivo da barbearia</p>
       
       <form id="login-form" onsubmit="checkAdmin(event)">
-        <!-- Input escondido para o navegador identificar como login -->
         <input type="text" name="username" value="admin" class="hidden" autocomplete="username">
-        
         <input type="password" id="admin-pass" name="password" autocomplete="current-password" placeholder="Digite a senha" class="w-full py-3.5 px-4 rounded-xl bg-black border border-zinc-800 text-white focus:border-blue-500 outline-none mb-4 text-center tracking-widest text-lg transition-colors">
         <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition-colors text-[15px]">Acessar Agenda</button>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALHES DO HISTÓRICO -->
+  <div id="modal-details" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#1a1a1a] border border-zinc-800 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl relative">
+      <button onclick="closeDetailsModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white p-1">✕</button>
+      <div class="flex items-center gap-3 border-b border-zinc-800 pb-4">
+        <div id="detail-img-container" class="w-12 h-12 rounded-xl object-cover border border-zinc-700 overflow-hidden"></div>
+        <div>
+          <h3 id="detail-service" class="font-bold text-white text-lg leading-tight">Serviço</h3>
+          <p id="detail-status" class="text-xs mt-1">Status</p>
+        </div>
+      </div>
+      <div class="space-y-3 pt-2">
+        <div><p class="text-[10px] text-zinc-500 uppercase font-bold">Cliente</p><p id="detail-client" class="text-sm font-medium text-white">Nome</p></div>
+        <div><p class="text-[10px] text-zinc-500 uppercase font-bold">Data Agendada</p><p id="detail-date" class="text-sm font-medium text-white">Data</p></div>
+        <div><p class="text-[10px] text-zinc-500 uppercase font-bold">Última Modificação</p><p id="detail-modified" class="text-sm font-medium text-zinc-400">Data</p></div>
+        <div id="detail-whatsapp-container" class="pt-2"></div>
+      </div>
     </div>
   </div>
 
@@ -81,7 +99,6 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <!-- NAVEGAÇÃO -->
         <button onclick="switchTab('kanban')" id="btn-tab-kanban" class="bg-blue-600 border border-blue-500 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors">📋 Quadro</button>
         <button onclick="switchTab('historico')" id="btn-tab-historico" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">📜 Histórico</button>
         <button onclick="switchTab('config')" id="btn-tab-config" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">⚙️ Configurações</button>
@@ -95,11 +112,11 @@
     <main id="tab-kanban" class="flex-1 flex flex-col">
       <div class="flex flex-wrap items-center gap-3 mb-6">
         <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Agendamentos</span>
+          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Agendamentos Hoje</span>
           <span id="metric-total-cuts" class="text-lg font-bold text-white">0</span>
         </div>
         <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Faturamento</span>
+          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Faturamento Hoje</span>
           <span id="metric-total-revenue" class="text-lg font-bold text-emerald-400">R$ 0</span>
         </div>
         <button onclick="openBlockModal()" class="bg-transparent hover:bg-zinc-900 border border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2">
@@ -111,12 +128,19 @@
 
     <!-- ABA 2: HISTÓRICO GERAL -->
     <main id="tab-historico" class="hidden flex-1 flex-col bg-[#141414] border border-zinc-800 rounded-3xl p-6 overflow-hidden">
-      <h2 class="text-lg font-bold text-white mb-4">Histórico Completo</h2>
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+        <h2 class="text-lg font-bold text-white">Histórico Completo</h2>
+        <div class="flex items-center gap-2 bg-black border border-zinc-800 p-1 rounded-xl">
+          <button onclick="setHistoryFilter('hoje')" id="filter-hoje" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-zinc-800 transition-colors">Hoje</button>
+          <button onclick="setHistoryFilter('7dias')" id="filter-7dias" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-colors">7 Dias</button>
+          <button onclick="setHistoryFilter('tudo')" id="filter-tudo" class="px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-colors">Tudo</button>
+        </div>
+      </div>
       <div class="overflow-x-auto custom-scroll flex-1 border border-zinc-800 rounded-xl">
         <table class="w-full text-left text-sm whitespace-nowrap">
           <thead class="bg-zinc-900 text-zinc-400 text-xs uppercase font-bold sticky top-0">
             <tr>
-              <th class="px-6 py-4">Criado em</th>
+              <th class="px-6 py-4">Última Modificação ▼</th>
               <th class="px-6 py-4">Data Marcada</th>
               <th class="px-6 py-4">Cliente</th>
               <th class="px-6 py-4">Serviço</th>
@@ -125,7 +149,6 @@
             </tr>
           </thead>
           <tbody id="history-table-body" class="divide-y divide-zinc-800/50">
-            <!-- Povoado por JS -->
           </tbody>
         </table>
       </div>
@@ -159,14 +182,12 @@
     const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
     let realtimeSubscription = null;
+    let allHistoryData = [];
+    let currentHistoryFilter = 'hoje';
 
-    // Verificar login salvo ao iniciar
-    window.onload = () => {
-      if(localStorage.getItem('rb_admin_logged') === 'true') {
-        processLogin();
-      }
-    };
+    window.onload = () => { if(localStorage.getItem('rb_admin_logged') === 'true') processLogin(); };
 
     function checkAdmin(e) {
       if(e) e.preventDefault();
@@ -174,9 +195,7 @@
       if (pass === ADMIN_PASSWORD) {
         localStorage.setItem('rb_admin_logged', 'true');
         processLogin();
-      } else {
-        alert("Senha incorreta!");
-      }
+      } else { alert("Senha incorreta!"); }
     }
 
     function processLogin() {
@@ -191,10 +210,7 @@
       subscribeToRealtime();
     }
 
-    function logoutAdmin() {
-      localStorage.removeItem('rb_admin_logged');
-      window.location.reload();
-    }
+    function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
 
     function switchTab(tab) {
       document.getElementById('tab-kanban').classList.add('hidden');
@@ -213,13 +229,12 @@
       document.getElementById('tab-'+tab).classList.add('flex');
       document.getElementById('btn-tab-'+tab).className = "bg-blue-600 border border-blue-500 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors";
 
-      if(tab === 'historico') loadHistoryTable();
+      if(tab === 'historico') fetchHistoryData();
     }
 
     function playNotificationSound() {
       const audio = document.getElementById('notification-sound');
-      audio.currentTime = 0;
-      audio.play().catch(e => console.log('Áudio bloqueado', e));
+      audio.currentTime = 0; audio.play().catch(e => console.log('Áudio bloqueado', e));
     }
 
     function subscribeToRealtime() {
@@ -228,13 +243,12 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
           playNotificationSound();
           loadKanban();
-          loadHistoryTable();
+          fetchHistoryData();
         }).subscribe();
     }
 
     function timeToMinutes(tStr) {
-      const p = tStr.split(':');
-      return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+      const p = tStr.split(':'); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
     }
 
     function openBlockModal(suggestedDate = '') {
@@ -254,22 +268,16 @@
       const end = document.getElementById('block-end').value;
       const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
 
-      if (!date.includes('/') || date.length < 8) {
-        alert('Digite a data no formato DD/MM/AAAA (Ex: 22/09/2026)'); return;
-      }
+      if (!date.includes('/') || date.length < 8) { alert('Digite a data no formato DD/MM/AAAA'); return; }
 
       const startMin = timeToMinutes(start);
       const endMin = timeToMinutes(end);
       
-      if(startMin >= endMin) {
-        alert('O horário de fim deve ser maior que o de início.'); return;
-      }
+      if(startMin >= endMin) { alert('O horário de fim deve ser maior que o de início.'); return; }
 
       const inserts = [];
-      // Cria blocos a cada 30 minutos na faixa selecionada
       for (let t = startMin; t < endMin; t += 30) {
-        let h = String(Math.floor(t/60)).padStart(2, '0');
-        let m = String(t%60).padStart(2, '0');
+        let h = String(Math.floor(t/60)).padStart(2, '0'); let m = String(t%60).padStart(2, '0');
         inserts.push({ user_id: 'admin-barber', service: `🚫 ${reason}`, price: 0, date: date, time: `${h}:${m}`, calendar_event_id: 'blocked_time' });
       }
 
@@ -280,19 +288,19 @@
     async function deleteAppointment(id, isBlocked) {
       const msg = isBlocked ? "Deseja liberar este horário?" : "Cancelar este agendamento?";
       if (confirm(msg)) {
-        if (isBlocked) {
-          await sb.from('appointments').delete().eq('id', id);
-        } else {
-          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', id);
+        if (isBlocked) { await sb.from('appointments').delete().eq('id', id); } 
+        else {
+          // Atualiza também o campo created_at para ele subir no topo do histórico (como última modificação)
+          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber', created_at: new Date().toISOString() }).eq('id', id); 
         }
       }
     }
 
     async function loadSettings() {
-      const {data} = await sb.from('settings').select('*').eq('id', 1).single();
+      const {data} = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
       if(data) {
-        document.getElementById('set-open').value = data.open_time;
-        document.getElementById('set-close').value = data.close_time;
+        document.getElementById('set-open').value = data.open_time || '09:00';
+        document.getElementById('set-close').value = data.close_time || '20:00';
       }
     }
 
@@ -313,37 +321,60 @@
     }
 
     function formatDateForDisplay(isoString) {
-      if(!isoString) return '-';
-      const d = new Date(isoString);
+      if(!isoString) return '-'; const d = new Date(isoString);
       return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} às ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
-    async function loadHistoryTable() {
+    function setHistoryFilter(filter) {
+      currentHistoryFilter = filter;
+      const btns = ['hoje', '7dias', 'tudo'];
+      btns.forEach(b => {
+        document.getElementById('filter-'+b).className = (b === filter) 
+          ? "px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-zinc-800 transition-colors"
+          : "px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition-colors";
+      });
+      renderHistoryTable();
+    }
+
+    async function fetchHistoryData() {
+      const { data } = await sb.from('appointments').select(`*, profiles(full_name, phone)`).order('created_at', {ascending: false});
+      allHistoryData = data || [];
+      renderHistoryTable();
+    }
+
+    function renderHistoryTable() {
       const tbody = document.getElementById('history-table-body');
-      tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-zinc-500">A carregar...</td></tr>`;
+      let filtered = allHistoryData;
+      const now = new Date();
       
-      const { data: apts } = await sb.from('appointments').select(`*, profiles(full_name)`).order('created_at', {ascending: false});
-      
-      if(!apts || apts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-zinc-500">Nenhum histórico encontrado.</td></tr>`; return;
+      if (currentHistoryFilter === 'hoje') {
+        const todayStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+        filtered = allHistoryData.filter(a => {
+          const modD = new Date(a.created_at);
+          const modStr = `${String(modD.getDate()).padStart(2,'0')}/${String(modD.getMonth()+1).padStart(2,'0')}/${modD.getFullYear()}`;
+          return modStr === todayStr || a.date === todayStr;
+        });
+      } else if (currentHistoryFilter === '7dias') {
+        const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+        filtered = allHistoryData.filter(a => new Date(a.created_at) >= sevenDaysAgo);
+      }
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-zinc-500">Nenhum histórico encontrado para este filtro.</td></tr>`; return;
       }
 
       let html = '';
-      apts.forEach(a => {
+      filtered.forEach(a => {
         const isBlock = a.service.startsWith('🚫');
         const clientName = a.profiles ? a.profiles.full_name : (isBlock ? 'Barbearia (Bloqueio)' : 'Cliente');
         let statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded text-xs">Confirmado</span>`;
         
-        if (a.calendar_event_id === 'cancelled_by_barber') {
-          statusBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded text-xs">Cancelado por Si</span>`;
-        } else if (a.calendar_event_id === 'cancelled_by_client') {
-          statusBadge = `<span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-1 rounded text-xs">Cancelado pelo Cliente</span>`;
-        } else if (a.calendar_event_id === 'blocked_time') {
-          statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded text-xs">Bloqueado</span>`;
-        }
+        if (a.calendar_event_id === 'cancelled_by_barber') statusBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded text-xs">Cancelado pela Barbearia</span>`;
+        else if (a.calendar_event_id === 'cancelled_by_client') statusBadge = `<span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-1 rounded text-xs">Cancelado pelo Cliente</span>`;
+        else if (a.calendar_event_id === 'blocked_time') statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded text-xs">Bloqueado</span>`;
 
         html += `
-          <tr class="hover:bg-zinc-800/30 transition-colors">
+          <tr class="hover:bg-zinc-800/50 transition-colors cursor-pointer" onclick='openDetailsModal(${JSON.stringify(a).replace(/'/g, "&apos;")})'>
             <td class="px-6 py-4 text-zinc-400">${formatDateForDisplay(a.created_at)}</td>
             <td class="px-6 py-4 font-bold text-white">${a.date} às ${a.time}</td>
             <td class="px-6 py-4 text-zinc-300">${clientName}</td>
@@ -355,6 +386,34 @@
       });
       tbody.innerHTML = html;
     }
+
+    function openDetailsModal(item) {
+      const isBlock = item.service.startsWith('🚫');
+      const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
+      const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
+      const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '';
+
+      document.getElementById('detail-img-container').innerHTML = `<img src="${getServiceImage(item.service)}" class="w-full h-full object-cover">`;
+      document.getElementById('detail-service').innerText = item.service;
+      document.getElementById('detail-client').innerText = clientName;
+      document.getElementById('detail-date').innerText = `${item.date} às ${item.time}`;
+      document.getElementById('detail-modified').innerText = formatDateForDisplay(item.created_at);
+
+      let statusMsg = `<span class="text-emerald-400 font-bold">Confirmado</span>`;
+      if (item.calendar_event_id === 'cancelled_by_barber') statusMsg = `<span class="text-red-400 font-bold">Cancelado pela Barbearia</span>`;
+      else if (item.calendar_event_id === 'cancelled_by_client') statusMsg = `<span class="text-orange-400 font-bold">Cancelado pelo Cliente</span>`;
+      else if (item.calendar_event_id === 'blocked_time') statusMsg = `<span class="text-zinc-400 font-bold">Bloqueado</span>`;
+      document.getElementById('detail-status').innerHTML = statusMsg;
+
+      const wAppContainer = document.getElementById('detail-whatsapp-container');
+      if (whatsLink && !isBlock) {
+        wAppContainer.innerHTML = `<a href="${whatsLink}" target="_blank" class="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-xl text-sm font-bold transition-colors">💬 Contatar via WhatsApp</a>`;
+      } else { wAppContainer.innerHTML = ''; }
+
+      document.getElementById('modal-details').classList.remove('hidden');
+    }
+
+    function closeDetailsModal() { document.getElementById('modal-details').classList.add('hidden'); }
 
     async function loadKanban() {
       const board = document.getElementById('kanban-board');
@@ -377,10 +436,19 @@
 
       const daysList = [];
       const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-      let cursor = new Date();
+      
+      const hoje = new Date();
+      // Zera a hora para comparação de datas funcionar perfeitamente
+      hoje.setHours(0,0,0,0);
+      
+      let cursor = new Date(hoje);
       let addedCount = 0;
       
-      while (addedCount < 20) {
+      // Sempre garante que o dia de HJE esteja no kanban, mesmo se não tiver agendamentos
+      const strHoje = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
+      activeDatesSet.add(strHoje);
+
+      while (addedCount < 14) {
         if (cursor.getDay() !== 0) {
           const d = cursor.getDate().toString().padStart(2, '0');
           const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
@@ -396,23 +464,38 @@
         return new Date(yA, mA - 1, dA) - new Date(yB, mB - 1, dB);
       });
 
-      sortedDates.forEach(dateStr => {
+      // FILTRA O PASSADO: Remove colunas de dias que já passaram
+      const futureDates = sortedDates.filter(dateStr => {
+        const [d, m, y] = dateStr.split('/').map(Number);
+        const checkDate = new Date(y, m - 1, d);
+        return checkDate >= hoje;
+      });
+
+      futureDates.forEach(dateStr => {
         const [dA, mA, yA] = dateStr.split('/').map(Number);
-        daysList.push({ label: dateStr, dayName: diasSemana[new Date(yA, mA - 1, dA).getDay()] || 'Dia', dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}` });
+        const dObj = new Date(yA, mA - 1, dA);
+        let dName = diasSemana[dObj.getDay()];
+        if(dateStr === strHoje) dName = "HOJE";
+        
+        daysList.push({ label: dateStr, dayName: dName, dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}` });
       });
 
-      let totalCuts = 0; let totalRevenue = 0;
+      let todayCuts = 0; let todayRevenue = 0;
       (apts || []).forEach(a => {
-        if (!a.service.startsWith('🚫')) { totalCuts++; totalRevenue += parseFloat(a.price || 0); }
+        if (!a.service.startsWith('🚫') && a.date === strHoje) { todayCuts++; todayRevenue += parseFloat(a.price || 0); }
       });
 
-      document.getElementById('metric-total-cuts').innerText = totalCuts;
-      document.getElementById('metric-total-revenue').innerText = `R$ ${totalRevenue}`;
+      document.getElementById('metric-total-cuts').innerText = todayCuts;
+      document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue}`;
 
       let boardHtml = '';
       daysList.forEach(day => {
         const dayApts = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
         let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
+        
+        const isToday = day.label === strHoje;
+        const colStyle = isToday ? "border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)]" : "border-zinc-800";
+        const titleStyle = isToday ? "text-blue-400" : "text-zinc-500";
 
         if (dayApts.length === 0) {
           cardsHtml = `<div class="h-36 border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]"><span class="text-xs">Nenhum agendamento</span></div>`;
@@ -458,10 +541,10 @@
         }
 
         boardHtml += `
-          <div class="w-[340px] shrink-0 bg-[#0a0a0a] border border-zinc-800 rounded-3xl flex flex-col max-h-[85vh]">
+          <div class="w-[340px] shrink-0 bg-[#0a0a0a] border ${colStyle} rounded-3xl flex flex-col max-h-[85vh]">
             <div class="p-5 border-b border-zinc-800 flex items-center justify-between bg-[#141414] rounded-t-3xl">
               <div>
-                <span class="text-[10px] uppercase tracking-widest font-bold text-blue-500 block mb-1">${day.dayName}</span>
+                <span class="text-[11px] uppercase tracking-widest font-bold ${titleStyle} block mb-1">${day.dayName}</span>
                 <span class="text-lg font-bold text-white">${day.dayNumber}</span>
               </div>
               <div class="text-right">
