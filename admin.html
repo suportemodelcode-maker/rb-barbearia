@@ -297,7 +297,7 @@
       document.getElementById('modal-block').classList.remove('flex');
     }
 
-    async function confirmBlock() {
+async function confirmBlock() {
       const dateVal = document.getElementById('block-date').value; 
       const start = document.getElementById('block-start').value;
       const end = document.getElementById('block-end').value;
@@ -357,7 +357,6 @@
           else if (apt.service.includes("Sobrancelha")) dur = 20;
           const aptEnd = aptStart + dur;
 
-          // Se cruzar o intervalo do bloqueio
           if (aptStart <= endMin && aptEnd > startMin) {
             conflictClient = {
               name: apt.profiles?.full_name || 'Cliente',
@@ -375,13 +374,16 @@
         return;
       }
 
-      // 2. REALIZAR O BLOQUEIO COM user_id: null
+      // 2. BUSCA UM ID VÁLIDO PARA NÃO FERIR A RESTRIÇÃO NOT NULL DO BANCO
+      const { data: dummy } = await sb.from('profiles').select('id').limit(1);
+      const targetUserId = (dummy && dummy.length > 0) ? dummy[0].id : null;
+
       const inserts = [];
       for (let t = startMin; t <= endMin; t += 30) {
         let h = String(Math.floor(t/60)).padStart(2, '0'); 
         let min = String(t%60).padStart(2, '0');
         inserts.push({ 
-          user_id: null, 
+          user_id: targetUserId, 
           service: `🚫 ${reason}`, 
           price: 0, 
           date: formattedDate, 
