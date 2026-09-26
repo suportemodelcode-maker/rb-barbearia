@@ -437,9 +437,10 @@ async function loadHistory() {
       const { data, error } = await sb.from('appointments')
         .select('*')
         .eq('user_id', clientUser.id)
-        .neq('calendar_event_id', 'blocked_time') // <--- Ignora bloqueios
+        .neq('calendar_event_id', 'blocked_time')
         .order('created_at', { ascending: false });
 
+      // Filtro extra de segurança contra serviços com emoji de bloqueio
       const filteredData = (data || []).filter(item => !item.service.startsWith('🚫'));
 
       if (filteredData.length === 0) {
