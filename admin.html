@@ -297,7 +297,7 @@
       document.getElementById('modal-block').classList.remove('flex');
     }
 
-async function confirmBlock() {
+    async function confirmBlock() {
       const dateVal = document.getElementById('block-date').value; 
       const start = document.getElementById('block-start').value;
       const end = document.getElementById('block-end').value;
@@ -347,7 +347,6 @@ async function confirmBlock() {
         return;
       }
 
-      // Procura conflito com clientes
       let conflictClient = null;
       if (existingApts && existingApts.length > 0) {
         for (const apt of existingApts) {
@@ -375,8 +374,22 @@ async function confirmBlock() {
       }
 
       // 2. BUSCA UM ID VÁLIDO PARA NÃO FERIR A RESTRIÇÃO NOT NULL DO BANCO
-      const { data: dummy } = await sb.from('profiles').select('id').limit(1);
-      const targetUserId = (dummy && dummy.length > 0) ? dummy[0].id : null;
+      let targetUserId = null;
+      const { data: dummyProfile } = await sb.from('profiles').select('id').limit(1);
+      
+      if (dummyProfile && dummyProfile.length > 0) {
+        targetUserId = dummyProfile[0].id;
+      } else {
+        const { data: dummyApt } = await sb.from('appointments').select('user_id').not('user_id', 'is', null).limit(1);
+        if (dummyApt && dummyApt.length > 0) targetUserId = dummyApt[0].user_id;
+      }
+
+      if (!targetUserId) {
+        alert("O banco de dados está vazio e exige um ID de cliente (Regra NOT NULL do Supabase).\n\nSolução rápida via código: Abra o app do cliente e faça login uma única vez. Isso criará o primeiro usuário e permitirá os bloqueios.");
+        btn.disabled = false;
+        btn.innerText = 'Confirmar Bloqueio';
+        return;
+      }
 
       const inserts = [];
       for (let t = startMin; t <= endMin; t += 30) {
