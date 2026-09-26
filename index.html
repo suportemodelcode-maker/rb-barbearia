@@ -18,12 +18,13 @@
     
     <div id="toast-msg" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black text-xs font-bold px-4 py-2.5 rounded-full shadow-lg transition-all"></div>
 
-    <!-- MODAL TELEMÓVEL OBRIGATÓRIO -->
+    <!-- MODAL TELEMÓVEL OBRIGATÓRIO (PARA QUEM ENTRA VIA GMAIL/SPOTIFY/LINKEDIN PELA PRIMEIRA VEZ) -->
     <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-50 bg-black/90 flex flex-col justify-end">
       <div class="bg-[#1a1a1a] p-6 rounded-t-3xl space-y-4 border-t border-zinc-800">
         <h3 class="text-lg font-bold text-white">Último passo!</h3>
-        <p class="text-sm text-zinc-400">Para garantir o seu histórico, precisamos do seu WhatsApp.</p>
-        <div>
+        <p class="text-sm text-zinc-400">Precisamos do seu Nome e WhatsApp para o histórico.</p>
+        <div class="space-y-3">
+          <input type="text" id="mandatory-name-input" placeholder="Nome e Sobrenome" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
           <input type="text" id="mandatory-phone-input" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
         </div>
         <button onclick="submitMandatoryPhone()" class="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors text-sm">
@@ -33,13 +34,19 @@
     </div>
 
     <!-- ECRÃ DE LOGIN PRINCIPAL -->
-    <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-[#0f0f0f] absolute inset-0">
-      <div class="text-center mb-10">
+    <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-[#0f0f0f] absolute inset-0 overflow-y-auto">
+      <div class="text-center mb-8 mt-4">
         <div class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-zinc-900 border border-zinc-800 overflow-hidden shadow-lg">
           <img src="./icone.png" alt="Ícone Barbearia" class="w-full h-full object-cover">
         </div>
         <h1 class="text-xl font-medium text-white mb-2">Faça login para continuar</h1>
         <p class="text-zinc-400 text-[13px] px-4">Agende online de forma rápida e acompanhe o seu histórico de cortes.</p>
+      </div>
+
+      <!-- CRACHÁ DO ÚLTIMO ACESSO -->
+      <div id="last-login-badge" class="hidden mx-auto mb-6 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+        <span id="last-login-text">Último acesso: --</span>
       </div>
 
       <div class="space-y-3.5">
@@ -55,6 +62,22 @@
           <svg class="w-5 h-5 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.301 1.02zm1.44-3.3c-.301.42-.84.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15.001 10.62 18.661 12.9c.42.18.6.78.3 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.62.539.3.719 1.02.419 1.56-.299.48-1.02.659-1.559.3z"/></svg>
           Continuar com o Spotify
         </button>
+
+        <div class="relative flex py-3 items-center">
+          <div class="flex-grow border-t border-zinc-800"></div>
+          <span class="flex-shrink-0 mx-4 text-zinc-500 text-xs">ou</span>
+          <div class="flex-grow border-t border-zinc-800"></div>
+        </div>
+
+        <!-- FORMULÁRIO DE LOGIN APENAS POR TELEFONE -->
+        <div class="space-y-3 bg-[#141414] p-4 rounded-2xl border border-zinc-800">
+          <p class="text-sm font-medium text-white mb-1">Acesso Direto</p>
+          <input type="text" id="phone-login-name" placeholder="Nome e Sobrenome" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+          <input type="text" id="phone-login-number" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+          <button onclick="executePhoneLogin()" class="w-full py-3.5 mt-1 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors text-[14px]">
+            Entrar com Telefone
+          </button>
+        </div>
       </div>
     </div>
 
@@ -63,7 +86,7 @@
       <header class="pt-8 pb-4 px-4 bg-black">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <img src="./icone.png" alt="Logo RB" class="w-10 h-10 rounded-full object-cover border border-zinc-800">
+            <img id="header-avatar" src="./icone.png" alt="Sua Foto" class="w-10 h-10 rounded-full object-cover border border-zinc-800">
             <h1 class="text-xl sm:text-2xl font-bold font-serif tracking-widest text-white">RB BARBEARIA</h1>
           </div>
           <button onclick="userSignOut()" class="text-xs text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20">Sair</button>
@@ -77,9 +100,10 @@
         </p>
       </header>
 
-      <div class="flex border-b border-zinc-800 bg-black sticky top-0 z-10 px-4">
-        <button onclick="switchAppTab('servicos')" id="tab-servicos" class="pb-3 pt-4 text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center">SERVIÇOS</button>
-        <button onclick="switchAppTab('historico')" id="tab-historico" class="pb-3 pt-4 text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center">HISTÓRICO</button>
+      <div class="flex border-b border-zinc-800 bg-black sticky top-0 z-10 px-2 sm:px-4">
+        <button onclick="switchAppTab('servicos')" id="tab-servicos" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center">SERVIÇOS</button>
+        <button onclick="switchAppTab('historico')" id="tab-historico" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center">HISTÓRICO</button>
+        <button onclick="switchAppTab('perfil')" id="tab-perfil" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center">PERFIL</button>
       </div>
 
       <div id="tab-content-servicos" class="flex-1 pb-10">
@@ -132,6 +156,36 @@
       <div id="tab-content-historico" class="hidden flex-1 p-4 pb-10">
         <div id="history-container" class="space-y-4"></div>
       </div>
+
+      <!-- ABA PERFIL -->
+      <div id="tab-content-perfil" class="hidden flex-1 p-4 pb-10">
+        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6">
+          <div class="flex justify-center mb-6">
+            <label class="cursor-pointer relative group">
+              <img id="profile-avatar-preview" src="./icone.png" class="w-24 h-24 rounded-full object-cover border border-zinc-700 shadow-xl transition-all group-hover:opacity-50">
+              <div class="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg class="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="text-[10px] text-white font-bold uppercase tracking-wider">Alterar</span>
+              </div>
+              <input type="file" class="hidden" accept="image/*" onchange="handleAvatarUpload(this)">
+            </label>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Nome e Sobrenome</label>
+              <input type="text" id="profile-name-input" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">WhatsApp (Apenas Leitura)</label>
+              <input type="text" id="profile-phone-input" readonly class="w-full px-4 py-3 bg-[#0f0f0f]/50 border border-zinc-800 rounded-xl text-zinc-500 outline-none cursor-not-allowed text-sm">
+            </div>
+            <button onclick="saveProfile()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm transition-colors mt-2">
+              Salvar Alterações
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ECRÃ DE SELEÇÃO DE DATA E HORA -->
@@ -146,7 +200,6 @@
         </div>
       </header>
 
-      <!-- pb-32 garante espaço para ver os horários da noite sem o botão cobrir -->
       <div class="p-4 pb-32">
         <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4" id="date-scroll-container"></div>
         <div class="mt-4 mb-4 flex items-center justify-between">
@@ -179,6 +232,15 @@
     let selectedTime = null;
     let shopSettings = { open: '09:00', close: '20:00' };
     let realtimeSub = null;
+    let currentAvatarBase64 = null;
+
+    function generateUUID() {
+      if (crypto && crypto.randomUUID) return crypto.randomUUID();
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
 
     function showToast(text) {
       const toast = document.getElementById('toast-msg');
@@ -195,6 +257,18 @@
       else input.value = v;
     }
 
+    function setLastLoginMethod(method) {
+      localStorage.setItem('rb_last_login', method);
+    }
+
+    function checkLastLoginBadge() {
+      const method = localStorage.getItem('rb_last_login');
+      if (method) {
+        document.getElementById('last-login-text').innerText = `Último acesso: ${method}`;
+        document.getElementById('last-login-badge').classList.remove('hidden');
+      }
+    }
+
     async function fetchSettings() {
       const { data } = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
       if(data) {
@@ -203,7 +277,6 @@
       }
     }
 
-    // ATUALIZAÇÃO EM TEMPO REAL NO APP DO CLIENTE
     function initClientRealtime() {
       if(realtimeSub) return;
       realtimeSub = sb.channel('public:appointments')
@@ -215,19 +288,57 @@
         }).subscribe();
     }
 
-    async function unifyAndEnterApp(authId, name, email, phone) {
+    // LOGIN POR TELEFONE EXCLUSIVO
+    async function executePhoneLogin() {
+      const name = document.getElementById('phone-login-name').value.trim();
+      const phoneRaw = document.getElementById('phone-login-number').value;
+      const cleanPhone = phoneRaw.replace(/\D/g, '');
+
+      if (!name.includes(' ')) { alert('Por favor, informe seu Nome e Sobrenome.'); return; }
+      if (cleanPhone.length < 10) { alert('Informe um WhatsApp válido com DDD.'); return; }
+
+      const { data: existingProfile } = await sb.from('profiles').select('*').eq('phone', cleanPhone).maybeSingle();
+      let finalUserId = existingProfile ? existingProfile.id : generateUUID();
+
+      if (!existingProfile) {
+        const { error } = await sb.from('profiles').insert([{ id: finalUserId, full_name: name, phone: cleanPhone }]);
+        if(error) { alert('Erro ao criar perfil. Tente novamente.'); return; }
+      }
+
+      setLastLoginMethod('Telefone');
+      
+      clientUser = {
+        id: finalUserId,
+        name: existingProfile ? (existingProfile.full_name || name) : name,
+        email: existingProfile ? existingProfile.email : '',
+        phone: cleanPhone,
+        avatar_url: existingProfile ? existingProfile.avatar_url : null
+      };
+
+      localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
+      enterApp();
+    }
+
+    // LOGIN OAUTH (GMAIL, SPOTIFY, LINKEDIN)
+    async function unifyAndEnterApp(authId, name, email, phone, avatarUrlFromAuth) {
       const cleanPhone = phone.replace(/\D/g, '');
       const { data: existingProfile } = await sb.from('profiles').select('*').eq('phone', cleanPhone).maybeSingle();
       let finalUserId = authId;
+      let finalAvatar = avatarUrlFromAuth;
 
-      if (existingProfile) { finalUserId = existingProfile.id; } 
-      else { await sb.from('profiles').upsert([{ id: authId, full_name: name, phone: cleanPhone }]); }
+      if (existingProfile) { 
+        finalUserId = existingProfile.id; 
+        finalAvatar = existingProfile.avatar_url || avatarUrlFromAuth;
+      } else { 
+        await sb.from('profiles').upsert([{ id: authId, full_name: name, phone: cleanPhone, avatar_url: avatarUrlFromAuth }]); 
+      }
 
       clientUser = {
         id: finalUserId,
         name: existingProfile ? (existingProfile.full_name || name) : name,
         email: email || '',
-        phone: cleanPhone
+        phone: cleanPhone,
+        avatar_url: finalAvatar
       };
 
       localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
@@ -237,6 +348,8 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       await fetchSettings();
+      checkLastLoginBadge();
+      
       const savedSession = localStorage.getItem('rb_client_session');
       if (savedSession) {
         clientUser = JSON.parse(savedSession);
@@ -248,30 +361,41 @@
         if (session && session.user && !clientUser) {
           const u = session.user;
           const name = u.user_metadata?.full_name || 'Cliente';
+          const avatar = u.user_metadata?.avatar_url || null;
           let phone = u.phone || u.user_metadata?.typed_phone || '';
           const cleanPhone = phone.replace(/\D/g, '');
           
-          if (cleanPhone.length >= 10) { await unifyAndEnterApp(u.id, name, u.email, cleanPhone); } 
-          else {
+          if (cleanPhone.length >= 10) { 
+            await unifyAndEnterApp(u.id, name, u.email, cleanPhone, avatar); 
+          } else {
             const { data: prof } = await sb.from('profiles').select('*').eq('id', u.id).maybeSingle();
-            if (prof && prof.phone && prof.phone.length >= 10) { await unifyAndEnterApp(u.id, prof.full_name || name, u.email, prof.phone); } 
-            else { window.tempAuthUser = u; document.getElementById('modal-mandatory-phone').classList.remove('hidden'); }
+            if (prof && prof.phone && prof.phone.length >= 10) { 
+              await unifyAndEnterApp(u.id, prof.full_name || name, u.email, prof.phone, prof.avatar_url || avatar); 
+            } else { 
+              window.tempAuthUser = { ...u, tempAvatar: avatar };
+              if(name !== 'Cliente') document.getElementById('mandatory-name-input').value = name;
+              document.getElementById('modal-mandatory-phone').classList.remove('hidden'); 
+            }
           }
         }
       });
     });
 
     async function submitMandatoryPhone() {
-      const input = document.getElementById('mandatory-phone-input');
-      const cleanPhone = input.value.replace(/\D/g, '');
+      const nameInput = document.getElementById('mandatory-name-input').value.trim();
+      const phoneInput = document.getElementById('mandatory-phone-input').value;
+      const cleanPhone = phoneInput.replace(/\D/g, '');
+      
+      if (!nameInput.includes(' ')) { alert('Informe seu Nome e Sobrenome.'); return; }
       if (cleanPhone.length < 10) { alert('Informe um WhatsApp válido com DDD.'); return; }
+      
       const authUser = window.tempAuthUser;
-      await unifyAndEnterApp(authUser.id, authUser.user_metadata?.full_name || 'Cliente', authUser.email, cleanPhone);
+      await unifyAndEnterApp(authUser.id, nameInput, authUser.email, cleanPhone, authUser.tempAvatar);
     }
 
-    async function signInWithGoogle() { await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); }
-    async function signInWithSpotify() { await sb.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: window.location.origin } }); }
-    async function signInWithLinkedIn() { await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo: window.location.origin } }); }
+    async function signInWithGoogle() { setLastLoginMethod('Google'); await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); }
+    async function signInWithSpotify() { setLastLoginMethod('Spotify'); await sb.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: window.location.origin } }); }
+    async function signInWithLinkedIn() { setLastLoginMethod('LinkedIn'); await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo: window.location.origin } }); }
 
     async function userSignOut() {
       localStorage.removeItem('rb_client_session');
@@ -283,17 +407,64 @@
       document.getElementById('view-login').classList.add('hidden');
       document.getElementById('view-app').classList.remove('hidden');
       document.getElementById('view-app').classList.add('flex');
+      
+      loadProfileDataIntoUI();
       loadHistory();
       initClientRealtime();
     }
 
+    // LÓGICA DO PERFIL
+    function loadProfileDataIntoUI() {
+      if(!clientUser) return;
+      document.getElementById('profile-name-input').value = clientUser.name || '';
+      document.getElementById('profile-phone-input').value = clientUser.phone || '';
+      if(clientUser.avatar_url) {
+        document.getElementById('profile-avatar-preview').src = clientUser.avatar_url;
+        document.getElementById('header-avatar').src = clientUser.avatar_url;
+      }
+    }
+
+    function handleAvatarUpload(input) {
+      const file = input.files[0];
+      if(!file) return;
+      if(file.size > 2 * 1024 * 1024) { alert('A imagem é muito grande. Escolha uma foto de até 2MB.'); return; }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentAvatarBase64 = e.target.result;
+        document.getElementById('profile-avatar-preview').src = currentAvatarBase64;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveProfile() {
+      const newName = document.getElementById('profile-name-input').value.trim();
+      if(!newName.includes(' ')) { alert('Por favor, informe seu Nome e Sobrenome.'); return; }
+      
+      const updates = { full_name: newName };
+      if (currentAvatarBase64) updates.avatar_url = currentAvatarBase64;
+
+      const { error } = await sb.from('profiles').update(updates).eq('id', clientUser.id);
+      if(error) { alert('Erro ao salvar perfil: ' + error.message); return; }
+
+      clientUser.name = newName;
+      if(currentAvatarBase64) clientUser.avatar_url = currentAvatarBase64;
+      localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
+      
+      loadProfileDataIntoUI();
+      showToast('Perfil atualizado com sucesso!');
+    }
+
     function switchAppTab(tab) {
-      const isServ = tab === 'servicos';
-      document.getElementById('tab-content-servicos').classList.toggle('hidden', !isServ);
-      document.getElementById('tab-content-historico').classList.toggle('hidden', isServ);
-      document.getElementById('tab-servicos').className = isServ ? "pb-3 pt-4 text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center" : "pb-3 pt-4 text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center";
-      document.getElementById('tab-historico').className = !isServ ? "pb-3 pt-4 text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center" : "pb-3 pt-4 text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center";
-      if(!isServ) loadHistory();
+      const tabs = ['servicos', 'historico', 'perfil'];
+      tabs.forEach(t => {
+        const isCurrent = t === tab;
+        document.getElementById(`tab-content-${t}`).classList.toggle('hidden', !isCurrent);
+        document.getElementById(`tab-${t}`).className = isCurrent 
+          ? "pb-3 pt-4 text-xs sm:text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center" 
+          : "pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center";
+      });
+      if(tab === 'historico') loadHistory();
     }
 
     function startBooking(service, price, duration) {
@@ -368,8 +539,8 @@
           if (b.calendar_event_id === 'cancelled_by_barber' || b.calendar_event_id === 'cancelled_by_client') return;
           const startMin = timeToMinutes(b.time);
           let dur = 30;
-          if (b.service.includes("Combo")) dur = 60;
-          else if (b.service.includes("Sobrancelha")) dur = 20;
+          if (b.service && b.service.includes("Combo")) dur = 60;
+          else if (b.service && b.service.includes("Sobrancelha")) dur = 20;
           occupiedIntervals.push({ start: startMin, end: startMin + dur });
         });
       }
@@ -430,7 +601,7 @@
       switchAppTab('historico');
     }
 
-async function loadHistory() {
+    async function loadHistory() {
       const container = document.getElementById('history-container');
       if (!clientUser) return;
       
@@ -440,7 +611,6 @@ async function loadHistory() {
         .neq('calendar_event_id', 'blocked_time')
         .order('created_at', { ascending: false });
 
-      // Filtro extra de segurança contra serviços com emoji de bloqueio
       const filteredData = (data || []).filter(item => !item.service.startsWith('🚫'));
 
       if (filteredData.length === 0) {
