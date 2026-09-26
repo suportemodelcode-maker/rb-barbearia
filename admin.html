@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
+<!DOCTYPE html><html lang="pt-PT"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Kanban | RB Barbearia</title>
@@ -8,40 +8,45 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f4f4f5; }
+    body { font-family: 'Inter', sans-serif; background-color: #0f0f0f; color: #ffffff; }
     .custom-scroll::-webkit-scrollbar { height: 8px; width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: #18181b; border-radius: 9999px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
-  </style></head><body class="min-h-screen flex flex-col bg-zinc-950 select-none">
+    .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+  </style></head><body class="min-h-screen flex flex-col bg-black select-none antialiased">
+
+  <!-- AUDIO DE NOTIFICAÇÃO -->
+  <audio id="notification-sound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" preload="auto"></audio>
 
   <!-- TELA DE SENHA -->
-  <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
-      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-4 text-amber-500">
+  <div id="auth-screen" class="fixed inset-0 bg-[#0f0f0f] z-50 flex items-center justify-center p-4">
+    <div class="bg-[#141414] border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
+      <div class="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-4 text-blue-500">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
       </div>
-      <h2 class="text-2xl font-bold text-white">Painel RB</h2>
-      <p class="text-xs text-zinc-400 mt-1 mb-6">Acesso exclusivo do barbeiro</p>
-      <input type="password" id="admin-pass" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') checkAdmin()" class="w-full py-3.5 px-4 rounded-xl bg-zinc-950 border border-zinc-800 text-white focus:border-amber-500 outline-none mb-4 text-center tracking-widest text-lg">
-      <button onclick="checkAdmin()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl shadow-lg transition-all">Acessar Agenda</button>
+      <h2 class="text-2xl font-bold text-white font-serif tracking-widest">PAINEL RB</h2>
+      <p class="text-xs text-zinc-400 mt-1 mb-6">Acesso exclusivo da barbearia</p>
+      <input type="password" id="admin-pass" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') checkAdmin()" class="w-full py-3.5 px-4 rounded-xl bg-black border border-zinc-800 text-white focus:border-blue-500 outline-none mb-4 text-center tracking-widest text-lg transition-colors">
+      <button onclick="checkAdmin()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition-colors text-[15px]">Acessar Agenda</button>
     </div>
   </div>
 
   <!-- MODAL PARA BLOQUEAR HORÁRIO -->
-  <div id="modal-block" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm space-y-4">
-      <div class="flex justify-between items-center">
+  <div id="modal-block" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col justify-end md:items-center md:justify-center p-0 md:p-4">
+    <div class="bg-[#1a1a1a] border-t border-zinc-800 md:border md:rounded-3xl rounded-t-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center mb-2">
         <h3 class="font-bold text-white text-lg">Bloquear Horário</h3>
-        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white text-sm">✕</button>
+        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
       <div>
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Data (DD/MM/AAAA)</label>
-        <input type="text" id="block-date" placeholder="Ex: 22/09/2026" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm">
+        <input type="text" id="block-date" placeholder="Ex: 22/09/2026" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm transition-colors">
       </div>
       <div>
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Horário</label>
-        <select id="block-time" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm">
+        <select id="block-time" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm transition-colors appearance-none">
           <option value="18:00">18:00</option>
           <option value="18:30">18:30</option>
           <option value="19:00">19:00</option>
@@ -55,41 +60,38 @@
       </div>
       <div>
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Motivo (Opcional)</label>
-        <input type="text" id="block-reason" placeholder="Ex: Intervalo, Almoço, Folga" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-white outline-none focus:border-amber-500 text-sm">
+        <input type="text" id="block-reason" placeholder="Ex: Intervalo, Almoço, Folga" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm transition-colors">
       </div>
-      <button onclick="confirmBlock()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-sm transition-colors shadow-lg">Confirmar Bloqueio</button>
+      <button onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-[15px] transition-colors shadow-lg">Confirmar Bloqueio</button>
     </div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
   <div id="main-panel" class="hidden flex-1 flex flex-col p-4 md:p-6 max-w-[1600px] w-full mx-auto">
     
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900 border border-zinc-800 p-5 rounded-2xl mb-6 shadow-lg">
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#141414] border border-zinc-800 p-5 rounded-3xl mb-6 shadow-xl">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
+        <img src="./icone.png" alt="Logo RB" class="w-12 h-12 rounded-full object-cover border border-zinc-800 hidden md:block">
         <div>
-          <h1 class="text-xl font-bold text-white tracking-wide">Quadro de Cortes RB</h1>
-          <p class="text-xs text-zinc-400">Visualização de agendamentos em cartões estilo Kanban</p>
+          <h1 class="text-xl font-bold font-serif tracking-widest text-white">RB BARBEARIA</h1>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="flex w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <p class="text-[11px] text-emerald-400 uppercase font-bold tracking-wider">Monitoramento Ao Vivo</p>
+          </div>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <div class="bg-zinc-950 border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <span class="text-xs text-zinc-400 uppercase font-semibold">Agendamentos</span>
+        <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Agendamentos</span>
           <span id="metric-total-cuts" class="text-lg font-bold text-white">0</span>
         </div>
-        <div class="bg-zinc-950 border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <span class="text-xs text-zinc-400 uppercase font-semibold">Previsão Faturamento</span>
+        <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Faturamento</span>
           <span id="metric-total-revenue" class="text-lg font-bold text-emerald-400">R$ 0</span>
         </div>
-        <button onclick="openBlockModal()" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-500/30 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+        <button onclick="openBlockModal()" class="bg-transparent hover:bg-zinc-900 border border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2">
           <span>🚫 Bloquear Horário</span>
-        </button>
-        <button onclick="loadKanban()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-md flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          Atualizar
         </button>
       </div>
     </header>
@@ -103,15 +105,45 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let realtimeSubscription = null;
+
     function checkAdmin() {
       const pass = document.getElementById('admin-pass').value;
       if (pass === ADMIN_PASSWORD) {
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('main-panel').classList.remove('hidden');
+        document.getElementById('main-panel').classList.add('flex');
+        // Inicializa o áudio (necessário interação do usuário no login para o navegador permitir tocar som)
+        document.getElementById('notification-sound').play().catch(()=>{});
+        document.getElementById('notification-sound').pause();
+        
         loadKanban();
+        subscribeToRealtime();
       } else {
         alert("Senha incorreta!");
       }
+    }
+
+    function playNotificationSound() {
+      const audio = document.getElementById('notification-sound');
+      audio.currentTime = 0;
+      audio.play().catch(e => console.log('Áudio bloqueado pelo navegador', e));
+    }
+
+    function subscribeToRealtime() {
+      if (realtimeSubscription) return;
+      
+      realtimeSubscription = sb.channel('custom-all-channel')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'appointments' },
+          (payload) => {
+            console.log('Mudança detectada!', payload);
+            playNotificationSound();
+            loadKanban();
+          }
+        )
+        .subscribe();
     }
 
     function timeToMinutes(tStr) {
@@ -122,10 +154,12 @@
     function openBlockModal(suggestedDate = '') {
       document.getElementById('block-date').value = suggestedDate;
       document.getElementById('modal-block').classList.remove('hidden');
+      document.getElementById('modal-block').classList.add('flex');
     }
 
     function closeBlockModal() {
       document.getElementById('modal-block').classList.add('hidden');
+      document.getElementById('modal-block').classList.remove('flex');
     }
 
     function getServiceImage(serviceName) {
@@ -157,7 +191,7 @@
       }]);
 
       closeBlockModal();
-      loadKanban();
+      // loadKanban(); // Não precisa chamar aqui, o Realtime vai capturar e atualizar sozinho
     }
 
     async function deleteAppointment(id, isBlocked) {
@@ -171,13 +205,13 @@
         } else {
           await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', id);
         }
-        loadKanban();
+        // loadKanban(); // O Realtime faz a atualização
       }
     }
 
     async function loadKanban() {
       const board = document.getElementById('kanban-board');
-      board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">Carregando agendamentos...</div>`;
+      if (board.innerHTML === '') board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">A carregar agendamentos...</div>`;
 
       const { data: apts, error } = await sb.from('appointments').select(`
         id, service, date, time, price, calendar_event_id, user_id,
@@ -189,7 +223,6 @@
         return;
       }
 
-      // CORREÇÃO: Normaliza todas as datas do Supabase adicionando zero onde faltar (Ex: 22/9/2026 para 22/09/2026)
       if (apts) {
         apts.forEach(a => {
           if (a.date) {
@@ -264,7 +297,7 @@
 
         if (dayApts.length === 0) {
           cardsHtml = `
-            <div class="h-36 border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600">
+            <div class="h-36 border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]">
               <span class="text-xs">Nenhum agendamento</span>
             </div>
           `;
@@ -282,16 +315,11 @@
               dayCutsCount++;
             }
 
-            let badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
-            if (item.service.includes("Combo")) badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-            else if (item.service.includes("Barba")) badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-            else if (item.service.includes("Sobrancelha")) badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
-
             if (isBlock) {
               cardsHtml += `
                 <div class="bg-red-950/20 border border-red-900/40 rounded-2xl p-4 relative group">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">🕒 ${item.time}</span>
+                    <span class="text-[11px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">🕒 ${item.time}</span>
                     <button onclick="deleteAppointment('${item.id}', true)" title="Liberar horário" class="text-zinc-500 hover:text-red-400 text-xs">Liberar ✕</button>
                   </div>
                   <p class="font-bold text-white text-sm mt-2">${item.service}</p>
@@ -299,32 +327,30 @@
               `;
             } else {
               cardsHtml += `
-                <div class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-4 transition-all shadow-md space-y-3">
+                <div class="bg-[#141414] border border-zinc-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all shadow-lg space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-                      🕒 ${item.time}
+                    <span class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-lg">
+                      ${item.time}
                     </span>
-                    <span class="text-xs font-bold text-white">R$ ${item.price}</span>
+                    <span class="text-xs font-bold text-emerald-400">R$ ${item.price}</span>
                   </div>
 
                   <div class="flex items-center gap-3">
-                    <img src="${serviceImg}" class="w-10 h-10 rounded-lg object-cover border border-zinc-700" alt="Serviço">
+                    <img src="${serviceImg}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800" alt="Serviço">
                     <div class="flex-1 overflow-hidden">
                       <p class="font-bold text-white text-[14px] truncate">${clientName}</p>
-                      <span class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded border mt-1 ${badgeColor}">
-                        ${item.service}
-                      </span>
+                      <p class="text-[11px] text-zinc-400 mt-0.5 truncate">${item.service}</p>
                     </div>
                   </div>
 
-                  <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs">
+                  <div class="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
                     ${cleanPhone ? `
-                      <a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                        <span>💬 WhatsApp</span>
+                      <a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20 transition-colors">
+                        <span>💬 Notificar Cliente</span>
                       </a>
-                    ` : `<span class="text-zinc-500">Sem telefone</span>`}
+                    ` : `<span class="text-zinc-500 text-[10px]">Sem contato</span>`}
                     
-                    <button onclick="deleteAppointment('${item.id}', false)" title="Cancelar Agendamento" class="text-zinc-500 hover:text-red-400 font-medium">
+                    <button onclick="deleteAppointment('${item.id}', false)" title="Cancelar Agendamento" class="text-zinc-500 hover:text-red-400 font-medium transition-colors">
                       Cancelar
                     </button>
                   </div>
@@ -335,24 +361,24 @@
         }
 
         boardHtml += `
-          <div class="w-80 shrink-0 bg-zinc-900/60 border border-zinc-800/90 rounded-3xl flex flex-col max-h-[80vh] shadow-xl">
-            <div class="p-4 border-b border-zinc-800/90 flex items-center justify-between bg-zinc-900/90 rounded-t-3xl">
+          <div class="w-[340px] shrink-0 bg-[#0a0a0a] border border-zinc-800 rounded-3xl flex flex-col max-h-[85vh]">
+            <div class="p-5 border-b border-zinc-800 flex items-center justify-between bg-[#141414] rounded-t-3xl">
               <div>
-                <span class="text-xs uppercase tracking-wider font-extrabold text-amber-500 block">${day.dayName}</span>
-                <span class="text-sm font-bold text-white">${day.dayNumber}</span>
+                <span class="text-[10px] uppercase tracking-widest font-bold text-blue-500 block mb-1">${day.dayName}</span>
+                <span class="text-lg font-bold text-white">${day.dayNumber}</span>
               </div>
               <div class="text-right">
-                <span class="text-[11px] font-bold text-zinc-400 block">${dayCutsCount} cortes</span>
-                <span class="text-xs font-extrabold text-emerald-400">R$ ${dayRevenue}</span>
+                <span class="text-[11px] font-bold text-zinc-400 block mb-1">${dayCutsCount} cortes</span>
+                <span class="text-sm font-bold text-emerald-400">R$ ${dayRevenue}</span>
               </div>
             </div>
 
-            <div class="p-3 space-y-3 overflow-y-auto flex-1 custom-scroll">
+            <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scroll">
               ${cardsHtml}
             </div>
 
-            <div class="p-3 border-t border-zinc-800/80 bg-zinc-900/40 rounded-b-3xl">
-              <button onclick="openBlockModal('${day.label}')" class="w-full py-2 bg-zinc-950 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-800 transition-colors">
+            <div class="p-4 border-t border-zinc-800 bg-[#141414] rounded-b-3xl">
+              <button onclick="openBlockModal('${day.label}')" class="w-full py-3 bg-transparent hover:bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-700 transition-colors border-dashed">
                 + Bloquear Horário Neste Dia
               </button>
             </div>
