@@ -32,37 +32,6 @@
       </div>
     </div>
 
-    <!-- MODAL DE ACESSO VIA E-MAIL (OTP SUPABASE) -->
-    <div id="modal-email-login" class="hidden fixed inset-0 z-50 bg-black/90 flex flex-col justify-end">
-      <div class="bg-[#1a1a1a] p-6 rounded-t-3xl space-y-4 border-t border-zinc-800">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-lg font-bold text-white">Acesso via E-mail</h3>
-          <button onclick="closeModal('modal-email-login')" class="text-zinc-500 hover:text-white text-xl">✕</button>
-        </div>
-        <div id="email-step-1" class="space-y-4">
-          <div>
-            <label class="text-xs text-zinc-400 block mb-1">O seu E-mail</label>
-            <input type="email" id="email-input" placeholder="seu@email.com" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-          <div>
-            <label class="text-xs text-zinc-400 block mb-1">Nome Completo</label>
-            <input type="text" id="email-name" placeholder="Ex: João Silva" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-          <div>
-            <label class="text-xs text-zinc-400 block mb-1">WhatsApp (com DDD)</label>
-            <input type="text" id="email-phone" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-          <button id="btn-send-email" onclick="sendEmailOTP()" class="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors text-sm">Receber Código</button>
-        </div>
-        <div id="email-step-2" class="hidden space-y-4">
-          <p class="text-sm text-zinc-300 text-center">Enviámos um código de 6 dígitos para o seu e-mail.</p>
-          <input type="number" id="email-code" placeholder="000000" class="w-full px-4 py-4 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 tracking-[0.5em] text-center text-xl font-bold">
-          <button id="btn-verify-email" onclick="verifyEmailOTP()" class="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors text-sm shadow-[0_0_15px_rgba(16,185,129,0.2)]">Verificar e Aceder</button>
-          <button onclick="resetOTPStates()" class="w-full py-2 text-xs text-zinc-500 hover:text-white">Voltar / Tentar novamente</button>
-        </div>
-      </div>
-    </div>
-
     <!-- ECRÃ DE LOGIN PRINCIPAL -->
     <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-[#0f0f0f] absolute inset-0">
       <div class="text-center mb-10">
@@ -79,9 +48,14 @@
           Continuar com o Google
         </button>
 
-        <button onclick="openModal('modal-email-login')" class="w-full py-3.5 px-4 rounded-xl font-medium text-white bg-transparent border border-zinc-700 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 text-[14px]">
-          <svg class="w-5 h-5 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          Código de acesso único
+        <button onclick="signInWithLinkedIn()" class="w-full py-3.5 px-4 rounded-xl font-medium text-white bg-transparent border border-zinc-700 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 text-[14px]">
+          <svg class="w-5 h-5 text-[#0A66C2]" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          Continuar com o LinkedIn
+        </button>
+
+        <button onclick="signInWithSpotify()" class="w-full py-3.5 px-4 rounded-xl font-medium text-white bg-transparent border border-zinc-700 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 text-[14px]">
+          <svg class="w-5 h-5 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.301 1.02zm1.44-3.3c-.301.42-.84.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15.001 10.62 18.661 12.9c.42.18.6.78.3 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.62.539.3.719 1.02.419 1.56-.299.48-1.02.659-1.559.3z"/></svg>
+          Continuar com o Spotify
         </button>
       </div>
     </div>
@@ -257,8 +231,7 @@
 
       localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
       
-      closeModal('modal-mandatory-phone');
-      closeModal('modal-email-login');
+      document.getElementById('modal-mandatory-phone').classList.add('hidden');
       enterApp();
     }
 
@@ -286,7 +259,7 @@
               await unifyAndEnterApp(u.id, prof.full_name || name, u.email, prof.phone);
             } else {
               window.tempAuthUser = u;
-              openModal('modal-mandatory-phone');
+              document.getElementById('modal-mandatory-phone').classList.remove('hidden');
             }
           }
         }
@@ -302,60 +275,15 @@
       await unifyAndEnterApp(authUser.id, authUser.user_metadata?.full_name || 'Cliente', authUser.email, cleanPhone);
     }
 
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { 
-      document.getElementById(id).classList.add('hidden'); 
-      if (id === 'modal-email-login') resetOTPStates();
-    }
-    
-    function resetOTPStates() {
-      document.getElementById('email-step-1').classList.remove('hidden');
-      document.getElementById('email-step-2').classList.add('hidden');
-      document.getElementById('email-code').value = '';
-    }
-
-    // ----- FLUXO E-MAIL OTP (Supabase) -----
-    async function sendEmailOTP() {
-      const email = document.getElementById('email-input').value.trim();
-      const name = document.getElementById('email-name').value.trim();
-      let phone = document.getElementById('email-phone').value.replace(/\D/g, '');
-      
-      if (!email.includes('@')) { alert('Informe um e-mail válido.'); return; }
-      if (name.length < 3) { alert('Informe o seu nome completo.'); return; }
-      if (phone.length < 10) { alert('Informe o seu WhatsApp com DDD.'); return; }
-
-      const btn = document.getElementById('btn-send-email');
-      btn.disabled = true; btn.innerText = 'A enviar...';
-
-      const { error } = await sb.auth.signInWithOtp({ 
-        email: email,
-        options: { data: { full_name: name, typed_phone: phone } }
-      });
-      btn.disabled = false; btn.innerText = 'Receber Código';
-
-      if (error) { alert('Erro ao enviar e-mail: ' + error.message); return; }
-
-      document.getElementById('email-step-1').classList.add('hidden');
-      document.getElementById('email-step-2').classList.remove('hidden');
-    }
-
-    async function verifyEmailOTP() {
-      const email = document.getElementById('email-input').value.trim();
-      const code = document.getElementById('email-code').value.trim();
-      if (code.length !== 6) { alert('O código deve ter 6 dígitos.'); return; }
-
-      const btn = document.getElementById('btn-verify-email');
-      btn.disabled = true; btn.innerText = 'A verificar...';
-
-      const { error } = await sb.auth.verifyOtp({ email: email, token: code, type: 'email' });
-      btn.disabled = false; btn.innerText = 'Verificar e Aceder';
-
-      if (error) { alert('Código incorreto ou expirado.'); return; }
-    }
-
     // ----- OAUTH PROVIDERS -----
     async function signInWithGoogle() {
       await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+    }
+    async function signInWithSpotify() {
+      await sb.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: window.location.origin } });
+    }
+    async function signInWithLinkedIn() {
+      await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo: window.location.origin } });
     }
 
     // ----- CORE SYSTEM -----
