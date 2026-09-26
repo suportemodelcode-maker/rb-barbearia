@@ -35,8 +35,9 @@
     <!-- ECRÃ DE LOGIN PRINCIPAL -->
     <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-[#0f0f0f] absolute inset-0">
       <div class="text-center mb-10">
-        <div class="w-32 h-12 mx-auto mb-6 flex items-center justify-center">
-          <h1 class="text-2xl font-bold text-white tracking-widest border border-white px-4 py-1 rounded-lg">RB BARBEARIA</h1>
+        <!-- ÍCONE DO SUPABASE (icone.png) -->
+        <div class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-black border border-zinc-800 overflow-hidden shadow-lg">
+          <img src="https://cifrmupwumffzrcqwfjv.supabase.co/storage/v1/object/public/images/icone.png" alt="Ícone Barbearia" class="w-full h-full object-cover">
         </div>
         <h1 class="text-xl font-medium text-white mb-2">Faça login para continuar</h1>
         <p class="text-zinc-400 text-[13px] px-4">Agende online, receba notificações e acompanhe o seu histórico de cortes.</p>
@@ -431,7 +432,7 @@
         user_id: clientUser.id, service: selectedService, price: parseFloat(selectedPrice), date: selectedDate, time: selectedTime, calendar_event_id: 'internal_system' 
       }]);
 
-      if (error) { alert('Erro: ' + error.message); btn.disabled = false; btn.innerText = originalText; return; }
+      if (error) { alert('Erro: ' + error.message); btn.disabled = false; btn.innerText = originalTest; return; }
       
       btn.innerText = "Confirmar Agendamento";
       showToast('Horário agendado com sucesso!');
@@ -457,9 +458,9 @@
             <div>
               <p class="font-bold text-white text-sm ${isCancelled ? 'line-through' : ''}">${item.service}</p>
               <p class="text-zinc-400 text-xs mt-1">${item.date} às ${item.time}</p>
-              ${isCancelled ? '<span class="text-[10px] text-red-500 mt-1 block">Cancelado pelo barbeiro</span>' : ''}
+              ` + (isCancelled ? '<span class="text-[10px] text-red-500 mt-1 block">Cancelado pelo barbeiro</span>' : '') + `
             </div>
-            ${!isCancelled ? `<button onclick="executeCancel('${item.id}')" class="text-red-400 hover:text-red-300 transition-colors text-xs font-medium bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20">Cancelar</button>` : `<span class="text-zinc-500 text-sm line-through">R$ ${item.price}</span>`}
+            ` + (!isCancelled ? `<button onclick="executeCancel('${item.id}')" class="text-red-400 hover:text-red-300 transition-colors text-xs font-medium bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20">Cancelar</button>` : `<span class="text-zinc-500 text-sm line-through">R$ ${item.price}</span>`) + `
           </div>
         `;
       });
