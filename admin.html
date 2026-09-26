@@ -13,7 +13,6 @@
     .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 9999px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-    /* Estilização para o input de data ficar com aparência escura no calendário do navegador */
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
     input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
   </style></head><body class="h-[100dvh] overflow-hidden flex flex-col bg-black select-none antialiased">
@@ -66,7 +65,6 @@
       </div>
       <div>
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Data</label>
-        <!-- INPUT TIPO DATE RESOLVE O PROBLEMA DE FORMATAÇÃO -->
         <input type="date" id="block-date" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm appearance-none">
       </div>
       <div class="flex gap-3">
@@ -118,11 +116,11 @@
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4 shrink-0">
         <h2 class="text-2xl font-bold text-white">Agenda de Hoje</h2>
         <div class="flex items-center gap-3">
-          <div class="bg-black border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2">
+          <div class="bg-black border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2 hidden sm:flex">
             <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Cortes</span>
             <span id="metric-hoje-cuts" class="text-sm font-bold text-white">0</span>
           </div>
-          <div class="bg-black border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2">
+          <div class="bg-black border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2 hidden sm:flex">
             <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Faturamento</span>
             <span id="metric-hoje-revenue" class="text-sm font-bold text-emerald-400">R$ 0</span>
           </div>
@@ -144,6 +142,11 @@
         <button onclick="openBlockModal()" class="bg-transparent hover:bg-zinc-900 border border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2">
           <span>🚫 Bloquear Horários</span>
         </button>
+        <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Hoje:</span>
+          <span id="metric-total-cuts" class="text-sm font-bold text-white">0 cortes</span>
+          <span id="metric-total-revenue" class="text-sm font-bold text-emerald-400">R$ 0</span>
+        </div>
       </div>
       <div id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto overflow-y-hidden custom-scroll pb-2 items-start min-h-0"></div>
     </main>
@@ -227,6 +230,7 @@
       document.getElementById('notification-sound').play().catch(()=>{});
       document.getElementById('notification-sound').pause();
       
+      switchTab('hoje'); // Força a tela de "Hoje" ao iniciar
       loadAgendaData();
       loadSettings();
       subscribeToRealtime();
@@ -268,10 +272,12 @@
     }
 
     function timeToMinutes(tStr) {
+      if (!tStr) return 0;
       const p = tStr.split(':'); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
     }
     
     function add30Mins(timeStr) {
+      if (!timeStr) return '';
       const [h, m] = timeStr.split(':').map(Number);
       const d = new Date(0, 0, 0, h, m + 30);
       return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -291,7 +297,7 @@
     }
 
     async function confirmBlock() {
-      const dateVal = document.getElementById('block-date').value; // Formato YYYY-MM-DD
+      const dateVal = document.getElementById('block-date').value; 
       const start = document.getElementById('block-start').value;
       const end = document.getElementById('block-end').value;
       const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
@@ -299,7 +305,7 @@
       if (!dateVal) { alert('Selecione uma data válida'); return; }
       
       const [y, m, d] = dateVal.split('-');
-      const formattedDate = `${d}/${m}/${y}`; // Converte para DD/MM/AAAA para o banco
+      const formattedDate = `${d}/${m}/${y}`; 
 
       const startMin = timeToMinutes(start);
       const endMin = timeToMinutes(end);
@@ -317,7 +323,7 @@
     }
 
     async function deleteAppointment(idsStr, isBlocked) {
-      const msg = isBlocked ? "Deseja liberar este horário/faixa?" : "Cancelar este agendamento?";
+      const msg = isBlocked ? "Deseja liberar esta faixa de horário?" : "Cancelar este agendamento?";
       if (confirm(msg)) {
         if (isBlocked) { 
           const idArray = idsStr.split(',');
@@ -344,7 +350,7 @@
     }
 
     function getServiceImage(serviceName) {
-      if (!serviceName) return '';
+      if (!serviceName) return 'https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=300&auto=format&fit=crop&q=80';
       if (serviceName.includes("Combo")) return "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80";
       if (serviceName.includes("Barba")) return "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80";
       if (serviceName.includes("Sobrancelha")) return "./sobrancelha.jpeg";
@@ -369,7 +375,8 @@
     }
 
     async function fetchHistoryData() {
-      const { data } = await sb.from('appointments').select(`*, profiles(full_name, phone)`).order('created_at', {ascending: false});
+      const { data, error } = await sb.from('appointments').select(`*, profiles(full_name, phone)`).order('created_at', {ascending: false});
+      if (error) { console.error("Erro no histórico:", error); return; }
       allHistoryData = data || [];
       renderHistoryTable();
     }
@@ -397,7 +404,7 @@
 
       let html = '';
       filtered.forEach(a => {
-        const isBlock = a.service.startsWith('🚫');
+        const isBlock = a.service && a.service.startsWith('🚫');
         const clientName = a.profiles ? a.profiles.full_name : (isBlock ? 'Barbearia (Bloqueio)' : 'Cliente');
         let statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded text-xs">Confirmado</span>`;
         
@@ -410,7 +417,7 @@
             <td class="px-6 py-4 text-zinc-400">${formatDateForDisplay(a.created_at)}</td>
             <td class="px-6 py-4 font-bold text-white">${a.date} às ${a.time}</td>
             <td class="px-6 py-4 text-zinc-300">${clientName}</td>
-            <td class="px-6 py-4 text-zinc-300">${a.service}</td>
+            <td class="px-6 py-4 text-zinc-300">${a.service || 'Sem nome'}</td>
             <td class="px-6 py-4 text-emerald-400 font-bold">R$ ${a.price}</td>
             <td class="px-6 py-4">${statusBadge}</td>
           </tr>
@@ -420,13 +427,13 @@
     }
 
     function openDetailsModal(item) {
-      const isBlock = item.service.startsWith('🚫');
+      const isBlock = item.service && item.service.startsWith('🚫');
       const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
       const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
       const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '';
 
       document.getElementById('detail-img-container').innerHTML = `<img src="${getServiceImage(item.service)}" class="w-full h-full object-cover">`;
-      document.getElementById('detail-service').innerText = item.service;
+      document.getElementById('detail-service').innerText = item.service || 'Serviço';
       document.getElementById('detail-client').innerText = clientName;
       document.getElementById('detail-date').innerText = `${item.date} às ${item.time}`;
       document.getElementById('detail-modified').innerText = formatDateForDisplay(item.created_at);
@@ -447,13 +454,12 @@
 
     function closeDetailsModal() { document.getElementById('modal-details').classList.add('hidden'); }
 
-    // Função auxiliar para agrupar bloqueios em sequência
     function mergeBlocks(dayApts) {
       let merged = [];
       let currentBlock = null;
 
       dayApts.forEach(item => {
-        const isBlock = item.service.startsWith('🚫');
+        const isBlock = item.service && item.service.startsWith('🚫');
         if (isBlock) {
           if (!currentBlock) {
             currentBlock = { ...item, type: 'block', end_time: add30Mins(item.time), block_ids: [item.id] };
@@ -486,11 +492,11 @@
         return `
           <div class="bg-red-950/20 border border-red-900/40 rounded-2xl p-4 relative shrink-0">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">🚫 Faixa Bloqueada</span>
+              <span class="text-[11px] font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">🚫 Faixa Bloqueada</span>
               <button onclick="deleteAppointment('${idsStr}', true)" class="text-zinc-400 hover:text-red-400 text-xs font-bold bg-zinc-900 px-2 py-1 rounded border border-zinc-800 transition-colors">Liberar ✕</button>
             </div>
-            <p class="font-bold text-zinc-300 text-sm">Das ${item.time} às ${item.end_time}</p>
-            <p class="text-[11px] text-zinc-500 mt-1">${item.service.replace('🚫 ', '')}</p>
+            <p class="font-bold text-zinc-300 text-[15px]">Das ${item.time} às ${item.end_time}</p>
+            <p class="text-xs text-zinc-500 mt-1">${(item.service || '').replace('🚫 ', '')}</p>
           </div>`;
       } else {
         return `
@@ -520,121 +526,133 @@
       
       if (board.innerHTML === '') board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">A carregar...</div>`;
 
-      const { data: apts } = await sb.from('appointments').select(`id, service, date, time, price, calendar_event_id, user_id, profiles(full_name, phone)`)
-        .not('calendar_event_id', 'in', '("cancelled_by_barber","cancelled_by_client")');
+      try {
+        const { data: apts, error } = await sb.from('appointments')
+          .select(`id, service, date, time, price, calendar_event_id, user_id, profiles(full_name, phone)`)
+          .neq('calendar_event_id', 'cancelled_by_barber')
+          .neq('calendar_event_id', 'cancelled_by_client');
 
-      if (apts) {
-        apts.forEach(a => {
-          if (a.date) {
-            let parts = a.date.split('/');
-            if (parts.length === 3) a.date = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
-          }
-        });
-      }
-
-      const activeDatesSet = new Set();
-      if (apts) apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
-
-      const daysList = [];
-      const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-      
-      const hoje = new Date();
-      hoje.setHours(0,0,0,0);
-      
-      let cursor = new Date(hoje);
-      let addedCount = 0;
-      
-      const strHoje = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
-      activeDatesSet.add(strHoje);
-
-      while (addedCount < 14) {
-        if (cursor.getDay() !== 0) {
-          const d = cursor.getDate().toString().padStart(2, '0');
-          const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
-          const dateStr = `${d}/${m}/${cursor.getFullYear()}`;
-          activeDatesSet.add(dateStr); addedCount++;
+        if (error) {
+          console.error("Erro banco de dados:", error);
+          board.innerHTML = `<div class="p-8 text-red-500 font-bold">Erro de conexão. Verifique a internet e tente novamente.</div>`;
+          return;
         }
-        cursor.setDate(cursor.getDate() + 1);
-      }
 
-      const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
-        const [dA, mA, yA] = a.split('/').map(Number);
-        const [dB, mB, yB] = b.split('/').map(Number);
-        return new Date(yA, mA - 1, dA) - new Date(yB, mB - 1, dB);
-      });
-
-      const futureDates = sortedDates.filter(dateStr => {
-        const [d, m, y] = dateStr.split('/').map(Number);
-        const checkDate = new Date(y, m - 1, d);
-        return checkDate >= hoje;
-      });
-
-      futureDates.forEach(dateStr => {
-        const [dA, mA, yA] = dateStr.split('/').map(Number);
-        const dObj = new Date(yA, mA - 1, dA);
-        let dName = diasSemana[dObj.getDay()];
-        if(dateStr === strHoje) dName = "HOJE";
-        
-        daysList.push({ label: dateStr, dayName: dName, dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}` });
-      });
-
-      let todayCuts = 0; let todayRevenue = 0;
-      const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-      
-      todayAptsRaw.forEach(a => {
-        if (!a.service.startsWith('🚫')) { todayCuts++; todayRevenue += parseFloat(a.price || 0); }
-      });
-
-      document.getElementById('metric-total-cuts').innerText = todayCuts;
-      document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue}`;
-      document.getElementById('metric-hoje-cuts').innerText = todayCuts;
-      document.getElementById('metric-hoje-revenue').innerText = `R$ ${todayRevenue}`;
-
-      // PREENCHE KANBAN
-      let boardHtml = '';
-      daysList.forEach(day => {
-        const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-        const mergedApts = mergeBlocks(dayAptsRaw);
-        
-        let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
-        const isToday = day.label === strHoje;
-        const colStyle = isToday ? "border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]" : "border-zinc-800";
-        const titleStyle = isToday ? "text-blue-400" : "text-zinc-500";
-
-        if (mergedApts.length === 0) {
-          cardsHtml = `<div class="h-full border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]"><span class="text-xs">Livre</span></div>`;
-        } else {
-          mergedApts.forEach(item => {
-            if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; }
-            cardsHtml += generateCardHtml(item);
+        if (apts) {
+          apts.forEach(a => {
+            if (a.date) {
+              let parts = a.date.split('/');
+              if (parts.length === 3) a.date = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
+            }
           });
         }
 
-        boardHtml += `
-          <div class="w-[340px] shrink-0 bg-[#0a0a0a] border ${colStyle} rounded-3xl flex flex-col h-full max-h-full">
-            <div class="p-5 border-b border-zinc-800 flex items-center justify-between bg-[#141414] rounded-t-3xl shrink-0">
-              <div>
-                <span class="text-[10px] uppercase tracking-widest font-bold ${titleStyle} block mb-1">${day.dayName}</span>
-                <span class="text-lg font-bold text-white">${day.dayNumber}</span>
-              </div>
-              <div class="text-right">
-                <span class="text-[11px] font-bold text-zinc-400 block mb-1">${dayCuts} cortes</span>
-                <span class="text-sm font-bold text-emerald-400">R$ ${dayRev}</span>
-              </div>
-            </div>
-            <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scroll">${cardsHtml}</div>
-          </div>`;
-      });
-      board.innerHTML = boardHtml;
+        const activeDatesSet = new Set();
+        if (apts) apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
 
-      // PREENCHE ABA "HOJE"
-      let dailyHtml = '';
-      const mergedToday = mergeBlocks(todayAptsRaw);
-      if (mergedToday.length === 0) {
-        dailyHtml = `<div class="text-center py-10 text-zinc-500 font-medium">Nenhuma marcação para hoje.</div>`;
-      } else {
-        mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); });
+        const daysList = [];
+        const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        
+        const hoje = new Date();
+        hoje.setHours(0,0,0,0);
+        
+        let cursor = new Date(hoje);
+        let addedCount = 0;
+        
+        const strHoje = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
+        activeDatesSet.add(strHoje);
+
+        while (addedCount < 14) {
+          if (cursor.getDay() !== 0) {
+            const d = cursor.getDate().toString().padStart(2, '0');
+            const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
+            const dateStr = `${d}/${m}/${cursor.getFullYear()}`;
+            activeDatesSet.add(dateStr); addedCount++;
+          }
+          cursor.setDate(cursor.getDate() + 1);
+        }
+
+        const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
+          const [dA, mA, yA] = a.split('/').map(Number);
+          const [dB, mB, yB] = b.split('/').map(Number);
+          return new Date(yA, mA - 1, dA) - new Date(yB, mB - 1, dB);
+        });
+
+        const futureDates = sortedDates.filter(dateStr => {
+          const [d, m, y] = dateStr.split('/').map(Number);
+          const checkDate = new Date(y, m - 1, d);
+          return checkDate >= hoje;
+        });
+
+        futureDates.forEach(dateStr => {
+          const [dA, mA, yA] = dateStr.split('/').map(Number);
+          const dObj = new Date(yA, mA - 1, dA);
+          let dName = diasSemana[dObj.getDay()];
+          if(dateStr === strHoje) dName = "HOJE";
+          
+          daysList.push({ label: dateStr, dayName: dName, dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}` });
+        });
+
+        let todayCuts = 0; let todayRevenue = 0;
+        const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+        
+        todayAptsRaw.forEach(a => {
+          if (a.service && !a.service.startsWith('🚫')) { todayCuts++; todayRevenue += parseFloat(a.price || 0); }
+        });
+
+        document.getElementById('metric-total-cuts').innerText = todayCuts + ' cortes';
+        document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue}`;
+        document.getElementById('metric-hoje-cuts').innerText = todayCuts;
+        document.getElementById('metric-hoje-revenue').innerText = `R$ ${todayRevenue}`;
+
+        let boardHtml = '';
+        daysList.forEach(day => {
+          const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+          const mergedApts = mergeBlocks(dayAptsRaw);
+          
+          let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
+          const isToday = day.label === strHoje;
+          const colStyle = isToday ? "border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]" : "border-zinc-800";
+          const titleStyle = isToday ? "text-blue-400" : "text-zinc-500";
+
+          if (mergedApts.length === 0) {
+            cardsHtml = `<div class="h-full border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]"><span class="text-xs">Livre</span></div>`;
+          } else {
+            mergedApts.forEach(item => {
+              if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; }
+              cardsHtml += generateCardHtml(item);
+            });
+          }
+
+          boardHtml += `
+            <div class="w-[340px] shrink-0 bg-[#0a0a0a] border ${colStyle} rounded-3xl flex flex-col h-full max-h-full">
+              <div class="p-5 border-b border-zinc-800 flex items-center justify-between bg-[#141414] rounded-t-3xl shrink-0">
+                <div>
+                  <span class="text-[10px] uppercase tracking-widest font-bold ${titleStyle} block mb-1">${day.dayName}</span>
+                  <span class="text-lg font-bold text-white">${day.dayNumber}</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[11px] font-bold text-zinc-400 block mb-1">${dayCuts} cortes</span>
+                  <span class="text-sm font-bold text-emerald-400">R$ ${dayRev}</span>
+                </div>
+              </div>
+              <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scroll">${cardsHtml}</div>
+            </div>`;
+        });
+        board.innerHTML = boardHtml;
+
+        let dailyHtml = '';
+        const mergedToday = mergeBlocks(todayAptsRaw);
+        if (mergedToday.length === 0) {
+          dailyHtml = `<div class="text-center py-10 text-zinc-500 font-medium">Nenhuma marcação para hoje.</div>`;
+        } else {
+          mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); });
+        }
+        dailyContainer.innerHTML = dailyHtml;
+
+      } catch (err) {
+        console.error("Erro critico de renderização:", err);
+        board.innerHTML = `<div class="p-8 text-red-500 font-bold">Houve um erro no carregamento da tela. Recarregue a página.</div>`;
       }
-      dailyContainer.innerHTML = dailyHtml;
     }
   </script></body></html>
