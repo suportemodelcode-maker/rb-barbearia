@@ -13,6 +13,9 @@
     .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; border-radius: 9999px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    /* Estilização para o input de data ficar com aparência escura no calendário do navegador */
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
   </style></head><body class="h-[100dvh] overflow-hidden flex flex-col bg-black select-none antialiased">
 
   <audio id="notification-sound" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/water_droplet.mp3" preload="auto"></audio>
@@ -62,8 +65,9 @@
         <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white p-1">✕</button>
       </div>
       <div>
-        <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Data (DD/MM/AAAA)</label>
-        <input type="text" id="block-date" placeholder="Ex: 22/09/2026" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+        <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Data</label>
+        <!-- INPUT TIPO DATE RESOLVE O PROBLEMA DE FORMATAÇÃO -->
+        <input type="date" id="block-date" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm appearance-none">
       </div>
       <div class="flex gap-3">
         <div class="flex-1">
@@ -98,37 +102,54 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <button onclick="switchTab('kanban')" id="btn-tab-kanban" class="bg-blue-600 border border-blue-500 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors">📋 Quadro</button>
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <button onclick="switchTab('hoje')" id="btn-tab-hoje" class="bg-blue-600 border border-blue-500 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors">📅 Hoje</button>
+        <button onclick="switchTab('kanban')" id="btn-tab-kanban" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">📋 Quadro</button>
         <button onclick="switchTab('historico')" id="btn-tab-historico" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">📜 Histórico</button>
-        <button onclick="switchTab('config')" id="btn-tab-config" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">⚙️ Configurações</button>
+        <button onclick="switchTab('config')" id="btn-tab-config" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">⚙️ Ajustes</button>
         
         <div class="w-px h-8 bg-zinc-800 mx-1 hidden md:block"></div>
         <button onclick="logoutAdmin()" class="bg-transparent hover:bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors">Sair</button>
       </div>
     </header>
 
-    <!-- ABA 1: KANBAN -->
-    <main id="tab-kanban" class="flex-1 flex flex-col min-h-0">
+    <!-- ABA 1: VISAO DO DIA (HOJE) -->
+    <main id="tab-hoje" class="flex-1 flex flex-col min-h-0">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4 shrink-0">
+        <h2 class="text-2xl font-bold text-white">Agenda de Hoje</h2>
+        <div class="flex items-center gap-3">
+          <div class="bg-black border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2">
+            <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Cortes</span>
+            <span id="metric-hoje-cuts" class="text-sm font-bold text-white">0</span>
+          </div>
+          <div class="bg-black border border-zinc-800 px-4 py-2 rounded-xl flex items-center gap-2">
+            <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Faturamento</span>
+            <span id="metric-hoje-revenue" class="text-sm font-bold text-emerald-400">R$ 0</span>
+          </div>
+          <button onclick="openBlockModal()" class="bg-transparent hover:bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2">
+            <span>🚫 Bloquear Horários</span>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto custom-scroll bg-[#141414] border border-zinc-800 rounded-3xl p-4 md:p-6 min-h-0">
+        <div id="daily-view-container" class="space-y-4 max-w-4xl mx-auto">
+          <!-- Povoado por JS -->
+        </div>
+      </div>
+    </main>
+
+    <!-- ABA 2: KANBAN -->
+    <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0">
       <div class="flex flex-wrap items-center gap-3 mb-4 shrink-0">
-        <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Agendamentos Hoje</span>
-          <span id="metric-total-cuts" class="text-lg font-bold text-white">0</span>
-        </div>
-        <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Faturamento Hoje</span>
-          <span id="metric-total-revenue" class="text-lg font-bold text-emerald-400">R$ 0</span>
-        </div>
         <button onclick="openBlockModal()" class="bg-transparent hover:bg-zinc-900 border border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2">
           <span>🚫 Bloquear Horários</span>
         </button>
       </div>
-      
       <div id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto overflow-y-hidden custom-scroll pb-2 items-start min-h-0"></div>
     </main>
 
-    <!-- ABA 2: HISTÓRICO GERAL -->
-    <main id="tab-historico" class="hidden flex-1 flex-col bg-[#141414] border border-zinc-800 rounded-3xl p-6 overflow-hidden min-h-0">
+    <!-- ABA 3: HISTÓRICO GERAL -->
+    <main id="tab-historico" class="hidden flex-1 flex-col bg-[#141414] border border-zinc-800 rounded-3xl p-4 md:p-6 overflow-hidden min-h-0">
       <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4 shrink-0">
         <h2 class="text-lg font-bold text-white">Histórico Completo</h2>
         <div class="flex items-center gap-2 bg-black border border-zinc-800 p-1 rounded-xl">
@@ -155,7 +176,7 @@
       </div>
     </main>
 
-    <!-- ABA 3: CONFIGURAÇÕES -->
+    <!-- ABA 4: CONFIGURAÇÕES -->
     <main id="tab-config" class="hidden flex-1 flex-col items-start overflow-y-auto min-h-0">
       <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-6 w-full max-w-md">
         <h2 class="text-lg font-bold text-white mb-6">Horário de Funcionamento</h2>
@@ -206,7 +227,7 @@
       document.getElementById('notification-sound').play().catch(()=>{});
       document.getElementById('notification-sound').pause();
       
-      loadKanban();
+      loadAgendaData();
       loadSettings();
       subscribeToRealtime();
     }
@@ -214,16 +235,14 @@
     function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
 
     function switchTab(tab) {
+      document.getElementById('tab-hoje').classList.add('hidden');
       document.getElementById('tab-kanban').classList.add('hidden');
       document.getElementById('tab-historico').classList.add('hidden');
       document.getElementById('tab-config').classList.add('hidden');
       
-      const btnK = document.getElementById('btn-tab-kanban');
-      const btnH = document.getElementById('btn-tab-historico');
-      const btnC = document.getElementById('btn-tab-config');
-      
-      [btnK, btnH, btnC].forEach(b => {
-        b.className = "bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors";
+      const btns = ['btn-tab-hoje', 'btn-tab-kanban', 'btn-tab-historico', 'btn-tab-config'];
+      btns.forEach(id => {
+        document.getElementById(id).className = "bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors";
       });
 
       document.getElementById('tab-'+tab).classList.remove('hidden');
@@ -243,7 +262,7 @@
       realtimeSubscription = sb.channel('custom-all-channel')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
           playNotificationSound();
-          loadKanban();
+          loadAgendaData();
           fetchHistoryData();
         }).subscribe();
     }
@@ -251,9 +270,17 @@
     function timeToMinutes(tStr) {
       const p = tStr.split(':'); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
     }
+    
+    function add30Mins(timeStr) {
+      const [h, m] = timeStr.split(':').map(Number);
+      const d = new Date(0, 0, 0, h, m + 30);
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
 
-    function openBlockModal(suggestedDate = '') {
-      document.getElementById('block-date').value = suggestedDate;
+    function openBlockModal() {
+      const now = new Date();
+      const val = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      document.getElementById('block-date').value = val;
       document.getElementById('modal-block').classList.remove('hidden');
       document.getElementById('modal-block').classList.add('flex');
     }
@@ -264,12 +291,15 @@
     }
 
     async function confirmBlock() {
-      const date = document.getElementById('block-date').value.trim();
+      const dateVal = document.getElementById('block-date').value; // Formato YYYY-MM-DD
       const start = document.getElementById('block-start').value;
       const end = document.getElementById('block-end').value;
       const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
 
-      if (!date.includes('/') || date.length < 8) { alert('Digite a data no formato DD/MM/AAAA'); return; }
+      if (!dateVal) { alert('Selecione uma data válida'); return; }
+      
+      const [y, m, d] = dateVal.split('-');
+      const formattedDate = `${d}/${m}/${y}`; // Converte para DD/MM/AAAA para o banco
 
       const startMin = timeToMinutes(start);
       const endMin = timeToMinutes(end);
@@ -278,20 +308,22 @@
 
       const inserts = [];
       for (let t = startMin; t < endMin; t += 30) {
-        let h = String(Math.floor(t/60)).padStart(2, '0'); let m = String(t%60).padStart(2, '0');
-        inserts.push({ user_id: 'admin-barber', service: `🚫 ${reason}`, price: 0, date: date, time: `${h}:${m}`, calendar_event_id: 'blocked_time' });
+        let h = String(Math.floor(t/60)).padStart(2, '0'); let min = String(t%60).padStart(2, '0');
+        inserts.push({ user_id: 'admin-barber', service: `🚫 ${reason}`, price: 0, date: formattedDate, time: `${h}:${min}`, calendar_event_id: 'blocked_time' });
       }
 
       await sb.from('appointments').insert(inserts);
       closeBlockModal();
     }
 
-    async function deleteAppointment(id, isBlocked) {
-      const msg = isBlocked ? "Deseja liberar este horário?" : "Cancelar este agendamento?";
+    async function deleteAppointment(idsStr, isBlocked) {
+      const msg = isBlocked ? "Deseja liberar este horário/faixa?" : "Cancelar este agendamento?";
       if (confirm(msg)) {
-        if (isBlocked) { await sb.from('appointments').delete().eq('id', id); } 
-        else {
-          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber', created_at: new Date().toISOString() }).eq('id', id); 
+        if (isBlocked) { 
+          const idArray = idsStr.split(',');
+          await sb.from('appointments').delete().in('id', idArray); 
+        } else {
+          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber', created_at: new Date().toISOString() }).eq('id', idsStr); 
         }
       }
     }
@@ -415,9 +447,78 @@
 
     function closeDetailsModal() { document.getElementById('modal-details').classList.add('hidden'); }
 
-    async function loadKanban() {
+    // Função auxiliar para agrupar bloqueios em sequência
+    function mergeBlocks(dayApts) {
+      let merged = [];
+      let currentBlock = null;
+
+      dayApts.forEach(item => {
+        const isBlock = item.service.startsWith('🚫');
+        if (isBlock) {
+          if (!currentBlock) {
+            currentBlock = { ...item, type: 'block', end_time: add30Mins(item.time), block_ids: [item.id] };
+          } else {
+            if (currentBlock.end_time === item.time && currentBlock.service === item.service) {
+              currentBlock.end_time = add30Mins(item.time);
+              currentBlock.block_ids.push(item.id);
+            } else {
+              merged.push(currentBlock);
+              currentBlock = { ...item, type: 'block', end_time: add30Mins(item.time), block_ids: [item.id] };
+            }
+          }
+        } else {
+          if (currentBlock) { merged.push(currentBlock); currentBlock = null; }
+          merged.push({ ...item, type: 'apt' });
+        }
+      });
+      if (currentBlock) merged.push(currentBlock);
+      return merged;
+    }
+
+    function generateCardHtml(item) {
+      const isBlock = item.type === 'block';
+      const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
+      const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
+      const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
+
+      if (isBlock) {
+        const idsStr = item.block_ids.join(',');
+        return `
+          <div class="bg-red-950/20 border border-red-900/40 rounded-2xl p-4 relative shrink-0">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-md border border-red-500/20">🚫 Faixa Bloqueada</span>
+              <button onclick="deleteAppointment('${idsStr}', true)" class="text-zinc-400 hover:text-red-400 text-xs font-bold bg-zinc-900 px-2 py-1 rounded border border-zinc-800 transition-colors">Liberar ✕</button>
+            </div>
+            <p class="font-bold text-zinc-300 text-sm">Das ${item.time} às ${item.end_time}</p>
+            <p class="text-[11px] text-zinc-500 mt-1">${item.service.replace('🚫 ', '')}</p>
+          </div>`;
+      } else {
+        return `
+          <div class="bg-[#141414] border border-zinc-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all shadow-lg space-y-3 shrink-0">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-lg">${item.time}</span>
+              <span class="text-xs font-bold text-emerald-400">R$ ${item.price}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <img src="${getServiceImage(item.service)}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800">
+              <div class="flex-1 overflow-hidden">
+                <p class="font-bold text-white text-[14px] truncate">${clientName}</p>
+                <p class="text-[11px] text-zinc-400 mt-0.5 truncate">${item.service}</p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+              ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"><span>💬 WhatsApp</span></a>` : `<span class="text-zinc-500 text-[10px]">Sem contato</span>`}
+              <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-500 hover:text-red-400 font-medium">Cancelar</button>
+            </div>
+          </div>`;
+      }
+    }
+
+    async function loadAgendaData() {
       const board = document.getElementById('kanban-board');
-      if (board.innerHTML === '') board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">A carregar agendamentos...</div>`;
+      const dailyContainer = document.getElementById('daily-view-container');
+      
+      if (board.innerHTML === '') board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">A carregar...</div>`;
 
       const { data: apts } = await sb.from('appointments').select(`id, service, date, time, price, calendar_event_id, user_id, profiles(full_name, phone)`)
         .not('calendar_event_id', 'in', '("cancelled_by_barber","cancelled_by_client")');
@@ -478,62 +579,34 @@
       });
 
       let todayCuts = 0; let todayRevenue = 0;
-      (apts || []).forEach(a => {
-        if (!a.service.startsWith('🚫') && a.date === strHoje) { todayCuts++; todayRevenue += parseFloat(a.price || 0); }
+      const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+      
+      todayAptsRaw.forEach(a => {
+        if (!a.service.startsWith('🚫')) { todayCuts++; todayRevenue += parseFloat(a.price || 0); }
       });
 
       document.getElementById('metric-total-cuts').innerText = todayCuts;
       document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue}`;
+      document.getElementById('metric-hoje-cuts').innerText = todayCuts;
+      document.getElementById('metric-hoje-revenue').innerText = `R$ ${todayRevenue}`;
 
+      // PREENCHE KANBAN
       let boardHtml = '';
       daysList.forEach(day => {
-        const dayApts = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-        let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
+        const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+        const mergedApts = mergeBlocks(dayAptsRaw);
         
+        let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
         const isToday = day.label === strHoje;
         const colStyle = isToday ? "border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]" : "border-zinc-800";
         const titleStyle = isToday ? "text-blue-400" : "text-zinc-500";
 
-        if (dayApts.length === 0) {
-          cardsHtml = `<div class="h-full border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]"><span class="text-xs">Nenhum agendamento</span></div>`;
+        if (mergedApts.length === 0) {
+          cardsHtml = `<div class="h-full border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]"><span class="text-xs">Livre</span></div>`;
         } else {
-          dayApts.forEach(item => {
-            const isBlock = item.service.startsWith('🚫');
-            const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
-            const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
-            const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
-
-            if (!isBlock) { dayRev += parseFloat(item.price || 0); dayCuts++; }
-
-            if (isBlock) {
-              cardsHtml += `
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 relative shrink-0">
-                  <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-zinc-400 bg-black px-2 py-0.5 rounded border border-zinc-700">🕒 ${item.time}</span>
-                    <button onclick="deleteAppointment('${item.id}', true)" class="text-zinc-500 hover:text-red-400 text-xs">Liberar ✕</button>
-                  </div>
-                  <p class="font-bold text-zinc-300 text-sm mt-2">${item.service}</p>
-                </div>`;
-            } else {
-              cardsHtml += `
-                <div class="bg-[#141414] border border-zinc-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all shadow-lg space-y-3 shrink-0">
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-lg">${item.time}</span>
-                    <span class="text-xs font-bold text-emerald-400">R$ ${item.price}</span>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <img src="${getServiceImage(item.service)}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800">
-                    <div class="flex-1 overflow-hidden">
-                      <p class="font-bold text-white text-[14px] truncate">${clientName}</p>
-                      <p class="text-[11px] text-zinc-400 mt-0.5 truncate">${item.service}</p>
-                    </div>
-                  </div>
-                  <div class="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
-                    ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"><span>💬 WhatsApp</span></a>` : `<span class="text-zinc-500 text-[10px]">Sem contato</span>`}
-                    <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-500 hover:text-red-400 font-medium">Cancelar</button>
-                  </div>
-                </div>`;
-            }
+          mergedApts.forEach(item => {
+            if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; }
+            cardsHtml += generateCardHtml(item);
           });
         }
 
@@ -550,11 +623,18 @@
               </div>
             </div>
             <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scroll">${cardsHtml}</div>
-            <div class="p-4 border-t border-zinc-800 bg-[#141414] rounded-b-3xl shrink-0">
-              <button onclick="openBlockModal('${day.label}')" class="w-full py-3 bg-transparent hover:bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-700 transition-colors border-dashed">+ Bloquear Neste Dia</button>
-            </div>
           </div>`;
       });
       board.innerHTML = boardHtml;
+
+      // PREENCHE ABA "HOJE"
+      let dailyHtml = '';
+      const mergedToday = mergeBlocks(todayAptsRaw);
+      if (mergedToday.length === 0) {
+        dailyHtml = `<div class="text-center py-10 text-zinc-500 font-medium">Nenhuma marcação para hoje.</div>`;
+      } else {
+        mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); });
+      }
+      dailyContainer.innerHTML = dailyHtml;
     }
   </script></body></html>
