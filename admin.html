@@ -81,7 +81,7 @@
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Motivo (Opcional)</label>
         <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga, Reunião" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
       </div>
-      <button onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-[15px] transition-colors shadow-lg">Confirmar Bloqueio</button>
+      <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-[15px] transition-colors shadow-lg">Confirmar Bloqueio</button>
     </div>
   </div>
 
@@ -263,7 +263,7 @@
     function subscribeToRealtime() {
       if (realtimeSubscription) return;
       realtimeSubscription = sb.channel('custom-all-channel')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
           playNotificationSound();
           loadAgendaData();
           fetchHistoryData();
@@ -282,13 +282,12 @@
       return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     }
 
-    // TRAVA O CALENDÁRIO PARA NÃO PERMITIR BLOQUEAR DIAS ANTERIORES
     function openBlockModal() {
       const now = new Date();
       const val = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       const inputDate = document.getElementById('block-date');
       inputDate.value = val;
-      inputDate.min = val; // <--- Trava dias passados
+      inputDate.min = val;
       document.getElementById('modal-block').classList.remove('hidden');
       document.getElementById('modal-block').classList.add('flex');
     }
@@ -311,12 +310,10 @@
       const startMin = timeToMinutes(start);
       const endMin = timeToMinutes(end);
 
-      // TRAVA DE SEGURANÇA CONTRA PASSADO (DIAS)
       if (dateVal < todayStr) {
         alert('Não é possível bloquear dias que já passaram.'); return;
       }
       
-      // TRAVA DE SEGURANÇA CONTRA PASSADO (HORAS HOJE)
       if (dateVal === todayStr) {
         const currentMin = now.getHours() * 60 + now.getMinutes();
         if (startMin <= currentMin) {
@@ -327,17 +324,64 @@
       if(startMin > endMin) { alert('O horário de fim não pode ser menor que o início.'); return; }
 
       const [y, m, d] = dateVal.split('-');
-      const formattedDate = `${d}/${m}/${y}`; 
+      const formattedDate = `${d}/${m}/${y}`;
+      const formattedDateNoZero = `${parseInt(d, 10)}/${parseInt(m, 10)}/${y}`;
 
-      const { data: dummy } = await sb.from('profiles').select('id').limit(1);
-      const dummyId = dummy && dummy.length > 0 ? dummy[0].id : null;
+      const btn = document.getElementById('btn-confirm-block');
+      btn.disabled = true;
+      btn.innerText = 'Verificando...';
 
+      // 1. VERIFICAR SE EXISTE AGENDAMENTO DE CLIENTE NO INTERVALO
+      const { data: existingApts, error: searchError } = await sb
+        .from('appointments')
+        .select('*, profiles(full_name)')
+        .in('date', [formattedDate, formattedDateNoZero])
+        .neq('calendar_event_id', 'cancelled_by_barber')
+        .neq('calendar_event_id', 'cancelled_by_client')
+        .neq('calendar_event_id', 'blocked_time');
+
+      if (searchError) {
+        alert('Erro ao checar agendamentos: ' + searchError.message);
+        btn.disabled = false;
+        btn.innerText = 'Confirmar Bloqueio';
+        return;
+      }
+
+      // Procura conflito com clientes
+      let conflictClient = null;
+      if (existingApts && existingApts.length > 0) {
+        for (const apt of existingApts) {
+          const aptStart = timeToMinutes(apt.time);
+          let dur = 30;
+          if (apt.service.includes("Combo")) dur = 60;
+          else if (apt.service.includes("Sobrancelha")) dur = 20;
+          const aptEnd = aptStart + dur;
+
+          // Se cruzar o intervalo do bloqueio
+          if (aptStart <= endMin && aptEnd > startMin) {
+            conflictClient = {
+              name: apt.profiles?.full_name || 'Cliente',
+              time: apt.time
+            };
+            break;
+          }
+        }
+      }
+
+      if (conflictClient) {
+        alert(`Não é possível bloquear este horário! Já existe um agendamento do cliente "${conflictClient.name}" às ${conflictClient.time}.\n\nCancele o agendamento do cliente primeiro antes de bloquear.`);
+        btn.disabled = false;
+        btn.innerText = 'Confirmar Bloqueio';
+        return;
+      }
+
+      // 2. REALIZAR O BLOQUEIO COM user_id: null
       const inserts = [];
-      // O USO DO <= FAZ COM QUE O HORÁRIO FINAL TAMBÉM SEJA BLOQUEADO
       for (let t = startMin; t <= endMin; t += 30) {
-        let h = String(Math.floor(t/60)).padStart(2, '0'); let min = String(t%60).padStart(2, '0');
+        let h = String(Math.floor(t/60)).padStart(2, '0'); 
+        let min = String(t%60).padStart(2, '0');
         inserts.push({ 
-          user_id: dummyId, 
+          user_id: null, 
           service: `🚫 ${reason}`, 
           price: 0, 
           date: formattedDate, 
@@ -347,6 +391,9 @@
       }
 
       const { error } = await sb.from('appointments').insert(inserts);
+      btn.disabled = false;
+      btn.innerText = 'Confirmar Bloqueio';
+
       if (error) {
         alert('Erro ao gravar bloqueio: ' + error.message);
         return;
@@ -441,13 +488,13 @@
 
       let html = '';
       filtered.forEach(a => {
-        const isBlock = a.service && a.service.startsWith('🚫');
+        const isBlock = a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫'));
         const clientName = a.profiles ? a.profiles.full_name : (isBlock ? 'Barbearia (Bloqueio)' : 'Cliente');
         let statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded text-xs">Confirmado</span>`;
         
         if (a.calendar_event_id === 'cancelled_by_barber') statusBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded text-xs">Cancelado pela Barbearia</span>`;
         else if (a.calendar_event_id === 'cancelled_by_client') statusBadge = `<span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-1 rounded text-xs">Cancelado pelo Cliente</span>`;
-        else if (a.calendar_event_id === 'blocked_time') statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded text-xs">Bloqueado</span>`;
+        else if (isBlock) statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded text-xs">Bloqueado</span>`;
 
         html += `
           <tr class="hover:bg-zinc-800/50 transition-colors cursor-pointer" onclick='openDetailsModal(${JSON.stringify(a).replace(/'/g, "&apos;")})'>
@@ -464,7 +511,7 @@
     }
 
     function openDetailsModal(item) {
-      const isBlock = item.service && item.service.startsWith('🚫');
+      const isBlock = item.calendar_event_id === 'blocked_time' || (item.service && item.service.startsWith('🚫'));
       const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
       const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
       const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '';
@@ -478,7 +525,7 @@
       let statusMsg = `<span class="text-emerald-400 font-bold">Confirmado</span>`;
       if (item.calendar_event_id === 'cancelled_by_barber') statusMsg = `<span class="text-red-400 font-bold">Cancelado pela Barbearia</span>`;
       else if (item.calendar_event_id === 'cancelled_by_client') statusMsg = `<span class="text-orange-400 font-bold">Cancelado pelo Cliente</span>`;
-      else if (item.calendar_event_id === 'blocked_time') statusMsg = `<span class="text-zinc-400 font-bold">Bloqueado</span>`;
+      else if (isBlock) statusMsg = `<span class="text-zinc-400 font-bold">Bloqueado</span>`;
       document.getElementById('detail-status').innerHTML = statusMsg;
 
       const wAppContainer = document.getElementById('detail-whatsapp-container');
@@ -496,7 +543,7 @@
       let currentBlock = null;
 
       dayApts.forEach(item => {
-        const isBlock = item.service && item.service.startsWith('🚫');
+        const isBlock = item.calendar_event_id === 'blocked_time' || (item.service && item.service.startsWith('🚫'));
         if (isBlock) {
           if (!currentBlock) {
             currentBlock = { ...item, type: 'block', end_time: add30Mins(item.time), block_ids: [item.id] };
@@ -633,7 +680,10 @@
         const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
         
         todayAptsRaw.forEach(a => {
-          if (a.service && !a.service.startsWith('🚫')) { todayCuts++; todayRevenue += parseFloat(a.price || 0); }
+          if (a.calendar_event_id !== 'blocked_time' && a.service && !a.service.startsWith('🚫')) { 
+            todayCuts++; 
+            todayRevenue += parseFloat(a.price || 0); 
+          }
         });
 
         document.getElementById('metric-total-cuts').innerText = todayCuts + ' cortes';
