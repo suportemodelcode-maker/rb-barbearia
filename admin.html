@@ -15,19 +15,24 @@
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
   </style></head><body class="min-h-screen flex flex-col bg-black select-none antialiased">
 
-  <!-- AUDIO DE NOTIFICAÇÃO SUPER SUAVE (GOTA D'ÁGUA) -->
   <audio id="notification-sound" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/water_droplet.mp3" preload="auto"></audio>
 
   <!-- TELA DE SENHA -->
   <div id="auth-screen" class="fixed inset-0 bg-[#0f0f0f] z-50 flex items-center justify-center p-4">
     <div class="bg-[#141414] border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
-      <div class="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-4 text-blue-500">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      <div class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-zinc-900 border border-zinc-800 overflow-hidden shadow-lg">
+        <img src="./icone.png" alt="Ícone Barbearia" class="w-full h-full object-cover">
       </div>
       <h2 class="text-2xl font-bold text-white font-serif tracking-widest">PAINEL RB</h2>
       <p class="text-xs text-zinc-400 mt-1 mb-6">Acesso exclusivo da barbearia</p>
-      <input type="password" id="admin-pass" placeholder="Digite a senha" onkeydown="if(event.key==='Enter') checkAdmin()" class="w-full py-3.5 px-4 rounded-xl bg-black border border-zinc-800 text-white focus:border-blue-500 outline-none mb-4 text-center tracking-widest text-lg transition-colors">
-      <button onclick="checkAdmin()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition-colors text-[15px]">Acessar Agenda</button>
+      
+      <form id="login-form" onsubmit="checkAdmin(event)">
+        <!-- Input escondido para o navegador identificar como login -->
+        <input type="text" name="username" value="admin" class="hidden" autocomplete="username">
+        
+        <input type="password" id="admin-pass" name="password" autocomplete="current-password" placeholder="Digite a senha" class="w-full py-3.5 px-4 rounded-xl bg-black border border-zinc-800 text-white focus:border-blue-500 outline-none mb-4 text-center tracking-widest text-lg transition-colors">
+        <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg transition-colors text-[15px]">Acessar Agenda</button>
+      </form>
     </div>
   </div>
 
@@ -35,39 +40,33 @@
   <div id="modal-block" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col justify-end md:items-center md:justify-center p-0 md:p-4">
     <div class="bg-[#1a1a1a] border-t border-zinc-800 md:border md:rounded-3xl rounded-t-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
       <div class="flex justify-between items-center mb-2">
-        <h3 class="font-bold text-white text-lg">Bloquear Horário</h3>
-        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white p-1">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+        <h3 class="font-bold text-white text-lg">Bloquear Faixa de Horário</h3>
+        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white p-1">✕</button>
       </div>
       <div>
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Data (DD/MM/AAAA)</label>
-        <input type="text" id="block-date" placeholder="Ex: 22/09/2026" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm transition-colors">
+        <input type="text" id="block-date" placeholder="Ex: 22/09/2026" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
       </div>
-      <div>
-        <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Horário</label>
-        <select id="block-time" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm transition-colors appearance-none">
-          <option value="18:00">18:00</option>
-          <option value="18:30">18:30</option>
-          <option value="19:00">19:00</option>
-          <option value="19:30">19:30</option>
-          <option value="20:00">20:00</option>
-          <option value="20:30">20:30</option>
-          <option value="21:00">21:00</option>
-          <option value="21:30">21:30</option>
-          <option value="22:00">22:00</option>
-      </select>
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Início</label>
+          <input type="time" id="block-start" value="12:00" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+        </div>
+        <div class="flex-1">
+          <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Fim</label>
+          <input type="time" id="block-end" value="14:00" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+        </div>
       </div>
       <div>
         <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Motivo (Opcional)</label>
-        <input type="text" id="block-reason" placeholder="Ex: Intervalo, Almoço, Folga" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm transition-colors">
+        <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga, Reunião" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
       </div>
       <button onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-[15px] transition-colors shadow-lg">Confirmar Bloqueio</button>
     </div>
   </div>
 
   <!-- APLICAÇÃO PRINCIPAL -->
-  <div id="main-panel" class="hidden flex-1 flex flex-col p-4 md:p-6 max-w-[1600px] w-full mx-auto">
+  <div id="main-panel" class="hidden flex-1 flex-col p-4 md:p-6 max-w-[1600px] w-full mx-auto">
     
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#141414] border border-zinc-800 p-5 rounded-3xl mb-6 shadow-xl">
       <div class="flex items-center gap-4">
@@ -82,6 +81,19 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
+        <!-- NAVEGAÇÃO -->
+        <button onclick="switchTab('kanban')" id="btn-tab-kanban" class="bg-blue-600 border border-blue-500 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors">📋 Quadro</button>
+        <button onclick="switchTab('historico')" id="btn-tab-historico" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">📜 Histórico</button>
+        <button onclick="switchTab('config')" id="btn-tab-config" class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors">⚙️ Configurações</button>
+        
+        <div class="w-px h-8 bg-zinc-800 mx-1 hidden md:block"></div>
+        <button onclick="logoutAdmin()" class="bg-transparent hover:bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors">Sair</button>
+      </div>
+    </header>
+
+    <!-- ABA 1: KANBAN -->
+    <main id="tab-kanban" class="flex-1 flex flex-col">
+      <div class="flex flex-wrap items-center gap-3 mb-6">
         <div class="bg-black border border-zinc-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
           <span class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider">Agendamentos</span>
           <span id="metric-total-cuts" class="text-lg font-bold text-white">0</span>
@@ -91,12 +103,55 @@
           <span id="metric-total-revenue" class="text-lg font-bold text-emerald-400">R$ 0</span>
         </div>
         <button onclick="openBlockModal()" class="bg-transparent hover:bg-zinc-900 border border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors flex items-center gap-2">
-          <span>🚫 Bloquear Horário</span>
+          <span>🚫 Bloquear Horários</span>
         </button>
       </div>
-    </header>
+      <div id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto custom-scroll pb-6 items-start"></div>
+    </main>
 
-    <main id="kanban-board" class="flex-1 flex gap-5 overflow-x-auto custom-scroll pb-6 items-start"></main>
+    <!-- ABA 2: HISTÓRICO GERAL -->
+    <main id="tab-historico" class="hidden flex-1 flex-col bg-[#141414] border border-zinc-800 rounded-3xl p-6 overflow-hidden">
+      <h2 class="text-lg font-bold text-white mb-4">Histórico Completo</h2>
+      <div class="overflow-x-auto custom-scroll flex-1 border border-zinc-800 rounded-xl">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+          <thead class="bg-zinc-900 text-zinc-400 text-xs uppercase font-bold sticky top-0">
+            <tr>
+              <th class="px-6 py-4">Criado em</th>
+              <th class="px-6 py-4">Data Marcada</th>
+              <th class="px-6 py-4">Cliente</th>
+              <th class="px-6 py-4">Serviço</th>
+              <th class="px-6 py-4">Valor</th>
+              <th class="px-6 py-4">Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body" class="divide-y divide-zinc-800/50">
+            <!-- Povoado por JS -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ABA 3: CONFIGURAÇÕES -->
+    <main id="tab-config" class="hidden flex-1 flex-col items-start">
+      <div class="bg-[#141414] border border-zinc-800 rounded-3xl p-6 w-full max-w-md">
+        <h2 class="text-lg font-bold text-white mb-6">Horário de Funcionamento</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Horário de Abertura</label>
+            <input type="time" id="set-open" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Horário de Fecho</label>
+            <input type="time" id="set-close" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500">
+          </div>
+          <button onclick="saveSettings()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-[15px] transition-colors shadow-lg mt-4">
+            Salvar Horários
+          </button>
+        </div>
+        <p class="text-xs text-zinc-500 mt-4">As alterações refletirão automaticamente no aplicativo dos clientes.</p>
+      </div>
+    </main>
+
   </div>
 
   <script>
@@ -104,46 +159,77 @@
     const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     let realtimeSubscription = null;
 
-    function checkAdmin() {
+    // Verificar login salvo ao iniciar
+    window.onload = () => {
+      if(localStorage.getItem('rb_admin_logged') === 'true') {
+        processLogin();
+      }
+    };
+
+    function checkAdmin(e) {
+      if(e) e.preventDefault();
       const pass = document.getElementById('admin-pass').value;
       if (pass === ADMIN_PASSWORD) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('main-panel').classList.remove('hidden');
-        document.getElementById('main-panel').classList.add('flex');
-        // Inicializa o áudio (necessário interação do usuário no login para o navegador permitir tocar som)
-        document.getElementById('notification-sound').play().catch(()=>{});
-        document.getElementById('notification-sound').pause();
-        
-        loadKanban();
-        subscribeToRealtime();
+        localStorage.setItem('rb_admin_logged', 'true');
+        processLogin();
       } else {
         alert("Senha incorreta!");
       }
     }
 
+    function processLogin() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('main-panel').classList.remove('hidden');
+      document.getElementById('main-panel').classList.add('flex');
+      document.getElementById('notification-sound').play().catch(()=>{});
+      document.getElementById('notification-sound').pause();
+      
+      loadKanban();
+      loadSettings();
+      subscribeToRealtime();
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem('rb_admin_logged');
+      window.location.reload();
+    }
+
+    function switchTab(tab) {
+      document.getElementById('tab-kanban').classList.add('hidden');
+      document.getElementById('tab-historico').classList.add('hidden');
+      document.getElementById('tab-config').classList.add('hidden');
+      
+      const btnK = document.getElementById('btn-tab-kanban');
+      const btnH = document.getElementById('btn-tab-historico');
+      const btnC = document.getElementById('btn-tab-config');
+      
+      [btnK, btnH, btnC].forEach(b => {
+        b.className = "bg-black border border-zinc-800 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-colors";
+      });
+
+      document.getElementById('tab-'+tab).classList.remove('hidden');
+      document.getElementById('tab-'+tab).classList.add('flex');
+      document.getElementById('btn-tab-'+tab).className = "bg-blue-600 border border-blue-500 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-colors";
+
+      if(tab === 'historico') loadHistoryTable();
+    }
+
     function playNotificationSound() {
       const audio = document.getElementById('notification-sound');
       audio.currentTime = 0;
-      audio.play().catch(e => console.log('Áudio bloqueado pelo navegador', e));
+      audio.play().catch(e => console.log('Áudio bloqueado', e));
     }
 
     function subscribeToRealtime() {
       if (realtimeSubscription) return;
-      
       realtimeSubscription = sb.channel('custom-all-channel')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'appointments' },
-          (payload) => {
-            console.log('Mudança detectada!', payload);
-            playNotificationSound();
-            loadKanban();
-          }
-        )
-        .subscribe();
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
+          playNotificationSound();
+          loadKanban();
+          loadHistoryTable();
+        }).subscribe();
     }
 
     function timeToMinutes(tStr) {
@@ -162,6 +248,61 @@
       document.getElementById('modal-block').classList.remove('flex');
     }
 
+    async function confirmBlock() {
+      const date = document.getElementById('block-date').value.trim();
+      const start = document.getElementById('block-start').value;
+      const end = document.getElementById('block-end').value;
+      const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
+
+      if (!date.includes('/') || date.length < 8) {
+        alert('Digite a data no formato DD/MM/AAAA (Ex: 22/09/2026)'); return;
+      }
+
+      const startMin = timeToMinutes(start);
+      const endMin = timeToMinutes(end);
+      
+      if(startMin >= endMin) {
+        alert('O horário de fim deve ser maior que o de início.'); return;
+      }
+
+      const inserts = [];
+      // Cria blocos a cada 30 minutos na faixa selecionada
+      for (let t = startMin; t < endMin; t += 30) {
+        let h = String(Math.floor(t/60)).padStart(2, '0');
+        let m = String(t%60).padStart(2, '0');
+        inserts.push({ user_id: 'admin-barber', service: `🚫 ${reason}`, price: 0, date: date, time: `${h}:${m}`, calendar_event_id: 'blocked_time' });
+      }
+
+      await sb.from('appointments').insert(inserts);
+      closeBlockModal();
+    }
+
+    async function deleteAppointment(id, isBlocked) {
+      const msg = isBlocked ? "Deseja liberar este horário?" : "Cancelar este agendamento?";
+      if (confirm(msg)) {
+        if (isBlocked) {
+          await sb.from('appointments').delete().eq('id', id);
+        } else {
+          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', id);
+        }
+      }
+    }
+
+    async function loadSettings() {
+      const {data} = await sb.from('settings').select('*').eq('id', 1).single();
+      if(data) {
+        document.getElementById('set-open').value = data.open_time;
+        document.getElementById('set-close').value = data.close_time;
+      }
+    }
+
+    async function saveSettings() {
+      const o = document.getElementById('set-open').value;
+      const c = document.getElementById('set-close').value;
+      await sb.from('settings').upsert({id: 1, open_time: o, close_time: c});
+      alert('Horário atualizado com sucesso!');
+    }
+
     function getServiceImage(serviceName) {
       if (!serviceName) return '';
       if (serviceName.includes("Combo")) return "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80";
@@ -171,87 +312,80 @@
       return "https://images.unsplash.com/photo-1512690459411-b9245aed614b?w=300&auto=format&fit=crop&q=80";
     }
 
-    async function confirmBlock() {
-      const date = document.getElementById('block-date').value.trim();
-      const time = document.getElementById('block-time').value;
-      const reason = document.getElementById('block-reason').value.trim() || 'Horário Bloqueado';
-
-      if (!date.includes('/') || date.length < 8) {
-        alert('Digite a data no formato DD/MM/AAAA (Ex: 22/09/2026)');
-        return;
-      }
-
-      await sb.from('appointments').insert([{
-        user_id: 'admin-barber',
-        service: `🚫 ${reason}`,
-        price: 0,
-        date: date,
-        time: time,
-        calendar_event_id: 'blocked_time'
-      }]);
-
-      closeBlockModal();
-      // loadKanban(); // Não precisa chamar aqui, o Realtime vai capturar e atualizar sozinho
+    function formatDateForDisplay(isoString) {
+      if(!isoString) return '-';
+      const d = new Date(isoString);
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} às ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
-    async function deleteAppointment(id, isBlocked) {
-      const msg = isBlocked 
-        ? "Deseja liberar este horário para agendamento?" 
-        : "Deseja realmente CANCELAR este agendamento do cliente?";
+    async function loadHistoryTable() {
+      const tbody = document.getElementById('history-table-body');
+      tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-zinc-500">A carregar...</td></tr>`;
       
-      if (confirm(msg)) {
-        if (isBlocked) {
-          await sb.from('appointments').delete().eq('id', id);
-        } else {
-          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber' }).eq('id', id);
-        }
-        // loadKanban(); // O Realtime faz a atualização
+      const { data: apts } = await sb.from('appointments').select(`*, profiles(full_name)`).order('created_at', {ascending: false});
+      
+      if(!apts || apts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-zinc-500">Nenhum histórico encontrado.</td></tr>`; return;
       }
+
+      let html = '';
+      apts.forEach(a => {
+        const isBlock = a.service.startsWith('🚫');
+        const clientName = a.profiles ? a.profiles.full_name : (isBlock ? 'Barbearia (Bloqueio)' : 'Cliente');
+        let statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded text-xs">Confirmado</span>`;
+        
+        if (a.calendar_event_id === 'cancelled_by_barber') {
+          statusBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded text-xs">Cancelado por Si</span>`;
+        } else if (a.calendar_event_id === 'cancelled_by_client') {
+          statusBadge = `<span class="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-1 rounded text-xs">Cancelado pelo Cliente</span>`;
+        } else if (a.calendar_event_id === 'blocked_time') {
+          statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded text-xs">Bloqueado</span>`;
+        }
+
+        html += `
+          <tr class="hover:bg-zinc-800/30 transition-colors">
+            <td class="px-6 py-4 text-zinc-400">${formatDateForDisplay(a.created_at)}</td>
+            <td class="px-6 py-4 font-bold text-white">${a.date} às ${a.time}</td>
+            <td class="px-6 py-4 text-zinc-300">${clientName}</td>
+            <td class="px-6 py-4 text-zinc-300">${a.service}</td>
+            <td class="px-6 py-4 text-emerald-400 font-bold">R$ ${a.price}</td>
+            <td class="px-6 py-4">${statusBadge}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
     }
 
     async function loadKanban() {
       const board = document.getElementById('kanban-board');
       if (board.innerHTML === '') board.innerHTML = `<div class="p-8 text-zinc-500 text-sm">A carregar agendamentos...</div>`;
 
-      const { data: apts, error } = await sb.from('appointments').select(`
-        id, service, date, time, price, calendar_event_id, user_id,
-        profiles (full_name, phone)
-      `).neq('calendar_event_id', 'cancelled_by_barber');
-
-      if (error) {
-        board.innerHTML = `<div class="p-8 text-red-500">Erro: ${error.message}</div>`;
-        return;
-      }
+      const { data: apts } = await sb.from('appointments').select(`id, service, date, time, price, calendar_event_id, user_id, profiles(full_name, phone)`)
+        .not('calendar_event_id', 'in', '("cancelled_by_barber","cancelled_by_client")');
 
       if (apts) {
         apts.forEach(a => {
           if (a.date) {
             let parts = a.date.split('/');
-            if (parts.length === 3) {
-              a.date = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
-            }
+            if (parts.length === 3) a.date = `${String(parts[0]).padStart(2, '0')}/${String(parts[1]).padStart(2, '0')}/${parts[2]}`;
           }
         });
       }
 
       const activeDatesSet = new Set();
-      if (apts) {
-        apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
-      }
+      if (apts) apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
 
       const daysList = [];
       const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-      
       let cursor = new Date();
       let addedCount = 0;
+      
       while (addedCount < 20) {
         if (cursor.getDay() !== 0) {
           const d = cursor.getDate().toString().padStart(2, '0');
           const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
-          const y = cursor.getFullYear();
-          const dateStr = `${d}/${m}/${y}`;
-          activeDatesSet.add(dateStr);
-          addedCount++;
+          const dateStr = `${d}/${m}/${cursor.getFullYear()}`;
+          activeDatesSet.add(dateStr); addedCount++;
         }
         cursor.setDate(cursor.getDate() + 1);
       }
@@ -264,98 +398,61 @@
 
       sortedDates.forEach(dateStr => {
         const [dA, mA, yA] = dateStr.split('/').map(Number);
-        const dObj = new Date(yA, mA - 1, dA);
-        daysList.push({
-          label: dateStr,
-          dayName: diasSemana[dObj.getDay()] || 'Dia',
-          dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}`
-        });
+        daysList.push({ label: dateStr, dayName: diasSemana[new Date(yA, mA - 1, dA).getDay()] || 'Dia', dayNumber: `${String(dA).padStart(2,'0')}/${String(mA).padStart(2,'0')}` });
       });
 
-      let totalCuts = 0;
-      let totalRevenue = 0;
-
-      apts.forEach(a => {
-        if (!a.service.startsWith('🚫')) {
-          totalCuts++;
-          totalRevenue += parseFloat(a.price || 0);
-        }
+      let totalCuts = 0; let totalRevenue = 0;
+      (apts || []).forEach(a => {
+        if (!a.service.startsWith('🚫')) { totalCuts++; totalRevenue += parseFloat(a.price || 0); }
       });
 
       document.getElementById('metric-total-cuts').innerText = totalCuts;
       document.getElementById('metric-total-revenue').innerText = `R$ ${totalRevenue}`;
 
       let boardHtml = '';
-
       daysList.forEach(day => {
-        const dayApts = apts.filter(a => a.date === day.label);
-        dayApts.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-
-        let dayRevenue = 0;
-        let dayCutsCount = 0;
-        let cardsHtml = '';
+        const dayApts = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+        let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
 
         if (dayApts.length === 0) {
-          cardsHtml = `
-            <div class="h-36 border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]">
-              <span class="text-xs">Nenhum agendamento</span>
-            </div>
-          `;
+          cardsHtml = `<div class="h-36 border border-dashed border-zinc-800/80 rounded-2xl flex flex-col items-center justify-center text-center p-4 text-zinc-600 bg-[#0f0f0f]"><span class="text-xs">Nenhum agendamento</span></div>`;
         } else {
           dayApts.forEach(item => {
             const isBlock = item.service.startsWith('🚫');
-            const clientName = item.profiles ? (item.profiles.full_name || 'Cliente') : (isBlock ? 'Barbearia' : 'Não informado');
-            const rawPhone = item.profiles ? item.profiles.phone : '';
-            const cleanPhone = (rawPhone || '').replace(/\D/g, '');
+            const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
+            const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
             const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
-            const serviceImg = getServiceImage(item.service);
 
-            if (!isBlock) {
-              dayRevenue += parseFloat(item.price || 0);
-              dayCutsCount++;
-            }
+            if (!isBlock) { dayRev += parseFloat(item.price || 0); dayCuts++; }
 
             if (isBlock) {
               cardsHtml += `
-                <div class="bg-red-950/20 border border-red-900/40 rounded-2xl p-4 relative group">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 relative">
                   <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">🕒 ${item.time}</span>
-                    <button onclick="deleteAppointment('${item.id}', true)" title="Liberar horário" class="text-zinc-500 hover:text-red-400 text-xs">Liberar ✕</button>
+                    <span class="text-[11px] font-bold text-zinc-400 bg-black px-2 py-0.5 rounded border border-zinc-700">🕒 ${item.time}</span>
+                    <button onclick="deleteAppointment('${item.id}', true)" class="text-zinc-500 hover:text-red-400 text-xs">Liberar ✕</button>
                   </div>
-                  <p class="font-bold text-white text-sm mt-2">${item.service}</p>
-                </div>
-              `;
+                  <p class="font-bold text-zinc-300 text-sm mt-2">${item.service}</p>
+                </div>`;
             } else {
               cardsHtml += `
                 <div class="bg-[#141414] border border-zinc-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all shadow-lg space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-lg">
-                      ${item.time}
-                    </span>
+                    <span class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-lg">${item.time}</span>
                     <span class="text-xs font-bold text-emerald-400">R$ ${item.price}</span>
                   </div>
-
                   <div class="flex items-center gap-3">
-                    <img src="${serviceImg}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800" alt="Serviço">
+                    <img src="${getServiceImage(item.service)}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800">
                     <div class="flex-1 overflow-hidden">
                       <p class="font-bold text-white text-[14px] truncate">${clientName}</p>
                       <p class="text-[11px] text-zinc-400 mt-0.5 truncate">${item.service}</p>
                     </div>
                   </div>
-
                   <div class="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
-                    ${cleanPhone ? `
-                      <a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20 transition-colors">
-                        <span>💬 Notificar Cliente</span>
-                      </a>
-                    ` : `<span class="text-zinc-500 text-[10px]">Sem contato</span>`}
-                    
-                    <button onclick="deleteAppointment('${item.id}', false)" title="Cancelar Agendamento" class="text-zinc-500 hover:text-red-400 font-medium transition-colors">
-                      Cancelar
-                    </button>
+                    ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"><span>💬 WhatsApp</span></a>` : `<span class="text-zinc-500 text-[10px]">Sem contato</span>`}
+                    <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-500 hover:text-red-400 font-medium">Cancelar</button>
                   </div>
-                </div>
-              `;
+                </div>`;
             }
           });
         }
@@ -368,24 +465,16 @@
                 <span class="text-lg font-bold text-white">${day.dayNumber}</span>
               </div>
               <div class="text-right">
-                <span class="text-[11px] font-bold text-zinc-400 block mb-1">${dayCutsCount} cortes</span>
-                <span class="text-sm font-bold text-emerald-400">R$ ${dayRevenue}</span>
+                <span class="text-[11px] font-bold text-zinc-400 block mb-1">${dayCuts} cortes</span>
+                <span class="text-sm font-bold text-emerald-400">R$ ${dayRev}</span>
               </div>
             </div>
-
-            <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scroll">
-              ${cardsHtml}
-            </div>
-
+            <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scroll">${cardsHtml}</div>
             <div class="p-4 border-t border-zinc-800 bg-[#141414] rounded-b-3xl">
-              <button onclick="openBlockModal('${day.label}')" class="w-full py-3 bg-transparent hover:bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-700 transition-colors border-dashed">
-                + Bloquear Horário Neste Dia
-              </button>
+              <button onclick="openBlockModal('${day.label}')" class="w-full py-3 bg-transparent hover:bg-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-semibold border border-zinc-700 transition-colors border-dashed">+ Bloquear Neste Dia</button>
             </div>
-          </div>
-        `;
+          </div>`;
       });
-
       board.innerHTML = boardHtml;
     }
   </script></body></html>
