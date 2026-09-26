@@ -18,7 +18,7 @@
     
     <div id="toast-msg" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black text-xs font-bold px-4 py-2.5 rounded-full shadow-lg transition-all"></div>
 
-    <!-- MODAL TELEMÓVEL OBRIGATÓRIO (Unificação de Redes Sociais) -->
+    <!-- MODAL TELEMÓVEL OBRIGATÓRIO -->
     <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-50 bg-black/90 flex flex-col justify-end">
       <div class="bg-[#1a1a1a] p-6 rounded-t-3xl space-y-4 border-t border-zinc-800">
         <h3 class="text-lg font-bold text-white">Último passo!</h3>
@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <!-- ECRÃ PRINCIPAL (SERVIÇOS / DETALHES) -->
+    <!-- ECRÃ PRINCIPAL -->
     <div id="view-app" class="hidden flex-col h-full overflow-y-auto no-scrollbar">
       <header class="pt-8 pb-4 px-4 bg-black">
         <div class="flex items-center justify-between">
@@ -84,7 +84,7 @@
 
       <div id="tab-content-servicos" class="flex-1 pb-10">
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0" alt="Corte Clássico">
+          <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
             <p class="font-bold text-white text-[15px]">01 - Corte Clássico</p>
             <div class="flex items-center gap-4 mt-1.5">
@@ -95,7 +95,7 @@
           <button onclick="startBooking('Corte Clássico', 40, 30)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0" alt="Barba">
+          <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
             <p class="font-bold text-white text-[15px]">02 - Barba Completa</p>
             <div class="flex items-center gap-4 mt-1.5">
@@ -106,7 +106,7 @@
           <button onclick="startBooking('Barba Completa', 30, 30)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-amber-500/30 shrink-0" alt="Combo">
+          <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-amber-500/30 shrink-0">
           <div class="flex-1">
             <p class="font-bold text-white text-[15px]">03 - Combo Corte + Barba</p>
             <div class="flex items-center gap-4 mt-1.5">
@@ -117,7 +117,7 @@
           <button onclick="startBooking('Combo Corte + Barba', 65, 60)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="./sobrancelha.jpeg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0" alt="Sobrancelha">
+          <img src="./sobrancelha.jpeg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
             <p class="font-bold text-white text-[15px]">04 - Sobrancelha</p>
             <div class="flex items-center gap-4 mt-1.5">
@@ -177,6 +177,7 @@
     let selectedDate = null;
     let selectedTime = null;
     let shopSettings = { open: '09:00', close: '20:00' };
+    let realtimeSub = null;
 
     function showToast(text) {
       const toast = document.getElementById('toast-msg');
@@ -199,6 +200,19 @@
         shopSettings.open = data.open_time || '09:00';
         shopSettings.close = data.close_time || '20:00';
       }
+    }
+
+    // ATUALIZAÇÃO EM TEMPO REAL NO APP DO CLIENTE
+    function initClientRealtime() {
+      if(realtimeSub) return;
+      realtimeSub = sb.channel('public:appointments')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+          // Se o cliente estiver na tela de escolher horário, atualiza os botões instantaneamente
+          if(selectedDate && !document.getElementById('view-datetime').classList.contains('hidden')) {
+            renderTimeOptions(selectedDate);
+          }
+          if(clientUser) { loadHistory(); }
+        }).subscribe();
     }
 
     async function unifyAndEnterApp(authId, name, email, phone) {
@@ -270,6 +284,7 @@
       document.getElementById('view-app').classList.remove('hidden');
       document.getElementById('view-app').classList.add('flex');
       loadHistory();
+      initClientRealtime(); // Inicia a escuta em tempo real para o cliente
     }
 
     function switchAppTab(tab) {
@@ -305,7 +320,7 @@
 
       while (added < 15) {
         let d = new Date(); d.setDate(d.getDate() + offset);
-        if (d.getDay() !== 0) {
+        if (d.getDay() !== 0) { // Ignora domingos
           if(added === 0) { firstMonth = meses[d.getMonth()]; firstYear = d.getFullYear(); }
           let dayName = dias[d.getDay()];
           let dayNum = String(d.getDate()).padStart(2, '0');
@@ -341,7 +356,6 @@
       const container = document.getElementById('time-grid-container');
       container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-zinc-500">A carregar horários...</div>`;
 
-      // Garante configurações atualizadas
       await fetchSettings();
 
       const parts = targetDate.split('/');
@@ -367,13 +381,20 @@
         slots.push(`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`);
       }
 
+      // LÓGICA DE BLOQUEIO DO PASSADO
+      let now = new Date();
+      let isToday = targetDate === `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+      let currentMinutes = now.getHours() * 60 + now.getMinutes();
+
       let html = '';
       slots.forEach(slot => {
         const slotStart = timeToMinutes(slot);
         const slotEnd = slotStart + selectedDuration;
+        
         const isOccupied = occupiedIntervals.some(i => (slotStart < i.end && slotEnd > i.start));
+        const isPassed = isToday && slotStart <= currentMinutes; // Bloqueia se o horário do botão já tiver passado hoje
 
-        if (isOccupied) {
+        if (isOccupied || isPassed) {
           html += `<div class="py-3 rounded-lg border border-zinc-800 bg-[#141414] text-center opacity-30"><span class="text-zinc-500 font-medium text-sm line-through block">${slot}</span></div>`;
         } else {
           html += `
@@ -446,8 +467,7 @@
 
     async function executeCancel(id) {
       if(confirm('Tem a certeza que deseja cancelar este agendamento?')) {
-        // Ao invés de deletar, atualizamos para "cancelado pelo cliente" para ficar no histórico do Painel
-        await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_client' }).eq('id', id);
+        await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_client', created_at: new Date().toISOString() }).eq('id', id);
         showToast('Cancelado com sucesso!');
         loadHistory();
       }
