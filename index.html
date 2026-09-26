@@ -430,18 +430,24 @@
       switchAppTab('historico');
     }
 
-    async function loadHistory() {
+async function loadHistory() {
       const container = document.getElementById('history-container');
       if (!clientUser) return;
       
-      const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
+      const { data, error } = await sb.from('appointments')
+        .select('*')
+        .eq('user_id', clientUser.id)
+        .neq('calendar_event_id', 'blocked_time') // <--- Ignora bloqueios
+        .order('created_at', { ascending: false });
 
-      if (!data || data.length === 0) {
+      const filteredData = (data || []).filter(item => !item.service.startsWith('🚫'));
+
+      if (filteredData.length === 0) {
         container.innerHTML = `<p class="text-xs text-zinc-600 text-center py-8">Nenhum histórico encontrado.</p>`; return;
       }
 
       let html = '';
-      data.forEach(item => {
+      filteredData.forEach(item => {
         const isCancelBarber = item.calendar_event_id === 'cancelled_by_barber';
         const isCancelClient = item.calendar_event_id === 'cancelled_by_client';
         const isCancelled = isCancelBarber || isCancelClient;
