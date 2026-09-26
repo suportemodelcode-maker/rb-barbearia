@@ -131,7 +131,6 @@
       </div>
       <div class="flex-1 overflow-y-auto custom-scroll bg-[#141414] border border-zinc-800 rounded-3xl p-4 md:p-6 min-h-0">
         <div id="daily-view-container" class="space-y-4 max-w-4xl mx-auto">
-          <!-- Povoado por JS -->
         </div>
       </div>
     </main>
@@ -230,7 +229,7 @@
       document.getElementById('notification-sound').play().catch(()=>{});
       document.getElementById('notification-sound').pause();
       
-      switchTab('hoje'); // Força a tela de "Hoje" ao iniciar
+      switchTab('hoje');
       loadAgendaData();
       loadSettings();
       subscribeToRealtime();
@@ -302,7 +301,7 @@
       const end = document.getElementById('block-end').value;
       const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
 
-      if (!dateVal) { alert('Selecione uma data válida'); return; }
+      if (!dateVal) { alert('Selecione uma data válida no calendário'); return; }
       
       const [y, m, d] = dateVal.split('-');
       const formattedDate = `${d}/${m}/${y}`; 
@@ -312,14 +311,32 @@
       
       if(startMin >= endMin) { alert('O horário de fim deve ser maior que o de início.'); return; }
 
+      // Pega um ID genérico existente para evitar bloqueio por segurança de restrição (Foreign Key)
+      const { data: dummy } = await sb.from('profiles').select('id').limit(1);
+      const dummyId = dummy && dummy.length > 0 ? dummy[0].id : null;
+
       const inserts = [];
       for (let t = startMin; t < endMin; t += 30) {
         let h = String(Math.floor(t/60)).padStart(2, '0'); let min = String(t%60).padStart(2, '0');
-        inserts.push({ user_id: 'admin-barber', service: `🚫 ${reason}`, price: 0, date: formattedDate, time: `${h}:${min}`, calendar_event_id: 'blocked_time' });
+        inserts.push({ 
+          user_id: dummyId, 
+          service: `🚫 ${reason}`, 
+          price: 0, 
+          date: formattedDate, 
+          time: `${h}:${min}`, 
+          calendar_event_id: 'blocked_time' 
+        });
       }
 
-      await sb.from('appointments').insert(inserts);
+      const { error } = await sb.from('appointments').insert(inserts);
+      if (error) {
+        alert('Erro ao gravar bloqueio no banco: ' + error.message);
+        console.error(error);
+        return;
+      }
+      
       closeBlockModal();
+      loadAgendaData(); // Recarrega tela
     }
 
     async function deleteAppointment(idsStr, isBlocked) {
@@ -327,10 +344,13 @@
       if (confirm(msg)) {
         if (isBlocked) { 
           const idArray = idsStr.split(',');
-          await sb.from('appointments').delete().in('id', idArray); 
+          const { error } = await sb.from('appointments').delete().in('id', idArray); 
+          if(error) alert("Erro ao liberar: " + error.message);
         } else {
-          await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber', created_at: new Date().toISOString() }).eq('id', idsStr); 
+          const { error } = await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber', created_at: new Date().toISOString() }).eq('id', idsStr); 
+          if(error) alert("Erro ao cancelar: " + error.message);
         }
+        loadAgendaData();
       }
     }
 
@@ -500,21 +520,21 @@
           </div>`;
       } else {
         return `
-          <div class="bg-[#141414] border border-zinc-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all shadow-lg space-y-3 shrink-0">
+          <div class="bg-[#141414] border border-zinc-800 hover:border-blue-500/50 rounded-2xl p-4 transition-all shadow-lg space-y-3 shrink-0 w-full">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-lg">${item.time}</span>
               <span class="text-xs font-bold text-emerald-400">R$ ${item.price}</span>
             </div>
             <div class="flex items-center gap-3">
-              <img src="${getServiceImage(item.service)}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800">
+              <img src="${getServiceImage(item.service)}" class="w-10 h-10 rounded-xl object-cover border border-zinc-800 shrink-0">
               <div class="flex-1 overflow-hidden">
                 <p class="font-bold text-white text-[14px] truncate">${clientName}</p>
                 <p class="text-[11px] text-zinc-400 mt-0.5 truncate">${item.service}</p>
               </div>
             </div>
-            <div class="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+            <div class="pt-3 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs">
               ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20"><span>💬 WhatsApp</span></a>` : `<span class="text-zinc-500 text-[10px]">Sem contato</span>`}
-              <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-500 hover:text-red-400 font-medium">Cancelar</button>
+              <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-500 hover:text-red-400 font-medium ml-auto">Cancelar</button>
             </div>
           </div>`;
       }
@@ -534,7 +554,7 @@
 
         if (error) {
           console.error("Erro banco de dados:", error);
-          board.innerHTML = `<div class="p-8 text-red-500 font-bold">Erro de conexão. Verifique a internet e tente novamente.</div>`;
+          board.innerHTML = `<div class="p-8 text-red-500 font-bold">Erro de conexão. Recarregue a página.</div>`;
           return;
         }
 
