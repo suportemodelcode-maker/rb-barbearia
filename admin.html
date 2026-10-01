@@ -31,7 +31,7 @@
     @keyframes glow { 0% { box-shadow: 0 0 15px rgba(249,115,22,.08); } 100% { box-shadow: 0 0 35px rgba(249,115,22,.20); } }
     .wallet-card { animation: glow 4s infinite alternate; background: radial-gradient(circle at 85% 20%,rgba(249,115,22,.15),transparent 30%), linear-gradient(135deg,rgba(24,24,27,.95),rgba(9,9,11,.98)); border: 1px solid rgba(249,115,22,.20); backdrop-filter: blur(16px); }
     .card-bg-image { background-size: cover; background-position: center; background-repeat: no-repeat; }
-    .nav-active { background: linear-gradient(135deg,#27272a,#18181b) !important; border-color: rgba(249,115,22,.28) !important; box-shadow: inset 0 0 20px rgba(249,115,22,.04),0 8px 20px rgba(0,0,0,.2); }
+    .nav-active { background: linear-gradient(135deg,#27272a,#18181b) !important; border-color: rgba(249,115,22,.28) !important; box-shadow: inset 0 0 20px rgba(249,115,22,.04),0 8px 20px rgba(0,0,0,.2); color: white !important; }
     .mobile-action { transition: transform .2s ease, border-color .2s ease, background .2s ease; }
     .mobile-action:active { transform: scale(.96); }
     .pulse-ring { box-shadow: 0 0 0 0 rgba(16,185,129,.4); animation: pulseRing 2.2s infinite; }
@@ -123,7 +123,6 @@
         </div>
       </div>
       <div>
-        <!-- Opcionalidade implementada aqui -->
         <label class="text-[10px] text-zinc-400 uppercase font-black tracking-wider block mb-1.5">Motivo (Opcional)</label>
         <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga..." class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
       </div>
@@ -136,16 +135,16 @@
 
 <!-- PAINEL -->
 <div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
-  <aside class="w-[65px] md:w-[74px] h-full bg-zinc-950/95 border-r border-zinc-800 flex flex-col items-center py-5 gap-5 shrink-0 z-20 shadow-[5px_0_25px_rgba(0,0,0,.25)]">
+  <aside class="w-[65px] md:w-[74px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-5 shrink-0 z-20 shadow-[5px_0_25px_rgba(0,0,0,.25)]">
     <div class="w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-zinc-950 font-black text-lg shadow-[0_0_25px_rgba(249,115,22,.25)]">RB</div>
     <nav class="flex flex-col gap-2.5 w-full px-2.5 mt-2 flex-1">
       <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
         <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
       </button>
       <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda">
         <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
       </button>
       <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
         <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
@@ -178,7 +177,6 @@
         </div>
         <p id="header-date" class="text-[9px] md:text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5 truncate">Carregando data...</p>
       </div>
-
       <div class="flex items-center gap-2 md:gap-5">
         <button onclick="refreshAll()" title="Atualizar dados" class="w-9 h-9 md:w-auto md:h-10 md:px-3 flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-all">
           <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M5.05 18.95A9 9 0 1018.95 5.05L20 6"/></svg>
@@ -212,13 +210,6 @@
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento</span><span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span>
           </p>
         </div>
-        <div class="hidden lg:flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6 opacity-80">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Corte</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span>Barba</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Combo</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span>Sobrancelha</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-500"></span>Progressiva</span>
-        </div>
       </div>
     </div>
 
@@ -234,7 +225,6 @@
           <button onclick="switchTab('kanban')" class="mobile-action px-3 py-2 bg-orange-500 text-zinc-950 rounded-xl text-[9px] uppercase font-black tracking-wider hover:bg-orange-400">Abrir agenda</button>
         </div>
       </div>
-
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         <div class="premium-card rounded-2xl p-4 relative overflow-hidden">
           <div class="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-orange-500/10 blur-2xl"></div>
@@ -255,18 +245,14 @@
         <div class="stat-card rounded-2xl p-4">
           <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Ocupação</p>
           <p id="today-occupancy" class="text-xl md:text-2xl font-black text-purple-400 mt-1">0%</p>
-          <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-2">
-            <div id="today-occupancy-bar" class="h-full bg-purple-500 rounded-full transition-all" style="width:0%"></div>
-          </div>
+          <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-2"><div id="today-occupancy-bar" class="h-full bg-purple-500 rounded-full transition-all" style="width:0%"></div></div>
         </div>
       </div>
-
       <div class="glass-soft rounded-2xl p-2 mb-5 flex items-center gap-2">
         <svg class="w-4 h-4 text-zinc-500 ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <input id="agenda-search" oninput="filterAgendaCards()" placeholder="Buscar cliente ou serviço na agenda..." class="w-full bg-transparent outline-none text-xs text-white placeholder:text-zinc-600 py-2 px-2">
         <span id="agenda-result-count" class="hidden md:block text-[9px] uppercase font-black text-zinc-600 tracking-widest px-3 whitespace-nowrap"></span>
       </div>
-
       <div id="daily-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start"></div>
     </main>
 
@@ -279,7 +265,7 @@
         </div>
         <button onclick="refreshAll()" class="text-zinc-500 hover:text-white text-[9px] uppercase font-black tracking-widest">↻ Sincronizar</button>
       </div>
-      <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
+      <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-stretch min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
     </main>
 
     <!-- ABA HISTÓRICO -->
@@ -480,6 +466,8 @@ let dashFilter = 'mes';
 let revenueChartInstance = null;
 let allClientsList = [];
 let todayAppointmentsCache = [];
+let allAppointments = [];
+let pollTimer = null;
 
 function getServiceTheme(serviceName) {
   const s = (serviceName || '').toLowerCase();
@@ -489,7 +477,6 @@ function getServiceTheme(serviceName) {
   if (s.includes('sobrancelha')) return { borderL: 'border-l-teal-500', borderHover: 'hover:border-teal-500/50', text: 'text-teal-300', img: './sobrancelha.jpeg' };
   return { borderL: 'border-l-blue-500', borderHover: 'hover:border-blue-500/50', text: 'text-blue-300', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80' };
 }
-
 function getServiceImage(serviceName) { return getServiceTheme(serviceName).img; }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -512,16 +499,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateHeaderDate() {
-  const options = { weekday: 'long', day: 'numeric', month: 'long' };
   const hDate = document.getElementById('header-date');
-  if (hDate) hDate.innerText = new Date().toLocaleDateString('pt-BR', options);
+  if (hDate) hDate.innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 function checkAdmin(e) {
   if (e) e.preventDefault();
   if (document.getElementById('admin-pass').value === ADMIN_PASSWORD) {
     localStorage.setItem('rb_admin_logged', 'true'); processLogin();
-  } else alert('Acesso Negado.');
+  } else alert('Senha incorreta.');
 }
 
 function processLogin() {
@@ -533,9 +519,12 @@ function processLogin() {
   loadSettings();
   loadAgendaData();
   subscribeToRealtime();
+  
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(() => { loadAgendaData(true); }, 4000);
 }
 
-function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
+function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); if (pollTimer) clearInterval(pollTimer); window.location.reload(); }
 
 function switchTab(tab) {
   ['tab-hoje','tab-kanban','tab-historico','tab-clientes','tab-financeiro','tab-config'].forEach(id => {
@@ -577,7 +566,7 @@ function playNotificationSound() {
 
 function subscribeToRealtime() {
   if (realtimeSubscription) return;
-  realtimeSubscription = sb.channel('custom-all-channel')
+  realtimeSubscription = sb.channel('public:admin_sync')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
       playNotificationSound();
       loadAgendaData();
@@ -585,6 +574,7 @@ function subscribeToRealtime() {
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => {
       loadSettings();
+      loadAgendaData();
     })
     .subscribe();
 }
@@ -621,7 +611,7 @@ async function confirmBlock() {
   const dateVal = document.getElementById('block-date').value;
   const start = document.getElementById('block-start').value;
   const end = document.getElementById('block-end').value;
-  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; // Default automático
+  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; // Opção flexível
 
   if (!dateVal) return alert('Selecione uma data.');
   const now = new Date();
@@ -1108,17 +1098,18 @@ function generateCardHtml(item) {
     </div>`;
 }
 
-async function loadAgendaData() {
+async function loadAgendaData(silent = false) {
   const board = document.getElementById('kanban-board');
   const dailyContainer = document.getElementById('daily-view-container');
-  if (board && board.innerHTML === '') board.innerHTML = `<div class="p-6 text-zinc-500 text-xs font-black uppercase tracking-widest">Sincronizando...</div>`;
+  if (board && board.innerHTML === '' && !silent) board.innerHTML = `<div class="p-6 text-zinc-500 text-xs font-black uppercase tracking-widest">Sincronizando...</div>`;
 
   try {
     const { data: apts, error } = await sb.from('appointments').select(`id, service, date, time, price, calendar_event_id, user_id, profiles(full_name, phone)`).neq('calendar_event_id', 'cancelled_by_barber').neq('calendar_event_id', 'cancelled_by_client');
-    if (error) { if (board) board.innerHTML = `<div class="p-6 text-red-500 font-black uppercase">Falha na conexão com o servidor.</div>`; return; }
+    if (error) { if (board && !silent) board.innerHTML = `<div class="p-6 text-red-500 font-black uppercase">Falha na conexão com o servidor.</div>`; return; }
 
-    if (apts) {
-      apts.forEach(a => {
+    allAppointments = apts || [];
+    if (allAppointments) {
+      allAppointments.forEach(a => {
         if (a.date && a.date.includes('/')) {
           const p = a.date.split('/');
           if (p.length === 3) a.date = `${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`;
@@ -1126,90 +1117,90 @@ async function loadAgendaData() {
       });
     }
 
-    const activeDatesSet = new Set();
-    if (apts) apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
-    const daysList = [];
-    const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    let cursor = new Date(hoje);
-    let addedCount = 0;
-    const strHoje = `${String(hoje.getDate()).padStart(2,'0')}/${String(hoje.getMonth()+1).padStart(2,'0')}/${hoje.getFullYear()}`;
-    activeDatesSet.add(strHoje);
+    renderBoards();
 
-    while (addedCount < 14) {
-      if (cursor.getDay() !== 0) {
-        const d = String(cursor.getDate()).padStart(2,'0'); const m = String(cursor.getMonth()+1).padStart(2,'0');
-        activeDatesSet.add(`${d}/${m}/${cursor.getFullYear()}`); addedCount++;
-      }
-      cursor.setDate(cursor.getDate()+1);
+  } catch (err) { console.error('Erro no loadAgendaData:', err); }
+}
+
+function renderBoards() {
+  const dailyContainer = document.getElementById('daily-view-container');
+  const kanbanContainer = document.getElementById('kanban-board');
+  const now = new Date();
+  const todayStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+  const todayAptsRaw = allAppointments.filter(a => a.date === todayStr).sort((a,b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+  todayAppointmentsCache = todayAptsRaw;
+  
+  let todayCuts = 0, todayRevenue = 0;
+  todayAptsRaw.forEach(a => {
+    if (a.calendar_event_id !== 'blocked_time' && a.service && !a.service.startsWith('🚫')) {
+      todayCuts++; todayRevenue += parseFloat(a.price || 0);
+    }
+  });
+
+  document.getElementById('metric-total-cuts').innerText = todayCuts;
+  document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
+  document.getElementById('count-hoje').innerText = todayCuts;
+  updateTodaySmartStats(todayAptsRaw, todayCuts, todayRevenue);
+
+  // Render Hoje
+  let dailyHtml = '';
+  const mergedToday = mergeBlocks(todayAptsRaw);
+  if (!mergedToday.length) {
+    dailyHtml = `
+      <div class="col-span-full flex flex-col items-center justify-center py-20 text-zinc-600 border-2 border-dashed border-zinc-800/50 rounded-3xl bg-zinc-900/20">
+        <span class="text-3xl mb-3">✂️</span><span class="text-xs font-black uppercase tracking-widest">Agenda Livre</span><span class="text-[9px] mt-2 text-zinc-700 uppercase font-bold">Nenhum atendimento programado</span>
+      </div>`;
+  } else { mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); }); }
+  if (dailyContainer) dailyContainer.innerHTML = dailyHtml;
+
+  // Render Kanban (Dias ativos)
+  const dateSet = new Set();
+  allAppointments.forEach(a => dateSet.add(a.date));
+  dateSet.add(todayStr); // Garante que HOJE sempre aparece
+
+  const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const sortedDates = Array.from(dateSet).sort((a,b) => parseBrDateToObj(a) - parseBrDateToObj(b));
+  
+  let kanbanHtml = '';
+
+  sortedDates.forEach(dStr => {
+    const dObj = parseBrDateToObj(dStr);
+    if (dObj < new Date(now.getFullYear(), now.getMonth(), now.getDate())) return; // Ignora dias passados
+
+    let dName = diasSemana[dObj.getDay()];
+    if (dStr === todayStr) dName = 'HOJE';
+    const dNumber = `${String(dObj.getDate()).padStart(2,'0')}/${String(dObj.getMonth()+1).padStart(2,'0')}`;
+
+    const dayAptsRaw = allAppointments.filter(a => a.date === dStr).sort((a,b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+    const mergedApts = mergeBlocks(dayAptsRaw);
+    
+    let dayRev = 0, dayCuts = 0, cardsHtml = '';
+    
+    if (!mergedApts.length) {
+      cardsHtml = `<div class="p-5 text-center text-zinc-700 text-[9px] uppercase font-black tracking-widest">Agenda livre</div>`;
+    } else {
+      mergedApts.forEach(item => {
+        if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; }
+        cardsHtml += generateCardHtml(item);
+      });
     }
 
-    const sortedDates = Array.from(activeDatesSet).sort((a,b) => parseBrDateToObj(a) - parseBrDateToObj(b));
-    const futureDates = sortedDates.filter(dateStr => parseBrDateToObj(dateStr) >= hoje);
+    kanbanHtml += `
+      <div class="w-[280px] shrink-0 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-4 flex flex-col h-fit max-h-full">
+        <div class="flex justify-between items-center border-b border-zinc-800 pb-3 mb-3 shrink-0">
+          <div><span class="text-[13px] uppercase font-black text-white block tracking-widest">${dName}</span><span class="text-[9px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} atend. · R$ ${dayRev.toFixed(2).replace('.',',')}</span></div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-zinc-300 bg-zinc-800 border border-zinc-700 text-sm">${dNumber.split('/')[0]}</div>
+        </div>
+        <div class="overflow-y-auto custom-scroll space-y-3 flex-1 pr-1 pb-2">
+          ${cardsHtml}
+        </div>
+      </div>
+    `;
+  });
 
-    futureDates.forEach(dateStr => {
-      const dObj = parseBrDateToObj(dateStr);
-      let dName = diasSemana[dObj.getDay()];
-      if (dateStr === strHoje) dName = 'HOJE';
-      daysList.push({ label:dateStr, dayName:dName, dayNumber: `${String(dObj.getDate()).padStart(2,'0')}/${String(dObj.getMonth()+1).padStart(2,'0')}` });
-    });
-
-    let todayCuts = 0, todayRevenue = 0;
-    const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a,b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-    todayAppointmentsCache = todayAptsRaw;
-
-    todayAptsRaw.forEach(a => {
-      if (a.calendar_event_id !== 'blocked_time' && a.service && !a.service.startsWith('🚫')) {
-        todayCuts++; todayRevenue += parseFloat(a.price || 0);
-      }
-    });
-
-    document.getElementById('metric-total-cuts').innerText = todayCuts;
-    document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
-    updateTodaySmartStats(todayAptsRaw, todayCuts, todayRevenue);
-
-    let boardHtml = '';
-    daysList.forEach(day => {
-      const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a,b) => timeToMinutes(a.time) - timeToMinutes(b.time));
-      const mergedApts = mergeBlocks(dayAptsRaw);
-      let dayRev = 0, dayCuts = 0, cardsHtml = '';
-      const isToday = day.label === strHoje;
-
-      if (!mergedApts.length) cardsHtml = `<div class="p-5 text-center text-zinc-700 text-[9px] uppercase font-black tracking-widest">Agenda livre</div>`;
-      else {
-        mergedApts.forEach(item => {
-          if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; }
-          cardsHtml += generateCardHtml(item);
-        });
-      }
-
-      boardHtml += `
-        <div class="w-[290px] shrink-0 flex flex-col max-h-full">
-          <div class="${mergedApts.length ? 'bg-zinc-900/40 border border-zinc-800/60 shadow-lg' : ''} rounded-3xl overflow-hidden relative">
-            ${isToday ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>` : ''}
-            <div class="p-5 border-b border-zinc-800/50 flex items-center justify-between shrink-0">
-              <div><span class="text-[13px] uppercase font-black text-zinc-400 block tracking-widest">${day.dayName}</span><span class="text-[9px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} atend. · R$ ${dayRev.toFixed(2).replace('.',',')}</span></div>
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-zinc-300 bg-zinc-800 border border-zinc-700 text-sm">${day.dayNumber.split('/')[0]}</div>
-            </div>
-            <div class="${mergedApts.length ? 'p-4' : 'p-0'} overflow-y-auto custom-scroll flex flex-col items-center w-full">${cardsHtml}</div>
-          </div>
-        </div>`;
-    });
-
-    if (board) board.innerHTML = boardHtml;
-
-    let dailyHtml = '';
-    const mergedToday = mergeBlocks(todayAptsRaw);
-    if (!mergedToday.length) {
-      dailyHtml = `
-        <div class="col-span-full flex flex-col items-center justify-center py-20 text-zinc-600 border-2 border-dashed border-zinc-800/50 rounded-3xl bg-zinc-900/20">
-          <span class="text-3xl mb-3">✂️</span><span class="text-xs font-black uppercase tracking-widest">Agenda Livre</span><span class="text-[9px] mt-2 text-zinc-700 uppercase font-bold">Nenhum atendimento programado</span>
-        </div>`;
-    } else { mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); }); }
-    if (dailyContainer) dailyContainer.innerHTML = dailyHtml;
-    filterAgendaCards();
-
-  } catch (err) { console.error('Erro no loadAgendaData:', err); if (board) board.innerHTML = `<div class="p-6 text-red-500 font-black uppercase">Erro ao exibir agenda.</div>`; }
+  if (kanbanContainer) kanbanContainer.innerHTML = kanbanHtml;
+  filterAgendaCards();
 }
 
 function updateTodaySmartStats(appointments, total, revenue) {
