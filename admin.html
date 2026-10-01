@@ -34,6 +34,8 @@
     .nav-active { background: linear-gradient(135deg,#27272a,#18181b) !important; border-color: rgba(249,115,22,.28) !important; box-shadow: inset 0 0 20px rgba(249,115,22,.04),0 8px 20px rgba(0,0,0,.2); color: white !important; }
     .mobile-action { transition: transform .2s ease, border-color .2s ease, background .2s ease; }
     .mobile-action:active { transform: scale(.96); }
+    .pulse-ring { box-shadow: 0 0 0 0 rgba(16,185,129,.4); animation: pulseRing 2.2s infinite; }
+    @keyframes pulseRing { 70% { box-shadow: 0 0 0 7px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
     @media (max-width: 767px) { .desktop-only { display:none !important; } }
     @media (min-width:768px) { .mobile-only { display:none !important; } }
   </style>
@@ -127,6 +129,22 @@
       <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-xl transition-all">
         Confirmar Bloqueio
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CANCELAMENTOS (NOVO) -->
+<div id="modal-cancellations" class="hidden fixed inset-0 z-50 bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-4">
+  <div class="bg-zinc-900 border border-zinc-700/60 rounded-[28px] p-6 w-full max-w-md shadow-2xl relative flex flex-col max-h-[85vh]">
+    <button onclick="closeCancellationsModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
+    <div class="border-b border-zinc-800 pb-4 mb-4 shrink-0 pr-8">
+      <h3 class="font-black text-white text-lg flex items-center gap-2">
+        <span class="text-red-500">📉</span> Lista de Cancelamentos
+      </h3>
+      <p class="text-[10px] text-zinc-500 uppercase tracking-widest mt-1 font-bold">No período selecionado</p>
+    </div>
+    <div id="cancellations-list" class="overflow-y-auto custom-scroll flex-1 space-y-3 pr-2">
+      <!-- Populado via JS -->
     </div>
   </div>
 </div>
@@ -381,10 +399,13 @@
           <div class="stat-card rounded-3xl p-5">
             <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Agendamentos Futuros</span>
             <p id="dash-agendamentos-futuros" class="text-2xl font-black text-zinc-100 mt-2">0</p>
-            <span id="dash-fat-futuro" class="text-[10px] text-emerald-400 mt-1 block font-bold">Projeção: R$ 0,00</span>
+            <span id="dash-fat-futuro" class="text-[10px] text-emerald-400 mt-1 block font-bold">Projeção global: R$ 0,00</span>
           </div>
-          <div class="stat-card rounded-3xl p-5">
-            <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Cancelamento</span>
+          <div class="stat-card rounded-3xl p-5 cursor-pointer hover:border-orange-500/50 transition-colors" onclick="showCancellationsModal()">
+            <div class="flex justify-between items-start">
+              <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Cancelamento</span>
+              <svg class="w-3 h-3 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
             <p id="dash-tx-cancelamento" class="text-2xl font-black text-zinc-100 mt-2">0%</p>
             <span id="dash-num-cancelados" class="text-[10px] text-zinc-500 mt-1 block">0 perdidos</span>
           </div>
@@ -499,6 +520,7 @@ let allClientsList = [];
 let todayAppointmentsCache = [];
 let allAppointments = [];
 let pollTimer = null;
+window.currentPeriodCancellations = []; // Nova variável para guardar cancelamentos do dashboard
 
 function getServiceTheme(serviceName) {
   const s = (serviceName || '').toLowerCase();
@@ -581,6 +603,14 @@ function switchTab(tab) {
   if (topStats) { if (tab === 'hoje' || tab === 'kanban') topStats.classList.remove('hidden'); else topStats.classList.add('hidden'); }
   if (tab === 'historico' || tab === 'financeiro' || tab === 'clientes') fetchHistoryData();
   if (tab === 'financeiro') setTimeout(calculateDashboard, 100);
+}
+
+function refreshAll() {
+  const icon = document.getElementById('refresh-icon');
+  if (icon) icon.classList.add('animate-spin');
+  Promise.all([loadAgendaData(), fetchHistoryData(), loadSettings()]).finally(() => {
+    setTimeout(() => { if (icon) icon.classList.remove('animate-spin'); }, 500);
+  });
 }
 
 function playNotificationSound() {
@@ -851,7 +881,7 @@ function openDetailsModal(item) {
   document.getElementById('detail-status').innerHTML = statusMsg;
   const container = document.getElementById('detail-whatsapp-container');
   if (whatsLink && !isBlock) {
-    container.innerHTML = `<a href="${whatsLink}" target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-zinc-950 border border-emerald-500/20 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all mt-3 w-full">💬 Chamar WhatsApp</a>`;
+    container.innerHTML = `<a href="${whatsLink}" target="_blank" class="flex items-center justify-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-zinc-950 border border-emerald-500/20 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all mt-3 w-full"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.216h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.67-1.04-5.18-2.929-7.071A9.92 9.92 0 0012.012 2zm5.826 14.18c-.246.697-1.436 1.34-1.986 1.385-.436.036-1.002.138-3.197-.773-2.653-1.101-4.341-3.812-4.473-3.987-.132-.175-1.066-1.423-1.066-2.716 0-1.293.673-1.93.916-2.193.242-.261.527-.261.705-.261.176 0 .354.004.508.01.172.007.404-.065.632.485.242.585.827 2.023.898 2.17.071.146.119.317.027.502-.089.183-.135.297-.27.447-.133.15-.286.326-.402.457-.131.149-.271.314-.117.579.155.265.69 1.137 1.479 1.843.918.819 1.769 1.072 2.035 1.196.265.124.421.102.576-.051.155-.153.669-.778.85-1.045.18-.266.36-.222.604-.132.245.091 1.543.729 1.808.861.265.133.441.198.508.31.066.112.066.65-.18 1.347z"/></svg> WhatsApp</a>`;
   } else { container.innerHTML = ''; }
   document.getElementById('modal-details').classList.remove('hidden');
 }
@@ -902,7 +932,7 @@ function populateClientsUI(clients) {
     const cleanPhone = (c.phone || '').replace(/\D/g,'');
     const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '#';
     const dateStr = `${String(c.lastVisit.getDate()).padStart(2,'0')}/${String(c.lastVisit.getMonth()+1).padStart(2,'0')}/${c.lastVisit.getFullYear()}`;
-    const whatsBtn = cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase font-black tracking-widest bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all border border-emerald-500/20">WhatsApp</a>` : `<span class="text-zinc-600 text-[9px] uppercase font-bold">Sem contato</span>`;
+    const whatsBtn = cleanPhone ? `<a href="${whatsLink}" target="_blank" class="flex items-center justify-center gap-1.5 text-emerald-400 hover:text-zinc-950 text-[9px] uppercase font-black tracking-widest bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all border border-emerald-500/20"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.216h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.67-1.04-5.18-2.929-7.071A9.92 9.92 0 0012.012 2zm5.826 14.18c-.246.697-1.436 1.34-1.986 1.385-.436.036-1.002.138-3.197-.773-2.653-1.101-4.341-3.812-4.473-3.987-.132-.175-1.066-1.423-1.066-2.716 0-1.293.673-1.93.916-2.193.242-.261.527-.261.705-.261.176 0 .354.004.508.01.172.007.404-.065.632.485.242.585.827 2.023.898 2.17.071.146.119.317.027.502-.089.183-.135.297-.27.447-.133.15-.286.326-.402.457-.131.149-.271.314-.117.579.155.265.69 1.137 1.479 1.843.918.819 1.769 1.072 2.035 1.196.265.124.421.102.576-.051.155-.153.669-.778.85-1.045.18-.266.36-.222.604-.132.245.091 1.543.729 1.808.861.265.133.441.198.508.31.066.112.066.65-.18 1.347z"/></svg> WhatsApp</a>` : `<span class="text-zinc-600 text-[9px] uppercase font-bold">Sem contato</span>`;
 
     html += `
       <tr class="hover:bg-zinc-800/40 transition-colors border-l-2 border-transparent hover:border-orange-500">
@@ -932,6 +962,51 @@ function setDashFilter(filter) {
 
 function applyCustomDashFilter() { calculateDashboard(); }
 
+function showCancellationsModal() {
+  const container = document.getElementById('cancellations-list');
+  
+  if (!window.currentPeriodCancellations || window.currentPeriodCancellations.length === 0) {
+    container.innerHTML = `<p class="text-center text-zinc-500 text-xs py-8 font-bold uppercase tracking-widest">Nenhum cancelamento no período selecionado</p>`;
+  } else {
+    const sorted = window.currentPeriodCancellations.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    let html = '';
+    
+    sorted.forEach(item => {
+      const clientName = item.profiles?.full_name || 'Cliente Não Id.';
+      const isBarber = item.calendar_event_id === 'cancelled_by_barber';
+      const badge = isBarber 
+        ? `<span class="bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded text-[8px] uppercase font-black tracking-wider">Cancelado por você</span>`
+        : `<span class="bg-orange-500/10 text-orange-500 border border-orange-500/20 px-2 py-0.5 rounded text-[8px] uppercase font-black tracking-wider">Cancelado pelo cliente</span>`;
+        
+      html += `
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 ${isBarber ? 'bg-red-500' : 'bg-orange-500'}"></div>
+          <div class="flex justify-between items-start pl-2">
+            <div>
+              <p class="font-bold text-white text-sm truncate">${clientName}</p>
+              <p class="text-zinc-500 text-[10px] mt-0.5 font-bold uppercase">${item.service}</p>
+            </div>
+            ${badge}
+          </div>
+          <div class="flex justify-between items-center pt-2 mt-1 border-t border-zinc-800/50 pl-2">
+            <span class="text-xs text-zinc-400 font-medium">${item.date} às ${item.time}</span>
+            <span class="text-emerald-400 font-black text-xs">R$ ${parseFloat(item.price || 0).toFixed(2).replace('.',',')}</span>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+  
+  document.getElementById('modal-cancellations').classList.remove('hidden');
+  document.getElementById('modal-cancellations').classList.add('flex');
+}
+
+function closeCancellationsModal() {
+  document.getElementById('modal-cancellations').classList.add('hidden');
+  document.getElementById('modal-cancellations').classList.remove('flex');
+}
+
 function calculateDashboard() {
   try {
     const now = new Date();
@@ -951,6 +1026,7 @@ function calculateDashboard() {
     const titleEl = document.getElementById('chart-title');
     if (titleEl) titleEl.innerText = chartTitle;
 
+    window.currentPeriodCancellations = [];
     let revPeriodo = 0, cutsPeriodo = 0, revMesRealizada = 0, canceladosPeriodo = 0, aptsValidosTotal = 0;
     let aptsFuturos = 0, revFutura = 0; 
     const serviceCounter = {}, clientCounter = {};
@@ -979,12 +1055,10 @@ function calculateDashboard() {
       const isBlock = a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫'));
       const price = parseFloat(a.price || 0);
 
-      // Receita total mês atual
       if (!isCancelled && !isBlock && aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear() && aptDate <= now) {
         revMesRealizada += price;
       }
 
-      // Projeção futura global (independente do filtro de data da tela)
       if (!isCancelled && !isBlock) {
         const aptTime = timeToMinutes(a.time);
         const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -996,10 +1070,12 @@ function calculateDashboard() {
         }
       }
 
-      // Restante dos dados conforme filtro escolhido
       if (aptDate >= startD && aptDate <= endD) {
         if (!isBlock) aptsValidosTotal++;
-        if (isCancelled && !isBlock) canceladosPeriodo++;
+        if (isCancelled && !isBlock) {
+          canceladosPeriodo++;
+          window.currentPeriodCancellations.push(a);
+        }
         
         if (!isCancelled && !isBlock) {
           const aptTime = timeToMinutes(a.time);
@@ -1134,7 +1210,7 @@ function generateCardHtml(item) {
         <p class="font-black text-zinc-50 text-[15px] leading-tight truncate tracking-wide">${clientName}</p>
         <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest">${item.service || '-'}</p>
         <div class="pt-3.5 mt-3.5 border-t border-zinc-700/50 flex items-center justify-between">
-          ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-all">💬 WhatsApp</a>` : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
+          ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-all"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.216h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.67-1.04-5.18-2.929-7.071A9.92 9.92 0 0012.012 2zm5.826 14.18c-.246.697-1.436 1.34-1.986 1.385-.436.036-1.002.138-3.197-.773-2.653-1.101-4.341-3.812-4.473-3.987-.132-.175-1.066-1.423-1.066-2.716 0-1.293.673-1.93.916-2.193.242-.261.527-.261.705-.261.176 0 .354.004.508.01.172.007.404-.065.632.485.242.585.827 2.023.898 2.17.071.146.119.317.027.502-.089.183-.135.297-.27.447-.133.15-.286.326-.402.457-.131.149-.271.314-.117.579.155.265.69 1.137 1.479 1.843.918.819 1.769 1.072 2.035 1.196.265.124.421.102.576-.051.155-.153.669-.778.85-1.045.18-.266.36-.222.604-.132.245.091 1.543.729 1.808.861.265.133.441.198.508.31.066.112.066.65-.18 1.347z"/></svg> WhatsApp</a>` : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
           <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-400 hover:text-white text-[9px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg border border-zinc-700/50 transition-all">Cancelar</button>
         </div>
       </div>
@@ -1159,7 +1235,9 @@ async function loadAgendaData(silent = false) {
         }
       });
     }
+
     renderBoards();
+
   } catch (err) { console.error('Erro no loadAgendaData:', err); }
 }
 
@@ -1181,6 +1259,7 @@ function renderBoards() {
 
   const elTotalCuts = document.getElementById('metric-total-cuts');
   if (elTotalCuts) elTotalCuts.innerText = todayCuts;
+
   const elTotalRev = document.getElementById('metric-total-revenue');
   if (elTotalRev) elTotalRev.innerText = `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
 
@@ -1204,6 +1283,7 @@ function renderBoards() {
   const sortedDates = Array.from(dateSet).sort((a,b) => parseBrDateToObj(a) - parseBrDateToObj(b));
   
   let kanbanHtml = '';
+
   sortedDates.forEach(dStr => {
     const dObj = parseBrDateToObj(dStr);
     if (dObj < new Date(now.getFullYear(), now.getMonth(), now.getDate())) return; 
@@ -1216,6 +1296,7 @@ function renderBoards() {
     const mergedApts = mergeBlocks(dayAptsRaw);
     
     let dayRev = 0, dayCuts = 0, cardsHtml = '';
+    
     if (!mergedApts.length) {
       cardsHtml = `<div class="p-5 text-center text-zinc-700 text-[9px] uppercase font-black tracking-widest">Agenda livre</div>`;
     } else {
@@ -1237,6 +1318,7 @@ function renderBoards() {
       </div>
     `;
   });
+
   if (kanbanContainer) kanbanContainer.innerHTML = kanbanHtml;
   filterAgendaCards();
 }
