@@ -115,29 +115,24 @@
       <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-black font-black text-lg shadow-[0_0_20px_rgba(249,115,22,0.4)]">RB</div>
       
       <nav class="flex flex-col gap-4 w-full px-3 mt-2 flex-1">
-        <!-- Hoje -->
         <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Hoje">
           <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         </button>
-        <!-- Kanban -->
         <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Agenda Kanban">
           <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </button>
-        <!-- Histórico -->
         <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Histórico">
           <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
         </button>
-        <!-- FINANCEIRO (DASHBOARD) -->
         <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Dashboard & Finanças">
           <div id="nav-ind-financeiro" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </button>
       </nav>
       
-      <!-- Ajustes no rodapé da Sidebar -->
       <button onclick="switchTab('config')" id="nav-btn-config" class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group mb-2" title="Configurações">
         <div id="nav-ind-config" class="hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
         <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -187,6 +182,14 @@
             <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Atendimentos (Hoje)</span> <span id="metric-total-cuts" class="text-white font-black text-sm">0</span></p>
             <div class="h-4 w-px bg-zinc-800"></div>
             <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento (Hoje)</span> <span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span></p>
+          </div>
+          <!-- Nova Legenda de Serviços Dinâmica -->
+          <div class="flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6">
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Corte</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Barba</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Completo</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Sobrancelha</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-500"></span> Progressiva</div>
           </div>
         </div>
       </div>
@@ -260,32 +263,22 @@
         <!-- Grid Superior -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           
-          <!-- Carteira Digital (Sempre Mês Atual + Meta) -->
-          <div class="wallet-card rounded-3xl p-7 relative overflow-hidden flex flex-col justify-between">
+          <!-- Carteira Digital -->
+          <div class="wallet-card rounded-3xl p-7 relative overflow-hidden flex flex-col justify-center gap-6">
             <div class="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/20 rounded-full blur-[40px] pointer-events-none"></div>
-            <div>
-              <div class="flex items-center justify-between mb-6 relative z-10">
-                <span class="text-orange-400 text-[11px] uppercase font-black tracking-widest flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Wallet RB</span>
-                <span class="bg-orange-500/20 text-orange-400 text-[9px] px-2.5 py-1.5 rounded-md border border-orange-500/30 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
-              </div>
-              <p class="text-orange-200/60 text-xs font-bold uppercase tracking-widest mb-1">Receita Líquida Realizada</p>
-              <h3 id="dash-wallet-saldo" class="text-4xl font-black text-white tracking-tighter drop-shadow-md">R$ 0,00</h3>
+            
+            <div class="flex items-center justify-between relative z-10">
+              <span class="text-orange-400 text-[11px] uppercase font-black tracking-widest flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Wallet RB</span>
+              <span class="bg-orange-500/20 text-orange-400 text-[9px] px-2.5 py-1.5 rounded-md border border-orange-500/30 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
             </div>
             
-            <div class="mt-8 relative z-10">
-              <div class="flex justify-between text-[10px] font-black tracking-widest text-zinc-400 mb-2.5">
-                <span>META DO MÊS (R$ 15.000)</span>
-                <span id="dash-meta-perc" class="text-orange-400 drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]">0%</span>
-              </div>
-              <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-orange-500/20 shadow-inner">
-                <div id="dash-meta-bar" class="h-full bg-gradient-to-r from-orange-600 via-orange-500 to-yellow-400 rounded-full transition-all duration-1000 relative">
-                  <div class="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]"></div>
-                </div>
-              </div>
+            <div class="relative z-10">
+              <p class="text-orange-200/60 text-xs font-bold uppercase tracking-widest mb-1.5">Receita Líquida Realizada</p>
+              <h3 id="dash-wallet-saldo" class="text-5xl font-black text-white tracking-tighter drop-shadow-md">R$ 0,00</h3>
             </div>
           </div>
 
-          <!-- Mini KPIs (Baseados no Filtro) -->
+          <!-- Mini KPIs -->
           <div class="lg:col-span-2 grid grid-cols-2 gap-5">
             <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group">
               <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
@@ -320,12 +313,10 @@
         <!-- Grid Inferior -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          <!-- Gráfico Chart.js (Dinâmico) -->
+          <!-- Gráfico Chart.js -->
           <div class="lg:col-span-2 bg-[#0f0f11] border border-zinc-800/80 rounded-3xl p-6 shadow-xl relative">
             <h3 id="chart-title" class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-6">Curva de Receita</h3>
-            <div class="w-full h-[250px] relative">
-              <canvas id="revenueChart"></canvas>
-            </div>
+            <div class="w-full h-[250px] relative"><canvas id="revenueChart"></canvas></div>
           </div>
 
           <!-- Ranks -->
@@ -342,7 +333,6 @@
               <div id="dash-top-clients" class="flex-1 flex flex-col justify-center gap-3"></div>
             </div>
           </div>
-
         </div>
       </main>
 
@@ -380,18 +370,26 @@
     let realtimeSubscription = null;
     let allHistoryData = [];
     let currentHistoryFilter = 'hoje';
-    
-    // Variáveis Globais do Dashboard
     let dashFilter = 'mes';
     let revenueChartInstance = null;
 
+    // Temas para os Cabeçalhos do Kanban
     const KANBAN_THEMES = [
-      { bg: 'bg-[#2a0e17]', border: 'border-pink-500/30', borderL: 'border-l-pink-500', text: 'text-pink-400', hover: 'hover:bg-[#38111e]', circleBg: 'bg-pink-500', acc: 'text-pink-500' },
-      { bg: 'bg-[#2d180b]', border: 'border-orange-500/30', borderL: 'border-l-orange-500', text: 'text-orange-400', hover: 'hover:bg-[#3a1d0d]', circleBg: 'bg-orange-500', acc: 'text-orange-500' },
-      { bg: 'bg-[#0c241c]', border: 'border-teal-500/30', borderL: 'border-l-teal-500', text: 'text-teal-400', hover: 'hover:bg-[#113126]', circleBg: 'bg-teal-500', acc: 'text-teal-500' },
-      { bg: 'bg-[#1a1528]', border: 'border-purple-500/30', borderL: 'border-l-purple-500', text: 'text-purple-400', hover: 'hover:bg-[#251e38]', circleBg: 'bg-purple-500', acc: 'text-purple-500' },
-      { bg: 'bg-[#0d1b2a]', border: 'border-blue-500/30', borderL: 'border-l-blue-500', text: 'text-blue-400', hover: 'hover:bg-[#13263a]', circleBg: 'bg-blue-500', acc: 'text-blue-500' }
+      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
+      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
+      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' }
     ];
+
+    // DEFINIÇÃO DAS CORES DOS SERVIÇOS
+    function getServiceTheme(serviceName) {
+      const s = (serviceName || '').toLowerCase();
+      if (s.includes('completo') || s.includes('combo')) return { bg: 'bg-[#1a1528]', border: 'border-purple-500/30', borderL: 'border-l-purple-500', text: 'text-purple-400', hover: 'hover:bg-[#251e38]' };
+      if (s.includes('progressiva')) return { bg: 'bg-[#2a0e17]', border: 'border-pink-500/30', borderL: 'border-l-pink-500', text: 'text-pink-400', hover: 'hover:bg-[#38111e]' };
+      if (s.includes('barba')) return { bg: 'bg-[#2d180b]', border: 'border-orange-500/30', borderL: 'border-l-orange-500', text: 'text-orange-400', hover: 'hover:bg-[#3a1d0d]' };
+      if (s.includes('sobrancelha')) return { bg: 'bg-[#0c241c]', border: 'border-teal-500/30', borderL: 'border-l-teal-500', text: 'text-teal-400', hover: 'hover:bg-[#113126]' };
+      // Default (Corte)
+      return { bg: 'bg-[#0d1b2a]', border: 'border-blue-500/30', borderL: 'border-l-blue-500', text: 'text-blue-400', hover: 'hover:bg-[#13263a]' };
+    }
 
     // ==========================================
     // LÓGICA DE DRAG TO SCROLL (ARRASTAR)
@@ -413,14 +411,10 @@
         kanbanBoard.scrollLeft = scrollLeft - walk;
       });
 
-      // Config Chart.js default fonts
-      Chart.defaults.color = '#71717a';
-      Chart.defaults.font.family = "'Inter', sans-serif";
-
+      Chart.defaults.color = '#71717a'; Chart.defaults.font.family = "'Inter', sans-serif";
       updateHeaderDate();
       if(localStorage.getItem('rb_admin_logged') === 'true') processLogin(); 
     });
-    // ==========================================
 
     function updateHeaderDate() {
       const options = { weekday: 'long', day: 'numeric', month: 'long' };
@@ -440,8 +434,7 @@
       document.getElementById('main-panel').classList.remove('hidden');
       document.getElementById('notification-sound').play().catch(()=>{}); document.getElementById('notification-sound').pause();
       
-      switchTab('hoje');
-      loadAgendaData(); loadSettings(); subscribeToRealtime();
+      switchTab('hoje'); loadAgendaData(); loadSettings(); subscribeToRealtime();
     }
 
     function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
@@ -569,11 +562,9 @@
       const { data, error } = await sb.from('appointments').select(`*, profiles(full_name, phone)`).order('created_at', {ascending: false});
       if (error) return;
       allHistoryData = data || [];
-      // Padroniza as datas vindas do banco
       allHistoryData.forEach(a => { if(a.date){ let p=a.date.split('/'); if(p.length===3) a.date=`${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`; } });
       
-      renderHistoryTable();
-      calculateDashboard(); // Chamada master do financeiro
+      renderHistoryTable(); calculateDashboard();
     }
 
     function setHistoryFilter(filter) {
@@ -668,10 +659,16 @@
     }
 
     function calculateDashboard() {
+      const validApts = allHistoryData.filter(a => 
+        a.calendar_event_id !== 'cancelled_by_barber' && 
+        a.calendar_event_id !== 'cancelled_by_client' && 
+        a.calendar_event_id !== 'blocked_time' &&
+        a.service && !a.service.startsWith('🚫')
+      );
+
       const now = new Date(); now.setHours(23,59,59,999);
       let startD, endD; let chartTitle = "";
 
-      // Definindo Ranger do Filtro
       if (dashFilter === 'hoje') { startD = new Date(now); startD.setHours(0,0,0,0); endD = now; chartTitle = "Receita: Hoje (Por Hora)"; } 
       else if (dashFilter === '7dias') { startD = new Date(now); startD.setDate(now.getDate() - 6); startD.setHours(0,0,0,0); endD = now; chartTitle = "Receita: Últimos 7 Dias"; } 
       else if (dashFilter === 'mes') { startD = new Date(now.getFullYear(), now.getMonth(), 1); endD = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); chartTitle = "Receita: Este Mês (Por Dia)"; } 
@@ -684,19 +681,13 @@
 
       document.getElementById('chart-title').innerText = chartTitle;
 
-      // Variáveis para contagem
-      let revPeriodo = 0; let cutsPeriodo = 0;
-      let revMesRealizada = 0; // Para Wallet
-      let canceladosPeriodo = 0; let aptsValidosTotal = 0;
-      let aptsFuturos = 0; let revFutura = 0;
-      
+      let revPeriodo = 0; let cutsPeriodo = 0; let revMesRealizada = 0;
+      let canceladosPeriodo = 0; let aptsValidosTotal = 0; let aptsFuturos = 0; let revFutura = 0;
       let serviceCounter = {}; let clientCounter = {};
       
-      // Chart Data Config
       let chartLabels = []; let chartData = []; let chartMap = {};
       const diffDays = Math.ceil((endD - startD) / (1000 * 60 * 60 * 24));
       
-      // Setup Chart Map Structure
       if (dashFilter === 'hoje') {
         for(let h=8; h<=21; h++) { let hs=String(h).padStart(2,'0')+':00'; chartMap[hs] = 0; chartLabels.push(hs); }
       } else if (diffDays <= 31) {
@@ -710,69 +701,51 @@
         }
       }
 
-      // Loop over all data
       allHistoryData.forEach(a => {
         let aptDate = parseBrDateToObj(a.date);
         let isCancelled = (a.calendar_event_id === 'cancelled_by_barber' || a.calendar_event_id === 'cancelled_by_client');
         let isBlock = (a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫')));
         let price = parseFloat(a.price || 0);
 
-        // Wallet: Receita do Mês Atual (apenas válidos e realizados)
         if (!isCancelled && !isBlock && aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear() && aptDate <= now) {
           revMesRealizada += price;
         }
 
-        // Filtro de Período
         if (aptDate >= startD && aptDate <= endD) {
           if (!isBlock) aptsValidosTotal++;
           if (isCancelled && !isBlock) canceladosPeriodo++;
           
           if (!isCancelled && !isBlock) {
-            // Realizado vs Futuro
             if (aptDate < now || (aptDate.getTime() === new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime() && timeToMinutes(a.time) <= (now.getHours()*60+now.getMinutes()))) {
-              // É realizado neste periodo
               revPeriodo += price; cutsPeriodo++;
-              
-              // Ranks
               if(a.service) serviceCounter[a.service] = (serviceCounter[a.service] || 0) + 1;
               if(a.profiles?.full_name) {
                 if(!clientCounter[a.profiles.full_name]) clientCounter[a.profiles.full_name] = { count: 0, rev: 0 };
                 clientCounter[a.profiles.full_name].count++; clientCounter[a.profiles.full_name].rev += price;
               }
-
-              // Chart Filling
               if (dashFilter === 'hoje') { let h = a.time.split(':')[0]+':00'; if(chartMap[h] !== undefined) chartMap[h] += price; }
               else if (diffDays <= 31) { let s = `${String(aptDate.getDate()).padStart(2,'0')}/${String(aptDate.getMonth()+1).padStart(2,'0')}`; if(chartMap[s] !== undefined) chartMap[s] += price; }
               else { const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; let mName = `${meses[aptDate.getMonth()]}/${String(aptDate.getFullYear()).slice(-2)}`; if(chartMap[mName] !== undefined) chartMap[mName] += price; }
             } else {
-              // Agendamento Futuro neste periodo
               aptsFuturos++; revFutura += price;
             }
           }
         }
       });
 
-      // Render Wallet (Sempre Mês Atual)
       document.getElementById('dash-wallet-saldo').innerText = `R$ ${revMesRealizada.toFixed(2).replace('.', ',')}`;
-      const META = 15000; let perc = Math.min((revMesRealizada / META) * 100, 100).toFixed(1);
-      document.getElementById('dash-meta-perc').innerText = `${perc}%`; document.getElementById('dash-meta-bar').style.width = `${perc}%`;
-
-      // Render KPIs (Período)
+      
       document.getElementById('dash-fat-periodo').innerText = `R$ ${revPeriodo.toFixed(2).replace('.', ',')}`;
       document.getElementById('dash-cortes-periodo').innerText = `${cutsPeriodo} atendimentos concluídos`;
       let tMedio = cutsPeriodo > 0 ? (revPeriodo / cutsPeriodo) : 0;
       document.getElementById('dash-ticket-medio').innerText = `R$ ${tMedio.toFixed(2).replace('.', ',')}`;
-      
       document.getElementById('dash-agendamentos-futuros').innerText = aptsFuturos;
       document.getElementById('dash-fat-futuro').innerText = `Projeção: R$ ${revFutura.toFixed(2).replace('.', ',')}`;
-
       let txCanc = aptsValidosTotal > 0 ? ((canceladosPeriodo / aptsValidosTotal) * 100).toFixed(1) : 0;
       document.getElementById('dash-tx-cancelamento').innerText = `${txCanc}%`;
       document.getElementById('dash-num-cancelados').innerText = `${canceladosPeriodo} perdidos no período`;
 
-      // Render Ranks
       const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-      
       let topServ = Object.keys(serviceCounter).map(k => ({name: k, count: serviceCounter[k]})).sort((a,b) => b.count - a.count).slice(0, 5);
       let sHtml = topServ.length===0 ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center mt-4">Sem dados</p>` : '';
       topServ.forEach((s, i) => { sHtml += `<div class="flex items-center justify-between p-3.5 bg-[#18181b] border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><span class="text-white text-xs font-black uppercase tracking-wider">${s.name}</span></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">${s.count}x</span></div>`; });
@@ -783,49 +756,24 @@
       topCli.forEach((c, i) => { cHtml += `<div class="flex items-center justify-between p-3.5 bg-[#18181b] border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><div class="flex flex-col"><span class="text-white text-xs font-black uppercase tracking-wider truncate max-w-[140px]">${c.name}</span><span class="text-[9px] text-zinc-500 font-bold uppercase">${c.count} visitas</span></div></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">R$ ${c.rev}</span></div>`; });
       document.getElementById('dash-top-clients').innerHTML = cHtml;
 
-      // Render Chart.js
       chartData = chartLabels.map(l => chartMap[l]);
-      
       if(revenueChartInstance) revenueChartInstance.destroy();
       const ctx = document.getElementById('revenueChart').getContext('2d');
-      
       let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-      gradient.addColorStop(0, 'rgba(249, 115, 22, 0.4)');
-      gradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
+      gradient.addColorStop(0, 'rgba(249, 115, 22, 0.4)'); gradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
 
       revenueChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: chartLabels,
           datasets: [{
-            label: 'Faturamento',
-            data: chartData,
-            borderColor: '#f97316',
-            backgroundColor: gradient,
-            borderWidth: 3,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#f97316',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            fill: true,
-            tension: 0.4 // Curva suave
+            label: 'Faturamento', data: chartData, borderColor: '#f97316', backgroundColor: gradient, borderWidth: 3,
+            pointBackgroundColor: '#fff', pointBorderColor: '#f97316', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4
           }]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { 
-              backgroundColor: 'rgba(9, 9, 11, 0.9)', titleColor: '#a1a1aa', bodyColor: '#fff', 
-              bodyFont: { weight: 'bold', size: 14 }, padding: 12, borderColor: '#27272a', borderWidth: 1,
-              callbacks: { label: function(context) { return ' R$ ' + context.parsed.y.toFixed(2).replace('.',','); } }
-            }
-          },
-          scales: {
-            y: { beginAtZero: true, grid: { color: '#27272a', drawBorder: false }, ticks: { color: '#71717a', font: { size: 10, weight: 'bold' } } },
-            x: { grid: { display: false, drawBorder: false }, ticks: { color: '#71717a', font: { size: 10, weight: 'bold' } } }
-          }
+          responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(9, 9, 11, 0.9)', titleColor: '#a1a1aa', bodyColor: '#fff', bodyFont: { weight: 'bold', size: 14 }, padding: 12, borderColor: '#27272a', borderWidth: 1, callbacks: { label: function(context) { return ' R$ ' + context.parsed.y.toFixed(2).replace('.',','); } } } },
+          scales: { y: { beginAtZero: true, grid: { color: '#27272a', drawBorder: false }, ticks: { color: '#71717a', font: { size: 10, weight: 'bold' } } }, x: { grid: { display: false, drawBorder: false }, ticks: { color: '#71717a', font: { size: 10, weight: 'bold' } } } }
         }
       });
     }
@@ -851,7 +799,8 @@
       if (currentBlock) merged.push(currentBlock); return merged;
     }
 
-    function generateCardHtml(item, theme) {
+    // Aplicando a cor específica de cada Serviço no Card do Kanban e Agenda
+    function generateCardHtml(item) {
       const isBlock = item.type === 'block';
       const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente Não Id.');
       const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
@@ -870,20 +819,17 @@
             <p class="text-[10px] text-zinc-500 mt-1 truncate uppercase font-bold tracking-wide">${(item.service || '').replace('🚫 ', '')}</p>
           </div>`;
       } else {
-        const cBg = theme ? theme.bg : 'bg-[#121214]';
-        const cBorder = theme ? theme.border : 'border-zinc-800/80';
-        const cBorderL = theme ? theme.borderL : 'border-l-zinc-500';
-        const cText = theme ? theme.text : 'text-zinc-300';
-        const cHover = theme ? theme.hover : 'hover:bg-[#18181b]';
+        // Captura o estilo do Serviço
+        const sTheme = getServiceTheme(item.service);
 
         return `
-          <div class="${cBg} border ${cBorder} border-l-4 ${cBorderL} rounded-xl p-3.5 flex flex-col mb-3 shrink-0 ${cHover} transition-all transform hover:-translate-y-0.5 hover:shadow-lg group w-full">
+          <div class="${sTheme.bg} border ${sTheme.border} border-l-4 ${sTheme.borderL} rounded-xl p-3.5 flex flex-col mb-3 shrink-0 ${sTheme.hover} transition-all transform hover:-translate-y-0.5 hover:shadow-lg group w-full">
             <div class="flex items-center justify-between mb-2.5">
-              <span class="text-[11px] font-black ${cText} tracking-wider bg-black/40 px-2 py-1 rounded-md shadow-sm">${item.time}</span>
+              <span class="text-[11px] font-black ${sTheme.text} tracking-wider bg-black/40 px-2 py-1 rounded-md shadow-sm">${item.time}</span>
               <span class="text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-md shadow-sm">R$ ${item.price}</span>
             </div>
             <p class="font-black text-white text-sm leading-tight truncate tracking-wide">${clientName}</p>
-            <p class="text-[10px] text-zinc-400 truncate mt-1 font-bold uppercase tracking-wider">${item.service}</p>
+            <p class="text-[10px] ${sTheme.text} truncate mt-1 font-bold uppercase tracking-wider opacity-80">${item.service}</p>
             
             <div class="pt-3 mt-3 border-t border-zinc-800/60 flex items-center justify-between opacity-50 group-hover:opacity-100 transition-opacity">
               ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 px-2 py-1.5 rounded shadow-sm">💬 Chamar</a>` : `<span class="text-zinc-600 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
@@ -946,23 +892,24 @@
         daysList.forEach((day, index) => {
           const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
           const mergedApts = mergeBlocks(dayAptsRaw);
-          const theme = KANBAN_THEMES[index % KANBAN_THEMES.length];
+          // O header de cada dia pode usar um tema neutro
+          const headerTheme = KANBAN_THEMES[index % KANBAN_THEMES.length];
           
           let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
           const isToday = day.label === strHoje; const bgHeader = isToday ? 'bg-[#0f0f11]' : 'bg-transparent';
 
           if (mergedApts.length === 0) cardsHtml = `<div class="h-full border-2 border-dashed border-zinc-800/40 rounded-2xl flex flex-col items-center justify-center text-center p-3 text-zinc-700 bg-transparent"><span class="text-[10px] uppercase font-black tracking-widest">Sem Agenda</span></div>`;
-          else { mergedApts.forEach(item => { if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; } cardsHtml += generateCardHtml(item, theme); }); }
+          else { mergedApts.forEach(item => { if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; } cardsHtml += generateCardHtml(item); }); }
 
           boardHtml += `
             <div class="w-[280px] shrink-0 bg-[#0f0f11] border border-zinc-800/80 rounded-3xl flex flex-col h-full max-h-full shadow-lg overflow-hidden relative">
               ${isToday ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>` : ''}
               <div class="${bgHeader} p-4 border-b border-zinc-800/80 flex items-center justify-between shrink-0 transition-colors z-10">
                 <div>
-                  <span class="text-[13px] uppercase font-black ${theme.acc} block tracking-widest drop-shadow-sm">${day.dayName}</span>
+                  <span class="text-[13px] uppercase font-black ${headerTheme.acc} block tracking-widest drop-shadow-sm">${day.dayName}</span>
                   <span class="text-[10px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} Cli - R$ ${dayRev}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-lg ${theme.circleBg}">${day.dayNumber.split('/')[0]}</div>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-lg ${headerTheme.circleBg}">${day.dayNumber.split('/')[0]}</div>
               </div>
               <div class="p-3.5 overflow-y-auto flex-1 custom-scroll bg-grid relative pointer-events-auto z-0">${cardsHtml}</div>
             </div>`;
@@ -971,7 +918,7 @@
 
         let dailyHtml = ''; const mergedToday = mergeBlocks(todayAptsRaw);
         if (mergedToday.length === 0) dailyHtml = `<div class="col-span-full flex items-center justify-center py-20 text-zinc-600 text-xs font-black uppercase tracking-widest border-2 border-dashed border-zinc-800/50 rounded-3xl bg-[#0f0f11]">Agenda Livre / Sem Movimento</div>`;
-        else mergedToday.forEach(item => { dailyHtml += generateCardHtml(item, null); });
+        else mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); });
         dailyContainer.innerHTML = dailyHtml;
 
       } catch (err) { board.innerHTML = `<div class="p-6 text-red-500 font-black uppercase">Erro Crítico de Exibição.</div>`; }
