@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="pt-BR"><head>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>RB Barbearia</title>
@@ -12,18 +14,21 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     input { font-size: 16px !important; }
-  </style><!-- Meta tags para WhatsApp e Redes Sociais -->
+  </style>
+  <!-- Meta tags para WhatsApp e Redes Sociais -->
   <meta property="og:title" content="RB Barbearia">
   <meta property="og:description" content="Agende seu horário online de forma rápida e prática.">
   <meta property="og:image" content="https://rb-barbearia.vercel.app/icone.png">
   <meta property="og:url" content="https://rb-barbearia.vercel.app/">
-  <meta property="og:type" content="website"></head><body class="antialiased min-h-screen flex justify-center bg-black select-none">
+  <meta property="og:type" content="website">
+</head>
+<body class="antialiased min-h-screen flex justify-center bg-black select-none">
 
   <div class="w-full max-w-md bg-[#0f0f0f] min-h-screen relative flex flex-col overflow-hidden shadow-2xl">
     
     <div id="toast-msg" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black text-xs font-bold px-4 py-2.5 rounded-full shadow-lg transition-all"></div>
 
-    <!-- MODAL TELEMÓVEL OBRIGATÓRIO (PARA QUEM ENTRA VIA GMAIL/SPOTIFY/LINKEDIN PELA PRIMEIRA VEZ) -->
+    <!-- MODAL TELEMÓVEL OBRIGATÓRIO -->
     <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-50 bg-black/90 flex flex-col justify-end">
       <div class="bg-[#1a1a1a] p-6 rounded-t-3xl space-y-4 border-t border-zinc-800">
         <h3 class="text-lg font-bold text-white">Último passo!</h3>
@@ -126,7 +131,7 @@
         <button onclick="switchAppTab('perfil')" id="tab-perfil" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center">PERFIL</button>
       </div>
 
-     <div id="tab-content-servicos" class="flex-1 pb-10">
+      <div id="tab-content-servicos" class="flex-1 pb-10">
         <!-- 01 - Corte Masculino -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
@@ -183,7 +188,7 @@
           <button onclick="startBooking('Cuidado Completo', 65, 60)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
         
-<!-- 05 - Progressiva Orgânica -->
+        <!-- 05 - Progressiva Orgânica -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="./progressiva.jpg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
@@ -196,6 +201,7 @@
           </div>
           <button onclick="startBooking('Progressiva Orgânica', 180, 120)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
+      </div>
 
       <div id="tab-content-historico" class="hidden flex-1 p-4 pb-10">
         <div id="history-container" class="space-y-4"></div>
@@ -449,6 +455,8 @@
 
     function enterApp() {
       document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-login').classList.remove('flex');
+      
       document.getElementById('view-app').classList.remove('hidden');
       document.getElementById('view-app').classList.add('flex');
       
@@ -514,15 +522,22 @@
     function startBooking(service, price, duration) {
       selectedService = service; selectedPrice = price; selectedDuration = duration;
       document.getElementById('booking-service-name').innerText = service;
+      
       document.getElementById('view-app').classList.add('hidden');
+      document.getElementById('view-app').classList.remove('flex');
+      
       document.getElementById('view-datetime').classList.remove('hidden');
       document.getElementById('view-datetime').classList.add('flex');
+      
       renderDateOptions();
     }
 
     function cancelBooking() {
       document.getElementById('view-datetime').classList.add('hidden');
+      document.getElementById('view-datetime').classList.remove('flex');
+      
       document.getElementById('view-app').classList.remove('hidden');
+      document.getElementById('view-app').classList.add('flex');
     }
 
     function renderDateOptions() {
@@ -582,7 +597,7 @@
         booked.forEach(b => {
           if (b.calendar_event_id === 'cancelled_by_barber' || b.calendar_event_id === 'cancelled_by_client') return;
           const startMin = timeToMinutes(b.time);
-         let dur = 30;
+          let dur = 30;
           if (b.service && b.service.includes("Cuidado Completo")) dur = 60;
           else if (b.service && b.service.includes("Progressiva")) dur = 120;
           else if (b.service && b.service.includes("Sobrancelha")) dur = 20;
@@ -693,4 +708,6 @@
         loadHistory();
       }
     }
-  </script></body></html>
+  </script>
+</body>
+</html>
