@@ -658,7 +658,7 @@
         .neq('calendar_event_id', 'blocked_time')
         .order('created_at', { ascending: false });
 
-      const filteredData = (data || []).filter(item => !item.service.startsWith('🚫'));
+     const filteredData = (data || []).filter(item => item.service && !item.service.startsWith('🚫'));
 
       if (filteredData.length === 0) {
         container.innerHTML = `<p class="text-xs text-zinc-600 text-center py-8">Nenhum histórico encontrado.</p>`; return;
