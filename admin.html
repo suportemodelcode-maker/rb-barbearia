@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Admin Premium - RB Barbearia</title>
+  <title>Admin RB Barbearia - Tempo Real</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -15,1356 +15,321 @@
 
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #09090b;
-      color: #fafafa;
-      overscroll-behavior-y: none;
-    }
-
-    ::selection {
-      background: rgba(249,115,22,.35);
-      color: white;
-    }
-
+    body { font-family: 'Inter', sans-serif; background: #09090b; color: #fafafa; overscroll-behavior-y: none; }
     .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #3f3f46;
-      border-radius: 9999px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f97316; }
-
+    .custom-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
     input[type="date"]::-webkit-calendar-picker-indicator,
-    input[type="time"]::-webkit-calendar-picker-indicator {
-      filter: invert(.8);
-      cursor: pointer;
-    }
-
-    .drag-scroll { cursor: grab; }
-    .drag-scroll:active { cursor: grabbing; }
-    .no-select { user-select: none; }
-
-    .glass {
-      background: rgba(24,24,27,.62);
-      border: 1px solid rgba(63,63,70,.75);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    .glass-soft {
-      background: rgba(24,24,27,.42);
-      border: 1px solid rgba(63,63,70,.55);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
-
-    .premium-card {
-      background:
-        radial-gradient(circle at 100% 0%, rgba(249,115,22,.10), transparent 35%),
-        linear-gradient(145deg, rgba(39,39,42,.78), rgba(9,9,11,.96));
-      border: 1px solid rgba(82,82,91,.65);
-    }
-
-    .stat-card {
-      background: linear-gradient(180deg,#18181b 0%,#0c0c0e 100%);
-      border: 1px solid #27272a;
-      transition: all .25s ease;
-    }
-
-    .stat-card:hover {
-      border-color: #3f3f46;
-      transform: translateY(-2px);
-      box-shadow: 0 14px 35px rgba(0,0,0,.35);
-    }
-
-    @keyframes glow {
-      0% { box-shadow: 0 0 15px rgba(249,115,22,.08); }
-      100% { box-shadow: 0 0 35px rgba(249,115,22,.20); }
-    }
-
-    .wallet-card {
-      animation: glow 4s infinite alternate;
-      background:
-        radial-gradient(circle at 85% 20%,rgba(249,115,22,.15),transparent 30%),
-        linear-gradient(135deg,rgba(24,24,27,.95),rgba(9,9,11,.98));
-      border: 1px solid rgba(249,115,22,.20);
-      backdrop-filter: blur(16px);
-    }
-
-    .card-bg-image {
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-
+    input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(.8); cursor: pointer; }
     .nav-active {
       background: linear-gradient(135deg,#27272a,#18181b) !important;
       border-color: rgba(249,115,22,.28) !important;
-      box-shadow: inset 0 0 20px rgba(249,115,22,.04),0 8px 20px rgba(0,0,0,.2);
+      color: white !important;
     }
-
-    .mobile-action {
-      transition: transform .2s ease, border-color .2s ease, background .2s ease;
-    }
-
-    .mobile-action:active {
-      transform: scale(.96);
-    }
-
     .pulse-ring {
       box-shadow: 0 0 0 0 rgba(16,185,129,.4);
       animation: pulseRing 2.2s infinite;
     }
-
     @keyframes pulseRing {
       70% { box-shadow: 0 0 0 7px rgba(16,185,129,0); }
       100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-    }
-
-    @media (max-width: 767px) {
-      .desktop-only { display:none !important; }
-    }
-
-    @media (min-width:768px) {
-      .mobile-only { display:none !important; }
     }
   </style>
 </head>
 
 <body class="h-[100dvh] w-full flex overflow-hidden select-none antialiased text-sm bg-zinc-950">
 
-<audio id="notification-sound"
-  src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/water_droplet.mp3"
-  preload="auto"></audio>
+<audio id="notification-sound" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/water_droplet.mp3" preload="auto"></audio>
 
-<!-- =========================
-     LOGIN
-========================= -->
+<!-- LOGIN -->
 <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute top-[15%] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-orange-500/10 blur-[100px] rounded-full"></div>
-  </div>
-
-  <div class="relative bg-zinc-900/80 border border-zinc-800 p-8 rounded-[32px] w-full max-w-sm text-center shadow-2xl backdrop-blur-2xl">
-
-    <div class="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center bg-zinc-950 border border-orange-500/30 overflow-hidden shadow-[0_0_30px_rgba(249,115,22,.15)]">
-      <img src="./icone.png" alt="Logo" class="w-full h-full object-cover opacity-90">
+  <div class="relative bg-zinc-900/90 border border-zinc-800 p-8 rounded-[32px] w-full max-w-sm text-center shadow-2xl backdrop-blur-2xl">
+    <div class="w-20 h-20 rounded-full mx-auto mb-4 bg-zinc-950 border border-orange-500/30 overflow-hidden flex items-center justify-center">
+      <img src="./icone.png" alt="Logo" class="w-full h-full object-cover">
     </div>
-
-    <p class="text-[10px] text-orange-500 font-black tracking-[.35em] uppercase mb-2">RB Barbearia</p>
-    <h2 class="text-2xl font-black text-white tracking-tight uppercase">Painel Administrativo</h2>
-    <p class="text-[11px] text-zinc-500 mt-2 mb-8 font-medium">Gestão inteligente da sua barbearia</p>
-
-    <form id="login-form" onsubmit="checkAdmin(event)">
-      <input
-        type="password"
-        id="admin-pass"
-        autocomplete="current-password"
-        placeholder="SENHA MESTRA"
-        class="w-full py-4 px-4 rounded-2xl bg-zinc-950 border border-zinc-700 text-white focus:border-orange-500 outline-none mb-3 text-center tracking-widest font-bold transition-all placeholder:text-zinc-600">
-
-      <button
-        type="submit"
-        class="w-full py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black font-black uppercase tracking-widest rounded-2xl shadow-[0_0_25px_rgba(249,115,22,.18)] transition-all transform hover:scale-[1.01]">
-        Desbloquear
-      </button>
+    <h2 class="text-xl font-black text-white uppercase tracking-tight">Painel Admin RB</h2>
+    <p class="text-xs text-zinc-500 mt-1 mb-6">Gestão sincronizada em tempo real</p>
+    <form onsubmit="checkAdmin(event)">
+      <input type="password" id="admin-pass" placeholder="SENHA" class="w-full py-3.5 px-4 rounded-2xl bg-zinc-950 border border-zinc-700 text-white focus:border-orange-500 outline-none mb-3 text-center font-bold">
+      <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 text-black font-black uppercase tracking-wider rounded-2xl hover:scale-[1.01] transition-transform">Entrar</button>
     </form>
-
-    <div class="flex items-center justify-center gap-2 mt-6 text-[9px] text-zinc-600 uppercase tracking-widest font-bold">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-      Sistema protegido
-    </div>
   </div>
 </div>
 
-<!-- =========================
-     MODAL DETALHES
-========================= -->
-<div id="modal-details" class="hidden fixed inset-0 z-50 bg-zinc-950/85 backdrop-blur-md flex items-center justify-center p-4">
-  <div class="bg-zinc-900 border border-zinc-700/60 rounded-[28px] p-6 w-full max-w-sm space-y-4 shadow-2xl relative">
-
-    <button onclick="closeDetailsModal()"
-      class="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
-      ✕
-    </button>
-
-    <div class="flex items-center gap-4 border-b border-zinc-800 pb-4">
-      <div id="detail-img-container" class="w-14 h-14 rounded-2xl border border-zinc-700 overflow-hidden shadow-lg shrink-0"></div>
-      <div class="min-w-0 pr-8">
-        <h3 id="detail-service" class="font-black text-white text-lg leading-tight truncate">Serviço</h3>
-        <p id="detail-status" class="text-xs mt-1">Status</p>
-      </div>
-    </div>
-
-    <div class="space-y-3 pt-2">
-      <div class="bg-zinc-800/50 p-3.5 rounded-2xl">
-        <p class="text-[9px] text-zinc-500 uppercase font-black tracking-wider mb-1">Cliente</p>
-        <p id="detail-client" class="text-sm font-bold text-white">Nome</p>
-      </div>
-
-      <div class="flex gap-3">
-        <div class="bg-zinc-800/50 p-3.5 rounded-2xl flex-1">
-          <p class="text-[9px] text-zinc-500 uppercase font-black tracking-wider mb-1">Agendado</p>
-          <p id="detail-date" class="text-sm font-black text-orange-400">Data</p>
-        </div>
-
-        <div class="bg-zinc-800/50 p-3.5 rounded-2xl flex-1">
-          <p class="text-[9px] text-zinc-500 uppercase font-black tracking-wider mb-1">Registro</p>
-          <p id="detail-modified" class="text-xs font-semibold text-zinc-300">Data</p>
-        </div>
-      </div>
-
-      <div id="detail-whatsapp-container" class="pt-2"></div>
-    </div>
-  </div>
-</div>
-
-<!-- =========================
-     MODAL BLOQUEIO
-========================= -->
+<!-- MODAL BLOQUEIO RÁPIDO (SEM MOTIVO OBRIGATÓRIO) -->
 <div id="modal-block" class="hidden fixed inset-0 z-50 bg-zinc-950/85 backdrop-blur-md flex flex-col justify-end md:items-center md:justify-center p-0 md:p-4">
-  <div class="bg-zinc-900 border border-zinc-700/60 md:rounded-[28px] rounded-t-[28px] p-6 w-full max-w-sm space-y-4 shadow-2xl">
-
-    <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
-      <h3 class="font-black text-white text-lg flex items-center gap-2 tracking-wide">
+  <div class="bg-zinc-900 border border-zinc-700 rounded-t-[28px] md:rounded-[28px] p-6 w-full max-w-sm space-y-4">
+    <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+      <h3 class="font-black text-white text-base flex items-center gap-2">
         <span class="text-red-500">🚫</span> Bloquear Horário
       </h3>
-
-      <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center">
-        ✕
-      </button>
+      <button onclick="closeBlockModal()" class="text-zinc-400 bg-zinc-800 w-8 h-8 rounded-full">✕</button>
     </div>
 
-    <div class="space-y-4 pt-2">
+    <div class="space-y-3 pt-1">
       <div>
-        <label class="text-[10px] text-zinc-400 uppercase font-black tracking-wider block mb-1.5">Data</label>
-        <input type="date" id="block-date" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
+        <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Data</label>
+        <input type="date" id="block-date" class="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-xs">
       </div>
-
-      <div class="flex gap-3">
+      <div class="flex gap-2">
         <div class="flex-1">
-          <label class="text-[10px] text-zinc-400 uppercase font-black tracking-wider block mb-1.5">Início</label>
-          <input type="time" id="block-start" value="12:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
+          <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Início</label>
+          <input type="time" id="block-start" value="12:00" class="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-xs">
         </div>
-
         <div class="flex-1">
-          <label class="text-[10px] text-zinc-400 uppercase font-black tracking-wider block mb-1.5">Fim</label>
-          <input type="time" id="block-end" value="14:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
+          <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Fim</label>
+          <input type="time" id="block-end" value="13:30" class="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-xs">
         </div>
       </div>
-
       <div>
-        <label class="text-[10px] text-zinc-400 uppercase font-black tracking-wider block mb-1.5">Motivo</label>
-        <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga..." class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
+        <label class="text-[10px] text-zinc-500 uppercase font-black block mb-1">Motivo (Opcional)</label>
+        <input type="text" id="block-reason" placeholder="Opcional (ex: Intervalo, Almoço)" class="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-xs">
       </div>
-
-      <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-xl transition-all">
+      <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3 mt-2 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-wider rounded-xl text-xs transition-all">
         Confirmar Bloqueio
       </button>
     </div>
   </div>
 </div>
 
-<!-- =========================
-     PAINEL
-========================= -->
+<!-- PAINEL PRINCIPAL -->
 <div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
-
-  <!-- SIDEBAR -->
-  <aside class="w-[65px] md:w-[74px] h-full bg-zinc-950/95 border-r border-zinc-800 flex flex-col items-center py-5 gap-5 shrink-0 z-20 shadow-[5px_0_25px_rgba(0,0,0,.25)]">
-
-    <div class="w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl rotate-0 flex items-center justify-center text-zinc-950 font-black text-lg shadow-[0_0_25px_rgba(249,115,22,.25)]">
-      RB
-    </div>
-
+  <aside class="w-[68px] md:w-[76px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-4 shrink-0">
+    <div class="w-11 h-11 bg-orange-500 rounded-2xl flex items-center justify-center text-zinc-950 font-black text-lg">RB</div>
     <nav class="flex flex-col gap-2.5 w-full px-2.5 mt-2 flex-1">
-
-      <button onclick="switchTab('hoje')" id="nav-btn-hoje"
-        class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
-        <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-        </svg>
+      <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
       </button>
-
-      <button onclick="switchTab('kanban')" id="nav-btn-kanban"
-        class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda">
-        <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-        </svg>
+      <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
       </button>
-
-      <button onclick="switchTab('historico')" id="nav-btn-historico"
-        class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
-        <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-        </svg>
+      <button onclick="switchTab('config')" id="nav-btn-config" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c1.756-.426 1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543-.826-3.31-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </button>
-
-      <button onclick="switchTab('clientes')" id="nav-btn-clientes"
-        class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Clientes">
-        <div id="nav-ind-clientes" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-        </svg>
-      </button>
-
-      <button onclick="switchTab('financeiro')" id="nav-btn-financeiro"
-        class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Financeiro">
-        <div id="nav-ind-financeiro" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-      </button>
-
     </nav>
-
-    <button onclick="switchTab('config')" id="nav-btn-config"
-      class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group mb-2" title="Configurações">
-      <div id="nav-ind-config" class="hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-      <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c1.756-.426 1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543-.826-3.31-2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-    </button>
+    <button onclick="logoutAdmin()" class="text-zinc-600 hover:text-red-400 text-xs font-bold mb-2">Sair</button>
   </aside>
 
-  <!-- ÁREA PRINCIPAL -->
-  <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
-
-    <!-- HEADER -->
-    <header class="h-[72px] flex items-center justify-between px-4 md:px-8 border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl shrink-0 z-20">
-
-      <div class="flex flex-col min-w-0">
-        <div class="flex items-center gap-2.5">
-          <h1 class="text-lg md:text-xl font-black text-white tracking-wide">Painel RB</h1>
-
-          <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md">
-            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full pulse-ring"></span>
-            <span class="text-[8px] md:text-[9px] text-emerald-400 uppercase font-black tracking-widest">Live</span>
-          </span>
-        </div>
-
-        <p id="header-date" class="text-[9px] md:text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5 truncate">
-          Carregando data...
-        </p>
+  <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden">
+    <header class="h-[65px] flex items-center justify-between px-6 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-xl shrink-0">
+      <div class="flex items-center gap-2">
+        <h1 class="text-base font-black text-white">RB Barbearia Admin</h1>
+        <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md">
+          <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full pulse-ring"></span>
+          <span class="text-[9px] text-emerald-400 uppercase font-black">Sincronizado</span>
+        </span>
       </div>
-
-      <div class="flex items-center gap-2 md:gap-5">
-
-        <button onclick="refreshAll()" title="Atualizar dados"
-          class="w-9 h-9 md:w-auto md:h-10 md:px-3 flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-all">
-          <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M5.05 18.95A9 9 0 1018.95 5.05L20 6"/>
-          </svg>
-          <span class="hidden md:inline text-[10px] uppercase tracking-widest font-black">Atualizar</span>
-        </button>
-
-        <button onclick="openBlockModal()"
-          class="hidden md:flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl text-xs hover:bg-zinc-800 hover:text-white transition-all font-bold">
-          <span class="text-red-500">🚫</span> Bloquear
-        </button>
-
-        <button onclick="openBlockModal()"
-          class="flex md:hidden items-center justify-center w-9 h-9 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl">
-          🚫
-        </button>
-
-        <div class="h-8 w-px bg-zinc-800 hidden md:block"></div>
-
-        <div class="flex items-center gap-3">
-          <div class="hidden md:block text-right">
-            <p class="text-[13px] font-bold text-white leading-tight">Administrador</p>
-            <button onclick="logoutAdmin()" class="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider">
-              Sair
-            </button>
-          </div>
-
-          <div onclick="logoutAdmin()" class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-300 border-2 border-zinc-700 cursor-pointer overflow-hidden shadow-sm">
-            <img src="./icone.png" class="w-full h-full object-cover" alt="Admin">
-          </div>
-        </div>
+      <div class="flex items-center gap-3">
+        <button onclick="openBlockModal()" class="px-3.5 py-1.5 bg-red-950/40 border border-red-800 text-red-400 rounded-xl text-xs font-bold hover:bg-red-900/40">🚫 Bloquear Horário</button>
+        <button onclick="refreshAll()" class="px-3 py-1.5 bg-zinc-900 border border-zinc-800 text-zinc-300 rounded-xl text-xs font-bold">↻ Atualizar</button>
       </div>
     </header>
 
-    <!-- STATS -->
-    <div id="top-stats-bar" class="bg-zinc-950 border-b border-zinc-800 shrink-0 relative z-10 hidden">
-      <div class="px-4 md:px-8 py-3 flex items-center justify-between text-[11px] font-medium overflow-x-auto custom-scroll">
-        <div class="flex items-center gap-5 md:gap-6 whitespace-nowrap">
-          <p class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-            <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Hoje</span>
-            <span id="metric-total-cuts" class="text-white font-black text-sm">0</span>
-          </p>
-
-          <div class="h-4 w-px bg-zinc-800"></div>
-
-          <p class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento</span>
-            <span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span>
-          </p>
+    <!-- ABA HOJE -->
+    <div id="tab-hoje" class="flex-1 p-6 overflow-y-auto custom-scroll">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <p class="text-[10px] text-orange-500 font-bold uppercase tracking-widest">Painel Operacional</p>
+          <h2 class="text-xl font-black text-white">Agendamentos de Hoje</h2>
         </div>
-
-        <div class="hidden lg:flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6 opacity-80">
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Corte</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span>Barba</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Combo</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span>Sobrancelha</span>
-          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-500"></span>Progressiva</span>
-        </div>
+        <div id="today-stats" class="text-xs font-bold text-zinc-400">Total: <span id="count-hoje" class="text-white">0</span></div>
       </div>
+      <div id="daily-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
     </div>
 
-    <!-- =========================
-         HOJE
-    ========================= -->
-    <main id="tab-hoje" class="hidden flex-1 flex-col min-h-0 p-4 md:p-8 overflow-y-auto custom-scroll relative z-0">
+    <!-- ABA KANBAN (AGENDA COMPLETA) -->
+    <div id="tab-kanban" class="hidden flex-1 p-6 overflow-x-auto custom-scroll flex items-start gap-4">
+      <div id="kanban-board" class="flex gap-4"></div>
+    </div>
 
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
+    <!-- ABA CONFIGURAÇÕES (HORÁRIO DE FUNCIONAMENTO + INTERVALO DE DESCANSO) -->
+    <div id="tab-config" class="hidden flex-1 p-6 overflow-y-auto custom-scroll">
+      <div class="max-w-xl bg-zinc-900 border border-zinc-800 rounded-3xl p-6 space-y-6">
         <div>
-          <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em] mb-1">Visão operacional</p>
-          <h2 class="text-xl md:text-2xl font-black text-zinc-100 tracking-tight">Agenda de hoje</h2>
+          <h3 class="text-base font-black text-white uppercase tracking-wider">Horário de Funcionamento</h3>
+          <p class="text-xs text-zinc-500 mt-1">Defina quando a barbearia abre, fecha e o intervalo de descanso.</p>
         </div>
 
-        <div class="flex gap-2">
-          <button onclick="copyDaySummary()" class="mobile-action px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[9px] uppercase font-black tracking-wider text-zinc-300 hover:text-white">
-            📋 Resumo
-          </button>
-          <button onclick="switchTab('kanban')" class="mobile-action px-3 py-2 bg-orange-500 text-zinc-950 rounded-xl text-[9px] uppercase font-black tracking-wider hover:bg-orange-400">
-            Abrir agenda
-          </button>
-        </div>
-      </div>
-
-      <!-- RESUMO INTELIGENTE -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-
-        <div class="premium-card rounded-2xl p-4 relative overflow-hidden">
-          <div class="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-orange-500/10 blur-2xl"></div>
-          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Próximo</p>
-          <p id="today-next-time" class="text-xl md:text-2xl font-black text-orange-400 mt-1">--:--</p>
-          <p id="today-next-client" class="text-[10px] text-zinc-400 font-bold truncate mt-1">Nenhum agendamento</p>
-        </div>
-
-        <div class="stat-card rounded-2xl p-4">
-          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Atendimentos</p>
-          <p id="today-total-count" class="text-xl md:text-2xl font-black text-white mt-1">0</p>
-          <p class="text-[10px] text-zinc-500 font-medium mt-1">programados hoje</p>
-        </div>
-
-        <div class="stat-card rounded-2xl p-4">
-          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Receita</p>
-          <p id="today-revenue" class="text-xl md:text-2xl font-black text-emerald-400 mt-1">R$ 0</p>
-          <p id="today-completed" class="text-[10px] text-zinc-500 font-medium mt-1">R$ 0 realizados</p>
-        </div>
-
-        <div class="stat-card rounded-2xl p-4">
-          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Ocupação</p>
-          <p id="today-occupancy" class="text-xl md:text-2xl font-black text-purple-400 mt-1">0%</p>
-          <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-2">
-            <div id="today-occupancy-bar" class="h-full bg-purple-500 rounded-full transition-all" style="width:0%"></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Abertura</label>
+            <input type="time" id="set-open" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white font-bold text-sm outline-none focus:border-orange-500">
+          </div>
+          <div>
+            <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Fechamento</label>
+            <input type="time" id="set-close" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white font-bold text-sm outline-none focus:border-orange-500">
           </div>
         </div>
-      </div>
 
-      <!-- BUSCA -->
-      <div class="glass-soft rounded-2xl p-2 mb-5 flex items-center gap-2">
-        <svg class="w-4 h-4 text-zinc-500 ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input
-          id="agenda-search"
-          oninput="filterAgendaCards()"
-          placeholder="Buscar cliente ou serviço na agenda..."
-          class="w-full bg-transparent outline-none text-xs text-white placeholder:text-zinc-600 py-2 px-2">
-        <span id="agenda-result-count" class="hidden md:block text-[9px] uppercase font-black text-zinc-600 tracking-widest px-3 whitespace-nowrap"></span>
-      </div>
-
-      <div id="daily-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start"></div>
-    </main>
-
-    <!-- =========================
-         KANBAN
-    ========================= -->
-    <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0 relative z-0">
-      <div class="flex items-center justify-between px-4 md:px-6 py-3 border-b border-zinc-800 bg-zinc-950/70 shrink-0">
-        <div>
-          <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em]">Planejamento</p>
-          <h2 class="text-sm font-black text-white">Agenda dos próximos dias</h2>
+        <div class="border-t border-zinc-800 pt-5">
+          <h4 class="text-xs font-black text-orange-400 uppercase tracking-widest mb-1">Intervalo de Descanso / Pausa</h4>
+          <p class="text-[11px] text-zinc-500 mb-4">Nenhum cliente conseguirá agendar horários nesta faixa de tempo.</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Início da Pausa</label>
+              <input type="time" id="set-break-start" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white font-bold text-sm outline-none focus:border-orange-500">
+            </div>
+            <div>
+              <label class="text-[10px] text-zinc-400 uppercase font-black block mb-1">Fim da Pausa</label>
+              <input type="time" id="set-break-end" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white font-bold text-sm outline-none focus:border-orange-500">
+            </div>
+          </div>
         </div>
-        <button onclick="refreshAll()" class="text-zinc-500 hover:text-white text-[9px] uppercase font-black tracking-widest">
-          ↻ Sincronizar
+
+        <button onclick="saveSettings()" class="w-full py-4 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase tracking-wider rounded-xl text-xs transition-all">
+          Salvar Horários
         </button>
       </div>
-
-      <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
-    </main>
-
-    <!-- =========================
-         HISTÓRICO
-    ========================= -->
-    <main id="tab-historico" class="hidden flex-1 flex-col p-4 md:p-8 min-h-0 relative z-0">
-
-      <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4 shrink-0">
-        <div>
-          <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em]">Registros</p>
-          <h2 class="text-xl font-black text-zinc-100 tracking-wide">Histórico</h2>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1 rounded-xl">
-            <button onclick="setHistoryFilter('hoje')" id="filter-hoje" class="px-3 py-2 rounded-lg text-[9px] uppercase tracking-wider font-bold text-white bg-zinc-700/50">Hoje</button>
-            <button onclick="setHistoryFilter('7dias')" id="filter-7dias" class="px-3 py-2 rounded-lg text-[9px] uppercase tracking-wider font-bold text-zinc-400">7 Dias</button>
-            <button onclick="setHistoryFilter('tudo')" id="filter-tudo" class="px-3 py-2 rounded-lg text-[9px] uppercase tracking-wider font-bold text-zinc-400">Tudo</button>
-          </div>
-
-          <button onclick="exportHistoryCSV()" class="px-3 py-2 bg-zinc-900 border border-zinc-800 hover:border-emerald-500/40 rounded-xl text-[9px] uppercase font-black tracking-widest text-emerald-400">
-            ↓ Exportar CSV
-          </button>
-        </div>
-      </div>
-
-      <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
-        <table class="w-full text-left text-sm whitespace-nowrap">
-          <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800">
-            <tr>
-              <th class="px-5 py-4">Registro</th>
-              <th class="px-5 py-4">Agendado</th>
-              <th class="px-5 py-4">Cliente</th>
-              <th class="px-5 py-4">Serviço</th>
-              <th class="px-5 py-4">Valor</th>
-              <th class="px-5 py-4">Status</th>
-            </tr>
-          </thead>
-          <tbody id="history-table-body" class="divide-y divide-zinc-800/60"></tbody>
-        </table>
-      </div>
-    </main>
-
-    <!-- =========================
-         CLIENTES
-    ========================= -->
-    <main id="tab-clientes" class="hidden flex-1 flex-col p-4 md:p-8 min-h-0 relative z-0">
-
-      <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4 shrink-0">
-        <div>
-          <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em]">Relacionamento</p>
-          <h2 class="text-xl font-black text-zinc-100 tracking-wide">Carteira de Clientes</h2>
-          <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Ativos nos últimos 12 meses</p>
-        </div>
-
-        <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1.5 rounded-xl w-full md:w-auto focus-within:border-orange-500">
-          <svg class="w-5 h-5 text-zinc-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input type="text" id="search-client" placeholder="Buscar cliente..." onkeyup="filterClients()" class="bg-transparent text-white text-xs px-3 py-2 outline-none w-full md:w-64 placeholder:text-zinc-600">
-        </div>
-      </div>
-
-      <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
-        <table class="w-full text-left text-sm whitespace-nowrap">
-          <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800">
-            <tr>
-              <th class="px-5 py-4">Nome</th>
-              <th class="px-5 py-4">Contato</th>
-              <th class="px-5 py-4">Última Visita</th>
-              <th class="px-5 py-4">Gasto Total</th>
-              <th class="px-5 py-4">Frequência</th>
-              <th class="px-5 py-4 text-right">Ação</th>
-            </tr>
-          </thead>
-          <tbody id="clients-table-body" class="divide-y divide-zinc-800/60"></tbody>
-        </table>
-      </div>
-    </main>
-
-    <!-- =========================
-         FINANCEIRO
-    ========================= -->
-    <main id="tab-financeiro" class="hidden flex-1 flex-col p-4 md:p-8 overflow-y-auto custom-scroll relative z-0">
-
-      <div class="flex flex-col xl:flex-row justify-between xl:items-end mb-7 gap-5">
-        <div>
-          <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em] mb-1">Business Intelligence</p>
-          <h2 class="text-2xl font-black text-zinc-100 tracking-tight">Inteligência & Resultados</h2>
-          <p class="text-xs text-zinc-500 font-medium uppercase tracking-widest mt-1">Dashboard Executivo</p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center gap-2 bg-zinc-900/80 p-2 rounded-2xl border border-zinc-800">
-          <div class="flex gap-1 overflow-x-auto custom-scroll max-w-full">
-            <button onclick="setDashFilter('hoje')" id="d-filter-hoje" class="px-3 py-2.5 rounded-xl text-[9px] uppercase tracking-wider font-black text-zinc-400">Hoje</button>
-            <button onclick="setDashFilter('7dias')" id="d-filter-7dias" class="px-3 py-2.5 rounded-xl text-[9px] uppercase tracking-wider font-black text-zinc-400">7 Dias</button>
-            <button onclick="setDashFilter('mes')" id="d-filter-mes" class="px-3 py-2.5 rounded-xl text-[9px] uppercase tracking-wider font-black text-white bg-zinc-700/50">Este Mês</button>
-            <button onclick="setDashFilter('ano')" id="d-filter-ano" class="px-3 py-2.5 rounded-xl text-[9px] uppercase tracking-wider font-black text-zinc-400">Este Ano</button>
-            <button onclick="setDashFilter('custom')" id="d-filter-custom" class="px-3 py-2.5 rounded-xl text-[9px] uppercase tracking-wider font-black text-zinc-400">Manual</button>
-          </div>
-
-          <div id="custom-date-filters" class="hidden flex items-center gap-2 px-2 pb-1 sm:pb-0 border-t sm:border-t-0 sm:border-l border-zinc-800 pt-2 sm:pt-0">
-            <input type="date" id="dash-start" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none">
-            <span class="text-zinc-500 text-[9px] font-bold">ATÉ</span>
-            <input type="date" id="dash-end" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none">
-            <button onclick="applyCustomDashFilter()" class="bg-orange-500 hover:bg-orange-400 text-zinc-900 px-3 py-1.5 rounded-lg text-xs font-black">IR</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-
-        <div class="wallet-card rounded-3xl p-6 md:p-7 relative overflow-hidden flex flex-col justify-center gap-5">
-          <div class="flex items-center justify-between relative z-10">
-            <span class="text-orange-400 text-[10px] uppercase font-black tracking-widest flex items-center gap-2">
-              💳 Wallet RB
-            </span>
-            <span class="bg-orange-500/10 text-orange-400 text-[8px] px-2.5 py-1.5 rounded-md border border-orange-500/20 font-bold uppercase">
-              Mês Atual
-            </span>
-          </div>
-
-          <div class="relative z-10">
-            <p class="text-orange-200/50 text-[10px] font-bold uppercase tracking-widest mb-1.5">Receita realizada</p>
-            <h3 id="dash-wallet-saldo" class="text-4xl md:text-5xl font-black text-white tracking-tighter">R$ 0,00</h3>
-          </div>
-        </div>
-
-        <div class="lg:col-span-2 grid grid-cols-2 gap-4">
-
-          <div class="stat-card rounded-3xl p-5">
-            <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Faturamento</span>
-            <p id="dash-fat-periodo" class="text-2xl font-black text-zinc-100 mt-2">R$ 0,00</p>
-            <span id="dash-cortes-periodo" class="text-[10px] text-zinc-500 mt-1 block">0 atendimentos</span>
-          </div>
-
-          <div class="stat-card rounded-3xl p-5">
-            <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Ticket Médio</span>
-            <p id="dash-ticket-medio" class="text-2xl font-black text-zinc-100 mt-2">R$ 0,00</p>
-            <span class="text-[10px] text-zinc-500 mt-1 block">por atendimento</span>
-          </div>
-
-          <div class="stat-card rounded-3xl p-5">
-            <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Agendamentos Futuros</span>
-            <p id="dash-agendamentos-futuros" class="text-2xl font-black text-zinc-100 mt-2">0</p>
-            <span id="dash-fat-futuro" class="text-[10px] text-emerald-400 mt-1 block font-bold">Projeção: R$ 0,00</span>
-          </div>
-
-          <div class="stat-card rounded-3xl p-5">
-            <span class="text-zinc-400 text-[9px] uppercase font-black tracking-widest">Cancelamento</span>
-            <p id="dash-tx-cancelamento" class="text-2xl font-black text-zinc-100 mt-2">0%</p>
-            <span id="dash-num-cancelados" class="text-[10px] text-zinc-500 mt-1 block">0 perdidos</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
-        <div class="lg:col-span-2 bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-5 md:p-6 shadow-xl">
-          <h3 id="chart-title" class="text-[10px] uppercase font-black tracking-widest text-zinc-400 mb-5">Curva de Receita</h3>
-          <div class="w-full h-[250px] relative">
-            <canvas id="revenueChart"></canvas>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-5">
-
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-5 shadow-xl">
-            <h3 class="text-[10px] uppercase font-black tracking-widest text-zinc-400 mb-4">🏆 Top Serviços</h3>
-            <div id="dash-top-services" class="flex flex-col gap-2"></div>
-          </div>
-
-          <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-5 shadow-xl">
-            <h3 class="text-[10px] uppercase font-black tracking-widest text-zinc-400 mb-4">💎 Top Clientes</h3>
-            <div id="dash-top-clients" class="flex flex-col gap-2"></div>
-          </div>
-
-        </div>
-      </div>
-    </main>
-
-    <!-- =========================
-         CONFIG
-    ========================= -->
-    <main id="tab-config" class="hidden flex-1 flex-col p-4 md:p-8 overflow-y-auto min-h-0 relative z-0">
-
-      <div class="mb-6">
-        <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em]">Sistema</p>
-        <h2 class="text-xl font-black text-zinc-100 tracking-wide">Configurações</h2>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full max-w-4xl">
-
-        <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 md:p-8 shadow-2xl">
-          <h3 class="text-sm font-black tracking-widest uppercase text-orange-500 mb-6 border-b border-zinc-800 pb-3">
-            Horário Operacional
-          </h3>
-
-          <div class="space-y-5">
-            <div>
-              <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Abertura</label>
-              <input type="time" id="set-open" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 font-bold">
-            </div>
-
-            <div>
-              <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Fecho</label>
-              <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 font-bold">
-            </div>
-
-            <button onclick="saveSettings()" class="w-full py-4 mt-4 bg-zinc-200 hover:bg-white text-zinc-900 font-black uppercase tracking-widest rounded-xl text-xs transition-all">
-              Salvar Alterações
-            </button>
-          </div>
-
-          <p class="text-[10px] text-zinc-500 mt-6 leading-relaxed text-center">
-            Os horários são sincronizados instantaneamente com o aplicativo dos clientes.
-          </p>
-        </div>
-
-        <div class="premium-card rounded-3xl p-6 md:p-8">
-          <h3 class="text-sm font-black tracking-widest uppercase text-white mb-6 border-b border-zinc-800 pb-3">
-            Atalhos Rápidos
-          </h3>
-
-          <div class="grid grid-cols-2 gap-3">
-
-            <button onclick="switchTab('kanban')" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-orange-500/40 text-left transition-all">
-              <span class="text-xl">📅</span>
-              <p class="text-xs font-black text-white mt-3">Agenda</p>
-              <p class="text-[9px] text-zinc-500 mt-1">Ver horários</p>
-            </button>
-
-            <button onclick="openBlockModal()" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-red-500/40 text-left transition-all">
-              <span class="text-xl">🚫</span>
-              <p class="text-xs font-black text-white mt-3">Bloquear</p>
-              <p class="text-[9px] text-zinc-500 mt-1">Fechar horário</p>
-            </button>
-
-            <button onclick="switchTab('clientes')" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-blue-500/40 text-left transition-all">
-              <span class="text-xl">👤</span>
-              <p class="text-xs font-black text-white mt-3">Clientes</p>
-              <p class="text-[9px] text-zinc-500 mt-1">Carteira</p>
-            </button>
-
-            <button onclick="switchTab('financeiro')" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-emerald-500/40 text-left transition-all">
-              <span class="text-xl">📊</span>
-              <p class="text-xs font-black text-white mt-3">Resultados</p>
-              <p class="text-[9px] text-zinc-500 mt-1">Financeiro</p>
-            </button>
-
-          </div>
-        </div>
-      </div>
-    </main>
-
+    </div>
   </main>
 </div>
 
 <script>
 const ADMIN_PASSWORD = "rb";
-
 const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const sb = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-let realtimeSubscription = null;
-let allHistoryData = [];
-let currentHistoryFilter = 'hoje';
-let dashFilter = 'mes';
-let revenueChartInstance = null;
-let allClientsList = [];
-let todayAppointmentsCache = [];
-
-function getServiceTheme(serviceName) {
-  const s = (serviceName || '').toLowerCase();
-
-  if (
-    s.includes('corte e barba') ||
-    s.includes('combo') ||
-    s.includes('completo')
-  ) {
-    return {
-      borderL: 'border-l-purple-500',
-      borderHover: 'hover:border-purple-500/50',
-      text: 'text-purple-300',
-      img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80'
-    };
-  }
-
-  if (s.includes('progressiva')) {
-    return {
-      borderL: 'border-l-pink-500',
-      borderHover: 'hover:border-pink-500/50',
-      text: 'text-pink-300',
-      img: './progressiva.jpg'
-    };
-  }
-
-  if (s.includes('barba')) {
-    return {
-      borderL: 'border-l-orange-500',
-      borderHover: 'hover:border-orange-500/50',
-      text: 'text-orange-300',
-      img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80'
-    };
-  }
-
-  if (s.includes('sobrancelha')) {
-    return {
-      borderL: 'border-l-teal-500',
-      borderHover: 'hover:border-teal-500/50',
-      text: 'text-teal-300',
-      img: './sobrancelha.jpeg'
-    };
-  }
-
-  return {
-    borderL: 'border-l-blue-500',
-    borderHover: 'hover:border-blue-500/50',
-    text: 'text-blue-300',
-    img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80'
-  };
-}
-
-function getServiceImage(serviceName) {
-  return getServiceTheme(serviceName).img;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  const kanbanBoard = document.getElementById('kanban-board');
-
-  let isDown = false;
-  let startX;
-  let scrollLeft;
-
-  if (kanbanBoard) {
-
-    kanbanBoard.addEventListener('mousedown', e => {
-      if (
-        e.target.tagName.toLowerCase() === 'button' ||
-        e.target.tagName.toLowerCase() === 'a' ||
-        e.target.closest('button')
-      ) return;
-
-      isDown = true;
-      kanbanBoard.classList.add('no-select');
-      startX = e.pageX - kanbanBoard.offsetLeft;
-      scrollLeft = kanbanBoard.scrollLeft;
-    });
-
-    kanbanBoard.addEventListener('mouseleave', () => {
-      isDown = false;
-      kanbanBoard.classList.remove('no-select');
-    });
-
-    kanbanBoard.addEventListener('mouseup', () => {
-      isDown = false;
-      kanbanBoard.classList.remove('no-select');
-    });
-
-    kanbanBoard.addEventListener('mousemove', e => {
-      if (!isDown) return;
-
-      e.preventDefault();
-
-      const walk =
-        ((e.pageX - kanbanBoard.offsetLeft) - startX) * 1.5;
-
-      kanbanBoard.scrollLeft = scrollLeft - walk;
-    });
-  }
-
-  Chart.defaults.color = '#71717a';
-  Chart.defaults.font.family = "'Inter', sans-serif";
-
-  updateHeaderDate();
-
-  if (localStorage.getItem('rb_admin_logged') === 'true') {
-    processLogin();
-  }
-});
-
-function updateHeaderDate() {
-  const options = {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long'
-  };
-
-  const dateStr =
-    new Date().toLocaleDateString('pt-BR', options);
-
-  const hDate = document.getElementById('header-date');
-
-  if (hDate) {
-    hDate.innerText = dateStr;
-  }
-}
+let allAppointments = [];
+let realtimeSub = null;
+let pollTimer = null;
 
 function checkAdmin(e) {
   if (e) e.preventDefault();
-
-  const password =
-    document.getElementById('admin-pass').value;
-
-  if (password === ADMIN_PASSWORD) {
-
+  const pass = document.getElementById('admin-pass').value;
+  if (pass === ADMIN_PASSWORD) {
     localStorage.setItem('rb_admin_logged', 'true');
-
-    processLogin();
-
+    initPanel();
   } else {
-
-    alert('Acesso Negado.');
-
+    alert('Senha incorreta.');
   }
 }
 
-function processLogin() {
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('rb_admin_logged') === 'true') {
+    initPanel();
+  }
+});
 
+function initPanel() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('main-panel').classList.remove('hidden');
-
-  const sound =
-    document.getElementById('notification-sound');
-
-  if (sound) {
-    sound.play().catch(() => {});
-    sound.pause();
-  }
-
   switchTab('hoje');
-
-  loadAgendaData();
   loadSettings();
-  subscribeToRealtime();
+  loadAgendaData();
+  subscribeRealtime();
+
+  // Polling silencioso de backup a cada 4 segundos
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(() => {
+    loadAgendaData(true);
+  }, 4000);
 }
 
 function logoutAdmin() {
   localStorage.removeItem('rb_admin_logged');
+  if (pollTimer) clearInterval(pollTimer);
   window.location.reload();
 }
 
 function switchTab(tab) {
-
-  const tabs = [
-    'tab-hoje',
-    'tab-kanban',
-    'tab-historico',
-    'tab-clientes',
-    'tab-financeiro',
-    'tab-config'
-  ];
-
-  const navs = [
-    'hoje',
-    'kanban',
-    'historico',
-    'clientes',
-    'financeiro',
-    'config'
-  ];
-
-  tabs.forEach(id => {
-
-    const el = document.getElementById(id);
-
-    if (el) {
-      el.classList.add('hidden');
-      el.classList.remove('flex');
-    }
-
+  ['hoje', 'kanban', 'config'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    const btn = document.getElementById('nav-btn-' + t);
+    if (el) el.classList.toggle('hidden', t !== tab);
+    if (btn) btn.classList.toggle('nav-active', t === tab);
   });
-
-  navs.forEach(id => {
-
-    const btn =
-      document.getElementById('nav-btn-' + id);
-
-    const ind =
-      document.getElementById('nav-ind-' + id);
-
-    if (btn) {
-      btn.className =
-        'w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group';
-    }
-
-    if (ind) {
-      ind.classList.add('hidden');
-    }
-
-  });
-
-  const activeTab =
-    document.getElementById('tab-' + tab);
-
-  if (activeTab) {
-    activeTab.classList.remove('hidden');
-    activeTab.classList.add('flex');
-  }
-
-  const activeBtn =
-    document.getElementById('nav-btn-' + tab);
-
-  const activeInd =
-    document.getElementById('nav-ind-' + tab);
-
-  if (activeBtn) {
-    activeBtn.classList.add('nav-active');
-    activeBtn.classList.remove('text-zinc-500');
-    activeBtn.classList.add('text-white');
-  }
-
-  if (activeInd) {
-    activeInd.classList.remove('hidden');
-  }
-
-  const topStats =
-    document.getElementById('top-stats-bar');
-
-  if (topStats) {
-
-    if (tab === 'hoje' || tab === 'kanban') {
-      topStats.classList.remove('hidden');
-    } else {
-      topStats.classList.add('hidden');
-    }
-
-  }
-
-  if (
-    tab === 'historico' ||
-    tab === 'financeiro' ||
-    tab === 'clientes'
-  ) {
-    fetchHistoryData();
-  }
-
-  if (tab === 'financeiro') {
-    setTimeout(calculateDashboard, 100);
-  }
-}
-
-function refreshAll() {
-
-  const icon =
-    document.getElementById('refresh-icon');
-
-  if (icon) {
-    icon.classList.add('animate-spin');
-  }
-
-  Promise.all([
-    loadAgendaData(),
-    fetchHistoryData(),
-    loadSettings()
-  ]).finally(() => {
-
-    setTimeout(() => {
-      if (icon) icon.classList.remove('animate-spin');
-    }, 500);
-
-  });
-}
-
-function playNotificationSound() {
-
-  const audio =
-    document.getElementById('notification-sound');
-
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  }
-}
-
-function subscribeToRealtime() {
-
-  if (realtimeSubscription) return;
-
-  realtimeSubscription =
-    sb.channel('custom-all-channel')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'appointments'
-        },
-        () => {
-
-          playNotificationSound();
-
-          loadAgendaData();
-          fetchHistoryData();
-
-        }
-      )
-      .subscribe();
 }
 
 function timeToMinutes(tStr) {
-
   if (!tStr) return 0;
-
-  const p = tStr.split(':');
-
-  return (
-    (parseInt(p[0], 10) || 0) * 60 +
-    (parseInt(p[1], 10) || 0)
-  );
+  const [h, m] = tStr.split(':');
+  return (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0);
 }
 
-function add30Mins(timeStr) {
+function subscribeRealtime() {
+  if (realtimeSub) return;
+  realtimeSub = sb.channel('public:admin_sync')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+      loadAgendaData();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => {
+      loadSettings();
+      loadAgendaData();
+    })
+    .subscribe();
+}
 
-  if (!timeStr) return '';
+async function loadSettings() {
+  const { data } = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
+  if (data) {
+    document.getElementById('set-open').value = data.open_time || '09:00';
+    document.getElementById('set-close').value = data.close_time || '20:30';
+    document.getElementById('set-break-start').value = data.break_start || '';
+    document.getElementById('set-break-end').value = data.break_end || '';
+  }
+}
 
-  const parts = timeStr.split(':');
+async function saveSettings() {
+  const open = document.getElementById('set-open').value;
+  const close = document.getElementById('set-close').value;
+  const breakStart = document.getElementById('set-break-start').value;
+  const breakEnd = document.getElementById('set-break-end').value;
 
-  const h = parseInt(parts[0], 10) || 0;
-  const m = parseInt(parts[1], 10) || 0;
+  const { error } = await sb.from('settings').upsert({
+    id: 1,
+    open_time: open,
+    close_time: close,
+    break_start: breakStart,
+    break_end: breakEnd
+  });
 
-  const d =
-    new Date(0, 0, 0, h, m + 30);
-
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  if (error) {
+    alert('Erro ao salvar horários: ' + error.message);
+  } else {
+    alert('Horários de funcionamento e intervalo salvos!');
+    loadAgendaData();
+  }
 }
 
 function openBlockModal() {
-
   const now = new Date();
-
-  const val =
-    `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
-  const input =
-    document.getElementById('block-date');
-
-  if (input) {
-    input.value = val;
-    input.min = val;
-  }
-
-  const modal =
-    document.getElementById('modal-block');
-
-  if (modal) {
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
+  const val = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  document.getElementById('block-date').value = val;
+  document.getElementById('block-reason').value = '';
+  document.getElementById('modal-block').classList.remove('hidden');
 }
 
 function closeBlockModal() {
-
-  const modal =
-    document.getElementById('modal-block');
-
-  if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-  }
+  document.getElementById('modal-block').classList.add('hidden');
 }
 
 async function confirmBlock() {
+  const dateVal = document.getElementById('block-date').value;
+  const start = document.getElementById('block-start').value;
+  const end = document.getElementById('block-end').value;
+  // Motivo opcional: assume "Horário Bloqueado" se vazio
+  const reason = document.getElementById('block-reason').value.trim() || 'Horário Bloqueado';
 
-  const dateVal =
-    document.getElementById('block-date').value;
-
-  const start =
-    document.getElementById('block-start').value;
-
-  const end =
-    document.getElementById('block-end').value;
-
-  const reason =
-    document.getElementById('block-reason').value.trim() ||
-    'Bloqueado';
-
-  if (!dateVal) {
-    alert('Selecione uma data.');
-    return;
-  }
-
-  const now = new Date();
-
-  const todayStr =
-    `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-
+  if (!dateVal) return alert('Selecione uma data.');
   const startMin = timeToMinutes(start);
   const endMin = timeToMinutes(end);
+  if (startMin >= endMin) return alert('O fim precisa ser maior que o início.');
 
-  if (dateVal < todayStr) {
-    alert('Data no passado.');
-    return;
-  }
+  const [y, m, d] = dateVal.split('-');
+  const formattedDate = `${d}/${m}/${y}`;
 
-  if (
-    dateVal === todayStr &&
-    startMin <= now.getHours() * 60 + now.getMinutes()
-  ) {
-    alert('Horário passado.');
-    return;
-  }
-
-  if (startMin >= endMin) {
-    alert('O fim precisa ser maior que o início.');
-    return;
-  }
-
-  const [y,m,d] = dateVal.split('-');
-
-  const formattedDate =
-    `${d}/${m}/${y}`;
-
-  const formattedDateNoZero =
-    `${parseInt(d,10)}/${parseInt(m,10)}/${y}`;
-
-  const btn =
-    document.getElementById('btn-confirm-block');
-
+  const btn = document.getElementById('btn-confirm-block');
   btn.disabled = true;
-  btn.innerText = 'Processando...';
+  btn.innerText = 'Bloqueando...';
 
-  const {
-    data: existingApts,
-    error: searchError
-  } = await sb
-    .from('appointments')
-    .select('*, profiles(full_name)')
-    .in('date', [
-      formattedDate,
-      formattedDateNoZero
-    ])
-    .neq('calendar_event_id', 'cancelled_by_barber')
-    .neq('calendar_event_id', 'cancelled_by_client')
-    .neq('calendar_event_id', 'blocked_time');
-
-  if (searchError) {
-
-    alert('Erro: ' + searchError.message);
-
-    btn.disabled = false;
-    btn.innerText = 'Confirmar Bloqueio';
-
-    return;
-  }
-
-  let conflictClient = null;
-
-  if (existingApts && existingApts.length) {
-
-    for (const apt of existingApts) {
-
-      const aptStart =
-        timeToMinutes(apt.time);
-
-      let dur = 30;
-
-      if (
-        apt.service &&
-        (
-          apt.service.includes('Corte e Barba') ||
-          apt.service.includes('Completo')
-        )
-      ) dur = 60;
-
-      else if (
-        apt.service &&
-        apt.service.includes('Progressiva')
-      ) dur = 120;
-
-      else if (
-        apt.service &&
-        apt.service.includes('Sobrancelha')
-      ) dur = 20;
-
-      if (
-        aptStart < endMin &&
-        aptStart + dur > startMin
-      ) {
-
-        conflictClient = {
-          name: apt.profiles?.full_name || 'Cliente',
-          time: apt.time
-        };
-
-        break;
-      }
-    }
-  }
-
-  if (conflictClient) {
-
-    alert(
-      `Conflito: "${conflictClient.name}" às ${conflictClient.time}.`
-    );
-
-    btn.disabled = false;
-    btn.innerText = 'Confirmar Bloqueio';
-
-    return;
-  }
-
-  let targetUserId = null;
-
-  const { data: dummyProfile } =
-    await sb
-      .from('profiles')
-      .select('id')
-      .limit(1);
-
-  if (dummyProfile?.length) {
-
-    targetUserId =
-      dummyProfile[0].id;
-
-  } else {
-
-    const { data: dummyApt } =
-      await sb
-        .from('appointments')
-        .select('user_id')
-        .not('user_id', 'is', null)
-        .limit(1);
-
-    if (dummyApt?.length) {
-      targetUserId =
-        dummyApt[0].user_id;
-    }
-  }
-
-  if (!targetUserId) {
-
-    alert(
-      'Banco de dados exige pelo menos um perfil cadastrado para vincular o bloqueio.'
-    );
-
-    btn.disabled = false;
-    btn.innerText = 'Confirmar Bloqueio';
-
-    return;
-  }
+  // Obtém um usuário qualquer para satisfazer chave estrangeira se existir
+  const { data: dummy } = await sb.from('profiles').select('id').limit(1);
+  const targetUserId = dummy?.[0]?.id || '00000000-0000-0000-0000-000000000000';
 
   const inserts = [];
-
-  for (
-    let t = startMin;
-    t < endMin;
-    t += 30
-  ) {
-
-    const h =
-      String(Math.floor(t / 60)).padStart(2,'0');
-
-    const min =
-      String(t % 60).padStart(2,'0');
-
+  for (let t = startMin; t < endMin; t += 30) {
+    const h = String(Math.floor(t / 60)).padStart(2, '0');
+    const min = String(t % 60).padStart(2, '0');
     inserts.push({
       user_id: targetUserId,
       service: `🚫 ${reason}`,
@@ -1375,2155 +340,130 @@ async function confirmBlock() {
     });
   }
 
-  const { error: insertError } =
-    await sb
-      .from('appointments')
-      .insert(inserts);
-
-  if (insertError) {
-
-    alert('Erro ao bloquear: ' + insertError.message);
-
-  } else {
-
-    closeBlockModal();
-    document.getElementById('block-reason').value = '';
-
-    loadAgendaData();
-
-  }
-
+  const { error } = await sb.from('appointments').insert(inserts);
   btn.disabled = false;
   btn.innerText = 'Confirmar Bloqueio';
+
+  if (error) {
+    alert('Erro ao bloquear: ' + error.message);
+  } else {
+    closeBlockModal();
+    loadAgendaData();
+  }
 }
 
 async function deleteAppointment(idsStr, isBlocked) {
+  if (!confirm(isBlocked ? 'Liberar este horário imediatamente?' : 'Cancelar este agendamento?')) return;
 
-  const question =
-    isBlocked
-      ? 'Liberar horário?'
-      : 'Cancelar agendamento?';
-
-  if (!confirm(question)) return;
-
+  const ids = idsStr.split(',');
   if (isBlocked) {
-
-    await sb
-      .from('appointments')
-      .delete()
-      .in('id', idsStr.split(','));
-
+    await sb.from('appointments').delete().in('id', ids);
   } else {
-
-    await sb
-      .from('appointments')
-      .update({
-        calendar_event_id: 'cancelled_by_barber',
-        created_at: new Date().toISOString()
-      })
-      .eq('id', idsStr);
+    await sb.from('appointments').update({
+      calendar_event_id: 'cancelled_by_barber',
+      created_at: new Date().toISOString()
+    }).in('id', ids);
   }
-
   loadAgendaData();
-  fetchHistoryData();
 }
 
-async function loadSettings() {
-
-  const { data } =
-    await sb
-      .from('settings')
-      .select('*')
-      .eq('id', 1)
-      .maybeSingle();
-
-  if (data) {
-
-    document.getElementById('set-open').value =
-      data.open_time || '09:00';
-
-    document.getElementById('set-close').value =
-      data.close_time || '20:00';
-  }
-}
-
-async function saveSettings() {
-
-  const open =
-    document.getElementById('set-open').value;
-
-  const close =
-    document.getElementById('set-close').value;
-
-  const { error } =
-    await sb
-      .from('settings')
-      .upsert({
-        id: 1,
-        open_time: open,
-        close_time: close
-      });
-
-  if (error) {
-
-    alert('Erro: ' + error.message);
-
-  } else {
-
-    alert('Configurações salvas com sucesso!');
-
-  }
-}
-
-function formatDateForDisplay(isoString) {
-
-  if (!isoString) return '-';
-
-  const d = new Date(isoString);
-
-  if (isNaN(d.getTime())) return '-';
-
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} às ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-
-function parseBrDateToObj(dateStr) {
-
-  if (!dateStr) return new Date();
-
-  if (dateStr.includes('-')) {
-
-    const parts = dateStr.split('-');
-
-    return new Date(
-      parseInt(parts[0],10),
-      parseInt(parts[1],10)-1,
-      parseInt(parts[2],10)
-    );
-  }
-
-  const p = dateStr.split('/');
-
-  if (p.length === 3) {
-
-    return new Date(
-      parseInt(p[2],10),
-      parseInt(p[1],10)-1,
-      parseInt(p[0],10)
-    );
-  }
-
-  return new Date();
-}
-
-/* =========================
-   DADOS GERAIS
-========================= */
-
-async function fetchHistoryData() {
-
+async function loadAgendaData(silent = false) {
   try {
-
-    const {
-      data,
-      error
-    } = await sb
+    const { data: apts, error } = await sb
       .from('appointments')
-      .select(`*, profiles(full_name, phone)`)
-      .order('created_at', { ascending:false });
+      .select('id, service, date, time, price, calendar_event_id, profiles(full_name, phone)')
+      .neq('calendar_event_id', 'cancelled_by_barber')
+      .neq('calendar_event_id', 'cancelled_by_client')
+      .order('time', { ascending: true });
 
     if (error) throw error;
-
-    allHistoryData = data || [];
-
-    allHistoryData.forEach(a => {
-
-      if (a.date && a.date.includes('/')) {
-
-        const p = a.date.split('/');
-
-        if (p.length === 3) {
-
-          a.date =
-            `${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`;
-        }
-      }
-    });
-
-    renderHistoryTable();
-    calculateDashboard();
-    renderClientsTable();
-
-  } catch (err) {
-
-    console.error('Falha ao buscar dados:', err);
-
+    allAppointments = apts || [];
+    renderBoards();
+  } catch (e) {
+    console.error('Falha ao sincronizar agenda:', e);
   }
 }
 
-/* =========================
-   HISTÓRICO
-========================= */
-
-function setHistoryFilter(filter) {
-
-  currentHistoryFilter = filter;
-
-  ['hoje','7dias','tudo'].forEach(b => {
-
-    const el =
-      document.getElementById('filter-' + b);
-
-    if (!el) return;
-
-    if (b === filter) {
-
-      el.className =
-        'px-3 py-2 rounded-lg text-[9px] uppercase tracking-wider font-bold text-white bg-zinc-700/50';
-
-    } else {
-
-      el.className =
-        'px-3 py-2 rounded-lg text-[9px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white';
-    }
-  });
-
-  renderHistoryTable();
-}
-
-function renderHistoryTable() {
-
-  const tbody =
-    document.getElementById('history-table-body');
-
-  if (!tbody) return;
-
-  let filtered = allHistoryData;
-
+function renderBoards() {
+  const dailyContainer = document.getElementById('daily-view-container');
+  const kanbanContainer = document.getElementById('kanban-board');
   const now = new Date();
+  const todayStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
-  const todayStr =
-    `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  const todayList = allAppointments.filter(a => a.date === todayStr);
+  document.getElementById('count-hoje').innerText = todayList.length;
 
-  if (currentHistoryFilter === 'hoje') {
-
-    filtered =
-      allHistoryData.filter(a => {
-
-        const modD =
-          new Date(a.created_at);
-
-        const modStr =
-          `${String(modD.getDate()).padStart(2,'0')}/${String(modD.getMonth()+1).padStart(2,'0')}/${modD.getFullYear()}`;
-
-        return (
-          modStr === todayStr ||
-          a.date === todayStr
-        );
-      });
-
-  } else if (currentHistoryFilter === '7dias') {
-
-    const sevenDaysAgo =
-      new Date(
-        now.getTime() -
-        7 * 24 * 60 * 60 * 1000
-      );
-
-    filtered =
-      allHistoryData.filter(
-        a => new Date(a.created_at) >= sevenDaysAgo
-      );
-  }
-
-  if (!filtered.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6"
-          class="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-[10px]">
-          Nenhum registro encontrado.
-        </td>
-      </tr>`;
-
-    return;
-  }
-
-  let html = '';
-
-  filtered.forEach(a => {
-
-    const isBlock =
-      a.calendar_event_id === 'blocked_time' ||
-      (a.service && a.service.startsWith('🚫'));
-
-    const clientName =
-      a.profiles?.full_name ||
-      (isBlock ? 'Bloqueio' : 'Cliente Não Id.');
-
-    let statusBadge = `
-      <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider">
-        Confirmado
-      </span>`;
-
-    if (
-      a.calendar_event_id ===
-      'cancelled_by_barber'
-    ) {
-
-      statusBadge = `
-        <span class="bg-red-500/10 text-red-500 border border-red-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase">
-          Cancelado RB
-        </span>`;
-
-    } else if (
-      a.calendar_event_id ===
-      'cancelled_by_client'
-    ) {
-
-      statusBadge = `
-        <span class="bg-orange-500/10 text-orange-500 border border-orange-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase">
-          Cancelado Cli
-        </span>`;
-
-    } else if (isBlock) {
-
-      statusBadge = `
-        <span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2.5 py-1 rounded-md text-[9px] font-black uppercase">
-          Bloqueado
-        </span>`;
-    }
-
-    html += `
-      <tr
-        class="hover:bg-zinc-800/40 transition-colors cursor-pointer group border-l-2 border-transparent hover:border-orange-500"
-        onclick='openDetailsModal(${JSON.stringify(a).replace(/'/g,"&apos;")})'>
-
-        <td class="px-5 py-4 text-zinc-500 font-medium">
-          ${formatDateForDisplay(a.created_at)}
-        </td>
-
-        <td class="px-5 py-4 font-black text-white">
-          ${a.date || '-'}
-          <span class="text-zinc-500 font-medium ml-1">
-            às ${a.time || '-'}
-          </span>
-        </td>
-
-        <td class="px-5 py-4 text-zinc-300 font-bold">
-          ${clientName}
-        </td>
-
-        <td class="px-5 py-4 text-zinc-400 font-medium">
-          ${a.service || ''}
-        </td>
-
-        <td class="px-5 py-4 text-emerald-400 font-black">
-          R$ ${parseFloat(a.price || 0).toFixed(2).replace('.',',')}
-        </td>
-
-        <td class="px-5 py-4">
-          ${statusBadge}
-        </td>
-
-      </tr>`;
-  });
-
-  tbody.innerHTML = html;
-}
-
-function openDetailsModal(item) {
-
-  const isBlock =
-    item.calendar_event_id === 'blocked_time' ||
-    (item.service && item.service.startsWith('🚫'));
-
-  const clientName =
-    item.profiles?.full_name ||
-    (isBlock ? 'Barbearia' : 'Cliente');
-
-  const cleanPhone =
-    (item.profiles?.phone || '').replace(/\D/g,'');
-
-  const whatsLink =
-    cleanPhone
-      ? `https://wa.me/55${cleanPhone}`
-      : '';
-
-  document.getElementById('detail-img-container').innerHTML =
-    `<img src="${getServiceImage(item.service)}" class="w-full h-full object-cover">`;
-
-  document.getElementById('detail-service').innerText =
-    item.service || 'Serviço';
-
-  document.getElementById('detail-client').innerText =
-    clientName;
-
-  document.getElementById('detail-date').innerText =
-    `${item.date || '-'} às ${item.time || '-'}`;
-
-  document.getElementById('detail-modified').innerText =
-    formatDateForDisplay(item.created_at);
-
-  let statusMsg =
-    `<span class="text-emerald-400 font-bold">Confirmado</span>`;
-
-  if (
-    item.calendar_event_id ===
-    'cancelled_by_barber'
-  ) {
-
-    statusMsg =
-      `<span class="text-red-500 font-bold">Cancelado pela Barbearia</span>`;
-
-  } else if (
-    item.calendar_event_id ===
-    'cancelled_by_client'
-  ) {
-
-    statusMsg =
-      `<span class="text-orange-500 font-bold">Cancelado pelo Cliente</span>`;
-
-  } else if (isBlock) {
-
-    statusMsg =
-      `<span class="text-zinc-400 font-bold">Bloqueado</span>`;
-  }
-
-  document.getElementById('detail-status').innerHTML =
-    statusMsg;
-
-  const container =
-    document.getElementById('detail-whatsapp-container');
-
-  if (whatsLink && !isBlock) {
-
-    container.innerHTML = `
-      <a
-        href="${whatsLink}"
-        target="_blank"
-        class="flex items-center justify-center gap-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-zinc-950 border border-emerald-500/20 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all mt-3 w-full">
-        💬 Chamar WhatsApp
-      </a>`;
-
+  // Render Hoje
+  if (!todayList.length) {
+    dailyContainer.innerHTML = `<div class="col-span-full p-8 text-center text-zinc-600 bg-zinc-900/40 rounded-2xl border border-zinc-800">Nenhum atendimento ou bloqueio para hoje.</div>`;
   } else {
-
-    container.innerHTML = '';
+    dailyContainer.innerHTML = todayList.map(a => generateAdminCard(a)).join('');
   }
 
-  document
-    .getElementById('modal-details')
-    .classList.remove('hidden');
-}
-
-function closeDetailsModal() {
-  document
-    .getElementById('modal-details')
-    .classList.add('hidden');
-}
-
-/* =========================
-   CLIENTES
-========================= */
-
-function renderClientsTable() {
-
-  const clientMap = {};
-
-  const twelveMonthsAgo =
-    new Date();
-
-  twelveMonthsAgo.setMonth(
-    twelveMonthsAgo.getMonth() - 12
-  );
-
-  allHistoryData.forEach(apt => {
-
-    if (
-      apt.calendar_event_id === 'blocked_time' ||
-      (apt.service && apt.service.startsWith('🚫'))
-    ) return;
-
-    if (!apt.profiles || !apt.user_id) return;
-
-    const userId = apt.user_id;
-
-    const aptDate =
-      parseBrDateToObj(apt.date);
-
-    if (!clientMap[userId]) {
-
-      clientMap[userId] = {
-        id: userId,
-        name: apt.profiles.full_name || 'Desconhecido',
-        phone: apt.profiles.phone || '',
-        lastVisit: aptDate,
-        totalSpent: 0,
-        visits: 0
-      };
-    }
-
-    if (
-      aptDate >
-      clientMap[userId].lastVisit
-    ) {
-
-      clientMap[userId].lastVisit =
-        aptDate;
-    }
-
-    if (
-      apt.calendar_event_id !== 'cancelled_by_barber' &&
-      apt.calendar_event_id !== 'cancelled_by_client'
-    ) {
-
-      clientMap[userId].totalSpent +=
-        parseFloat(apt.price || 0);
-
-      clientMap[userId].visits++;
-    }
-  });
-
-  allClientsList =
-    Object.values(clientMap)
-      .filter(c => c.lastVisit >= twelveMonthsAgo);
-
-  allClientsList.sort(
-    (a,b) => a.name.localeCompare(b.name)
-  );
-
-  populateClientsUI(allClientsList);
-}
-
-function filterClients() {
-
-  const input =
-    document.getElementById('search-client');
-
-  if (!input) return;
-
-  const query =
-    input.value.toLowerCase();
-
-  const filtered =
-    allClientsList.filter(c =>
-      c.name.toLowerCase().includes(query) ||
-      (c.phone && c.phone.includes(query))
-    );
-
-  populateClientsUI(filtered);
-}
-
-function populateClientsUI(clients) {
-
-  const tbody =
-    document.getElementById('clients-table-body');
-
-  if (!tbody) return;
-
-  if (!clients.length) {
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6"
-          class="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-[10px]">
-          Nenhum cliente encontrado.
-        </td>
-      </tr>`;
-
-    return;
-  }
-
-  let html = '';
-
-  clients.forEach(c => {
-
-    const cleanPhone =
-      (c.phone || '').replace(/\D/g,'');
-
-    const whatsLink =
-      cleanPhone
-        ? `https://wa.me/55${cleanPhone}`
-        : '#';
-
-    const dateStr =
-      `${String(c.lastVisit.getDate()).padStart(2,'0')}/${String(c.lastVisit.getMonth()+1).padStart(2,'0')}/${c.lastVisit.getFullYear()}`;
-
-    const whatsBtn =
-      cleanPhone
-        ? `<a href="${whatsLink}" target="_blank"
-            class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase font-black tracking-widest bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all border border-emerald-500/20">
-            WhatsApp
-           </a>`
-        : `<span class="text-zinc-600 text-[9px] uppercase font-bold">Sem contato</span>`;
-
-    html += `
-      <tr class="hover:bg-zinc-800/40 transition-colors border-l-2 border-transparent hover:border-orange-500">
-
-        <td class="px-5 py-4 font-black text-white capitalize">
-          ${c.name.toLowerCase()}
-        </td>
-
-        <td class="px-5 py-4 text-zinc-400 font-medium">
-          ${c.phone || '-'}
-        </td>
-
-        <td class="px-5 py-4 text-zinc-300 font-medium">
-          ${dateStr}
-        </td>
-
-        <td class="px-5 py-4 text-emerald-400 font-black">
-          R$ ${c.totalSpent.toFixed(2).replace('.',',')}
-        </td>
-
-        <td class="px-5 py-4 text-zinc-300 font-bold">
-          ${c.visits}
-          <span class="text-[9px] text-zinc-500 font-medium">visitas</span>
-        </td>
-
-        <td class="px-5 py-4 text-right">
-          ${whatsBtn}
-        </td>
-
-      </tr>`;
-  });
-
-  tbody.innerHTML = html;
-}
-
-/* =========================
-   DASHBOARD
-========================= */
-
-function setDashFilter(filter) {
-
-  dashFilter = filter;
-
-  ['hoje','7dias','mes','ano','custom']
-    .forEach(b => {
-
-      const el =
-        document.getElementById('d-filter-' + b);
-
-      if (!el) return;
-
-      if (b === filter) {
-
-        el.classList.remove(
-          'text-zinc-400',
-          'hover:text-white'
-        );
-
-        el.classList.add(
-          'text-white',
-          'bg-zinc-700/50'
-        );
-
-      } else {
-
-        el.classList.remove(
-          'text-white',
-          'bg-zinc-700/50'
-        );
-
-        el.classList.add(
-          'text-zinc-400',
-          'hover:text-white'
-        );
-      }
-    });
-
-  const custom =
-    document.getElementById('custom-date-filters');
-
-  if (filter === 'custom') {
-
-    custom?.classList.remove('hidden');
-
-  } else {
-
-    custom?.classList.add('hidden');
-
-    calculateDashboard();
-  }
-}
-
-function applyCustomDashFilter() {
-  calculateDashboard();
-}
-
-function calculateDashboard() {
-
-  try {
-
-    const now = new Date();
-
-    now.setHours(23,59,59,999);
-
-    let startD;
-    let endD;
-    let chartTitle = '';
-
-    if (dashFilter === 'hoje') {
-
-      startD = new Date(now);
-      startD.setHours(0,0,0,0);
-      endD = now;
-
-      chartTitle =
-        'Receita: Hoje (Por Hora)';
-
-    } else if (dashFilter === '7dias') {
-
-      startD = new Date(now);
-      startD.setDate(now.getDate() - 6);
-      startD.setHours(0,0,0,0);
-
-      endD = now;
-
-      chartTitle =
-        'Receita: Últimos 7 Dias';
-
-    } else if (dashFilter === 'mes') {
-
-      startD =
-        new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          1
-        );
-
-      endD =
-        new Date(
-          now.getFullYear(),
-          now.getMonth() + 1,
-          0,
-          23,59,59
-        );
-
-      chartTitle =
-        'Receita: Este Mês (Por Dia)';
-
-    } else if (dashFilter === 'ano') {
-
-      startD =
-        new Date(now.getFullYear(),0,1);
-
-      endD =
-        new Date(
-          now.getFullYear(),
-          11,
-          31,
-          23,59,59
-        );
-
-      chartTitle =
-        'Receita: Este Ano (Por Mês)';
-
-    } else {
-
-      const s =
-        document.getElementById('dash-start')?.value;
-
-      const e =
-        document.getElementById('dash-end')?.value;
-
-      if (!s || !e) return;
-
-      startD =
-        new Date(s + 'T00:00:00');
-
-      endD =
-        new Date(e + 'T23:59:59');
-
-      chartTitle =
-        'Receita: Período Personalizado';
-    }
-
-    document.getElementById('chart-title').innerText =
-      chartTitle;
-
-    let revPeriodo = 0;
-    let cutsPeriodo = 0;
-    let revMesRealizada = 0;
-    let canceladosPeriodo = 0;
-    let aptsValidosTotal = 0;
-    let aptsFuturos = 0;
-    let revFutura = 0;
-
-    const serviceCounter = {};
-    const clientCounter = {};
-
-    let chartLabels = [];
-    let chartMap = {};
-
-    const diffDays =
-      Math.ceil(
-        (endD - startD) /
-        (1000 * 60 * 60 * 24)
-      );
-
-    if (dashFilter === 'hoje') {
-
-      for (let h=8; h<=21; h++) {
-
-        const hs =
-          String(h).padStart(2,'0') + ':00';
-
-        chartMap[hs] = 0;
-        chartLabels.push(hs);
-      }
-
-    } else if (diffDays <= 31) {
-
-      for (
-        let d = new Date(startD);
-        d <= endD;
-        d.setDate(d.getDate()+1)
-      ) {
-
-        const label =
-          `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-
-        chartMap[label] = 0;
-        chartLabels.push(label);
-      }
-
-    } else {
-
-      const meses = [
-        'Jan','Fev','Mar','Abr',
-        'Mai','Jun','Jul','Ago',
-        'Set','Out','Nov','Dez'
-      ];
-
-      for (
-        let m=startD.getMonth();
-        m<=endD.getMonth() +
-          (endD.getFullYear()-startD.getFullYear())*12;
-        m++
-      ) {
-
-        const ano =
-          startD.getFullYear() +
-          Math.floor(m/12);
-
-        const mName =
-          `${meses[m%12]}/${String(ano).slice(-2)}`;
-
-        chartMap[mName] = 0;
-        chartLabels.push(mName);
-      }
-    }
-
-    allHistoryData.forEach(a => {
-
-      const aptDate =
-        parseBrDateToObj(a.date);
-
-      const isCancelled =
-        a.calendar_event_id === 'cancelled_by_barber' ||
-        a.calendar_event_id === 'cancelled_by_client';
-
-      const isBlock =
-        a.calendar_event_id === 'blocked_time' ||
-        (a.service && a.service.startsWith('🚫'));
-
-      const price =
-        parseFloat(a.price || 0);
-
-      if (
-        !isCancelled &&
-        !isBlock &&
-        aptDate.getMonth() === now.getMonth() &&
-        aptDate.getFullYear() === now.getFullYear() &&
-        aptDate <= now
-      ) {
-
-        revMesRealizada += price;
-      }
-
-      if (
-        aptDate >= startD &&
-        aptDate <= endD
-      ) {
-
-        if (!isBlock) {
-          aptsValidosTotal++;
-        }
-
-        if (
-          isCancelled &&
-          !isBlock
-        ) {
-          canceladosPeriodo++;
-        }
-
-        if (!isCancelled && !isBlock) {
-
-          const aptTime =
-            timeToMinutes(a.time);
-
-          const todayDate =
-            new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              now.getDate()
-            );
-
-          const isPastDate =
-            aptDate < todayDate;
-
-          const isTodayPassed =
-            aptDate.toDateString() ===
-            todayDate.toDateString() &&
-            aptTime <=
-            now.getHours()*60 +
-            now.getMinutes();
-
-          if (isPastDate || isTodayPassed) {
-
-            revPeriodo += price;
-            cutsPeriodo++;
-
-            if (a.service) {
-
-              serviceCounter[a.service] =
-                (serviceCounter[a.service] || 0) + 1;
-            }
-
-            if (a.profiles?.full_name) {
-
-              const name =
-                a.profiles.full_name;
-
-              if (!clientCounter[name]) {
-
-                clientCounter[name] = {
-                  count:0,
-                  rev:0
-                };
-              }
-
-              clientCounter[name].count++;
-              clientCounter[name].rev += price;
-            }
-
-            if (
-              dashFilter === 'hoje' &&
-              a.time
-            ) {
-
-              const h =
-                a.time.split(':')[0] + ':00';
-
-              if (chartMap[h] !== undefined) {
-                chartMap[h] += price;
-              }
-
-            } else if (diffDays <= 31) {
-
-              const label =
-                `${String(aptDate.getDate()).padStart(2,'0')}/${String(aptDate.getMonth()+1).padStart(2,'0')}`;
-
-              if (chartMap[label] !== undefined) {
-                chartMap[label] += price;
-              }
-
-            } else {
-
-              const meses = [
-                'Jan','Fev','Mar','Abr',
-                'Mai','Jun','Jul','Ago',
-                'Set','Out','Nov','Dez'
-              ];
-
-              const label =
-                `${meses[aptDate.getMonth()]}/${String(aptDate.getFullYear()).slice(-2)}`;
-
-              if (chartMap[label] !== undefined) {
-                chartMap[label] += price;
-              }
-            }
-
-          } else {
-
-            aptsFuturos++;
-            revFutura += price;
-          }
-        }
-      }
-    });
-
-    document.getElementById('dash-wallet-saldo').innerText =
-      `R$ ${revMesRealizada.toFixed(2).replace('.',',')}`;
-
-    document.getElementById('dash-fat-periodo').innerText =
-      `R$ ${revPeriodo.toFixed(2).replace('.',',')}`;
-
-    document.getElementById('dash-cortes-periodo').innerText =
-      `${cutsPeriodo} atendimentos concluídos`;
-
-    const ticket =
-      cutsPeriodo > 0
-        ? revPeriodo / cutsPeriodo
-        : 0;
-
-    document.getElementById('dash-ticket-medio').innerText =
-      `R$ ${ticket.toFixed(2).replace('.',',')}`;
-
-    document.getElementById('dash-agendamentos-futuros').innerText =
-      aptsFuturos;
-
-    document.getElementById('dash-fat-futuro').innerText =
-      `Projeção: R$ ${revFutura.toFixed(2).replace('.',',')}`;
-
-    const txCanc =
-      aptsValidosTotal > 0
-        ? ((canceladosPeriodo / aptsValidosTotal) * 100).toFixed(1)
-        : 0;
-
-    document.getElementById('dash-tx-cancelamento').innerText =
-      `${txCanc}%`;
-
-    document.getElementById('dash-num-cancelados').innerText =
-      `${canceladosPeriodo} perdidos no período`;
-
-    const medals = [
-      '🥇','🥈','🥉','4️⃣','5️⃣'
-    ];
-
-    const topServ =
-      Object.keys(serviceCounter)
-        .map(k => ({
-          name:k,
-          count:serviceCounter[k]
-        }))
-        .sort((a,b) => b.count-a.count)
-        .slice(0,5);
-
-    let sHtml =
-      topServ.length === 0
-        ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center">Sem dados</p>`
-        : '';
-
-    topServ.forEach((s,i) => {
-
-      sHtml += `
-        <div class="flex items-center justify-between p-3 bg-zinc-800/30 border border-zinc-800 rounded-xl">
-
-          <div class="flex items-center gap-2 min-w-0">
-            <span>${medals[i]}</span>
-            <span class="text-zinc-100 text-[10px] font-black uppercase truncate">
-              ${s.name}
-            </span>
-          </div>
-
-          <span class="text-emerald-400 font-black text-[10px] bg-emerald-500/10 px-2 py-1 rounded">
-            ${s.count}x
-          </span>
-
-        </div>`;
-    });
-
-    document.getElementById('dash-top-services').innerHTML =
-      sHtml;
-
-    const topCli =
-      Object.keys(clientCounter)
-        .map(k => ({
-          name:k,
-          rev:clientCounter[k].rev,
-          count:clientCounter[k].count
-        }))
-        .sort((a,b) => b.rev-a.rev)
-        .slice(0,5);
-
-    let cHtml =
-      topCli.length === 0
-        ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center">Sem dados</p>`
-        : '';
-
-    topCli.forEach((c,i) => {
-
-      cHtml += `
-        <div class="flex items-center justify-between p-3 bg-zinc-800/30 border border-zinc-800 rounded-xl">
-
-          <div class="flex items-center gap-2 min-w-0">
-            <span>${medals[i]}</span>
-
-            <div class="flex flex-col min-w-0">
-              <span class="text-zinc-100 text-[10px] font-black uppercase truncate">
-                ${c.name}
-              </span>
-
-              <span class="text-[8px] text-zinc-500 font-bold uppercase">
-                ${c.count} visitas
-              </span>
-            </div>
-          </div>
-
-          <span class="text-emerald-400 font-black text-[10px] bg-emerald-500/10 px-2 py-1 rounded">
-            R$ ${c.rev.toFixed(2).replace('.',',')}
-          </span>
-
-        </div>`;
-    });
-
-    document.getElementById('dash-top-clients').innerHTML =
-      cHtml;
-
-    const chartData =
-      chartLabels.map(
-        l => chartMap[l] || 0
-      );
-
-    if (revenueChartInstance) {
-      revenueChartInstance.destroy();
-    }
-
-    const canvas =
-      document.getElementById('revenueChart');
-
-    if (!canvas) return;
-
-    const ctx =
-      canvas.getContext('2d');
-
-    const gradient =
-      ctx.createLinearGradient(
-        0,0,0,300
-      );
-
-    gradient.addColorStop(
-      0,
-      'rgba(249,115,22,.4)'
-    );
-
-    gradient.addColorStop(
-      1,
-      'rgba(249,115,22,0)'
-    );
-
-    revenueChartInstance =
-      new Chart(ctx, {
-
-        type:'line',
-
-        data:{
-          labels:chartLabels,
-
-          datasets:[{
-            label:'Faturamento',
-            data:chartData,
-            borderColor:'#f97316',
-            backgroundColor:gradient,
-            borderWidth:3,
-            pointBackgroundColor:'#fff',
-            pointBorderColor:'#f97316',
-            pointBorderWidth:2,
-            pointRadius:3,
-            pointHoverRadius:6,
-            fill:true,
-            tension:.4
-          }]
-        },
-
-        options:{
-          responsive:true,
-          maintainAspectRatio:false,
-
-          plugins:{
-            legend:{
-              display:false
-            },
-
-            tooltip:{
-              backgroundColor:'rgba(24,24,27,.95)',
-              titleColor:'#a1a1aa',
-              bodyColor:'#fff',
-              padding:12,
-              borderColor:'#3f3f46',
-              borderWidth:1,
-
-              callbacks:{
-                label:context =>
-                  ' R$ ' +
-                  context.parsed.y
-                    .toFixed(2)
-                    .replace('.',',')
-              }
-            }
-          },
-
-          scales:{
-            y:{
-              beginAtZero:true,
-              grid:{
-                color:'#27272a',
-                drawBorder:false
-              },
-              ticks:{
-                color:'#a1a1aa',
-                font:{
-                  size:9,
-                  weight:'bold'
-                }
-              }
-            },
-
-            x:{
-              grid:{
-                display:false
-              },
-              ticks:{
-                color:'#a1a1aa',
-                font:{
-                  size:9,
-                  weight:'bold'
-                }
-              }
-            }
-          }
-        }
-      });
-
-  } catch(err) {
-
-    console.error(
-      'Erro no Dashboard:',
-      err
-    );
-  }
-}
-
-/* =========================
-   BLOCOS
-========================= */
-
-function mergeBlocks(dayApts) {
-
-  let merged = [];
-  let currentBlock = null;
-
-  dayApts.forEach(item => {
-
-    const isBlock =
-      item.calendar_event_id === 'blocked_time' ||
-      (item.service && item.service.startsWith('🚫'));
-
-    if (isBlock) {
-
-      if (!currentBlock) {
-
-        currentBlock = {
-          ...item,
-          type:'block',
-          end_time:item.time,
-          block_ids:[item.id]
-        };
-
-      } else if (
-        add30Mins(currentBlock.end_time) === item.time &&
-        currentBlock.service === item.service
-      ) {
-
-        currentBlock.end_time = item.time;
-        currentBlock.block_ids.push(item.id);
-
-      } else {
-
-        merged.push(currentBlock);
-
-        currentBlock = {
-          ...item,
-          type:'block',
-          end_time:item.time,
-          block_ids:[item.id]
-        };
-      }
-
-    } else {
-
-      if (currentBlock) {
-        merged.push(currentBlock);
-        currentBlock = null;
-      }
-
-      merged.push({
-        ...item,
-        type:'apt'
-      });
-    }
-  });
-
-  if (currentBlock) {
-    merged.push(currentBlock);
-  }
-
-  return merged;
-}
-
-/* =========================
-   CARD
-========================= */
-
-function generateCardHtml(item) {
-
-  const isBlock =
-    item.type === 'block';
-
-  const clientName =
-    item.profiles?.full_name ||
-    (isBlock ? 'Barbearia' : 'Cliente Não Id.');
-
-  const cleanPhone =
-    (item.profiles?.phone || '')
-      .replace(/\D/g,'');
-
-  const whatsLink =
-    cleanPhone
-      ? `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(`Olá ${clientName}, confirmando seu horário na RB Barbearia!`)}`
-      : '#';
-
-  if (isBlock) {
-
-    const idsStr =
-      (item.block_ids || [item.id]).join(',');
-
-    const timeDisplay =
-      item.time === item.end_time
-        ? `Às ${item.time}`
-        : `Das ${item.time} até ${add30Mins(item.end_time)}`;
-
-    return `
-      <div class="agenda-card bg-red-950/25 border border-red-900/40 border-l-4 border-l-red-600 rounded-2xl p-4 relative shrink-0 mb-4 shadow-md backdrop-blur-sm w-full"
-           data-search="bloqueio ${(item.service || '').toLowerCase()} ${timeDisplay.toLowerCase()}">
-
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[8px] font-black text-red-400 bg-red-500/10 px-2 py-1 rounded uppercase tracking-widest border border-red-500/20">
-            🚫 Bloqueio
-          </span>
-
-          <button onclick="deleteAppointment('${idsStr}', true)"
-            class="text-zinc-500 hover:text-red-400 text-[9px] font-black uppercase tracking-wider">
-            Liberar
-          </button>
+  // Render Kanban (Dias ativos)
+  const dateSet = new Set();
+  allAppointments.forEach(a => dateSet.add(a.date));
+  dateSet.add(todayStr);
+
+  const sortedDates = Array.from(dateSet);
+  let kanbanHtml = '';
+
+  sortedDates.forEach(dStr => {
+    const list = allAppointments.filter(a => a.date === dStr);
+    kanbanHtml += `
+      <div class="w-[280px] shrink-0 bg-zinc-900/40 border border-zinc-800 rounded-3xl p-4 flex flex-col max-h-[80vh]">
+        <div class="flex justify-between items-center border-b border-zinc-800 pb-3 mb-3">
+          <span class="font-black text-white text-xs">${dStr === todayStr ? 'HOJE' : dStr}</span>
+          <span class="text-[10px] text-zinc-500 font-bold">${list.length} itens</span>
         </div>
-
-        <p class="font-black text-zinc-100 text-sm">
-          ${timeDisplay}
-        </p>
-
-        <p class="text-[10px] text-zinc-400 mt-1.5 truncate uppercase font-bold tracking-wide">
-          ${(item.service || '').replace('🚫 ','')}
-        </p>
-      </div>`;
-  }
-
-  const sTheme =
-    getServiceTheme(item.service);
-
-  return `
-    <div
-      class="agenda-card card-bg-image rounded-2xl flex flex-col mb-4 shrink-0 transition-all transform hover:-translate-y-1 shadow-lg group w-full border border-zinc-800 ${sTheme.borderHover} relative overflow-hidden"
-      data-search="${(clientName + ' ' + (item.service || '') + ' ' + (item.time || '')).toLowerCase()}"
-      style="background-image:url('${sTheme.img}')">
-
-      <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-[2px] group-hover:bg-zinc-950/60 transition-all"></div>
-
-      <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sTheme.borderL}"></div>
-
-      <div class="relative z-10 p-4 w-full">
-
-        <div class="flex items-center justify-between mb-3">
-
-          <span class="text-[11px] font-black ${sTheme.text} bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-zinc-700/50">
-            ${item.time || '-'}
-          </span>
-
-          <span class="text-[11px] font-black text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
-            R$ ${parseFloat(item.price || 0).toFixed(2).replace('.',',')}
-          </span>
-
-        </div>
-
-        <p class="font-black text-zinc-50 text-[15px] leading-tight truncate tracking-wide">
-          ${clientName}
-        </p>
-
-        <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest">
-          ${item.service || '-'}
-        </p>
-
-        <div class="pt-3.5 mt-3.5 border-t border-zinc-700/50 flex items-center justify-between">
-
-          ${
-            cleanPhone
-              ? `<a href="${whatsLink}" target="_blank"
-                   class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-all">
-                   💬 WhatsApp
-                 </a>`
-              : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`
-          }
-
-          <button onclick="deleteAppointment('${item.id}', false)"
-            class="text-zinc-400 hover:text-white text-[9px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg border border-zinc-700/50 transition-all">
-            Cancelar
-          </button>
-
+        <div class="overflow-y-auto custom-scroll space-y-3 flex-1">
+          ${list.map(a => generateAdminCard(a)).join('') || '<p class="text-zinc-600 text-xs text-center py-4">Agenda livre</p>'}
         </div>
       </div>
-    </div>`;
+    `;
+  });
+  kanbanContainer.innerHTML = kanbanHtml;
 }
 
-/* =========================
-   AGENDA
-========================= */
+function generateAdminCard(item) {
+  const isBlock = item.calendar_event_id === 'blocked_time' || (item.service || '').startsWith('🚫');
+  const clientName = isBlock ? 'Bloqueio' : (item.profiles?.full_name || 'Cliente');
+  const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
 
-async function loadAgendaData() {
-
-  const board =
-    document.getElementById('kanban-board');
-
-  const dailyContainer =
-    document.getElementById('daily-view-container');
-
-  if (
-    board &&
-    board.innerHTML === ''
-  ) {
-
-    board.innerHTML =
-      `<div class="p-6 text-zinc-500 text-xs font-black uppercase tracking-widest">
-        Sincronizando...
-       </div>`;
+  if (isBlock) {
+    return `
+      <div class="bg-red-950/20 border border-red-900/50 rounded-2xl p-3.5 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-[9px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 px-2 py-0.5 rounded">🚫 Bloqueado</span>
+          <button onclick="deleteAppointment('${item.id}', true)" class="text-xs text-zinc-400 hover:text-red-400 font-bold">Liberar</button>
+        </div>
+        <p class="font-bold text-white text-xs">${item.time} — ${item.service.replace('🚫', '').trim() || 'Bloqueio'}</p>
+      </div>
+    `;
   }
 
-  try {
-
-    const {
-      data: apts,
-      error
-    } = await sb
-      .from('appointments')
-      .select(`
-        id,
-        service,
-        date,
-        time,
-        price,
-        calendar_event_id,
-        user_id,
-        profiles(full_name, phone)
-      `)
-      .neq(
-        'calendar_event_id',
-        'cancelled_by_barber'
-      )
-      .neq(
-        'calendar_event_id',
-        'cancelled_by_client'
-      );
-
-    if (error) {
-
-      if (board) {
-
-        board.innerHTML =
-          `<div class="p-6 text-red-500 font-black uppercase">
-            Falha na conexão com o servidor.
-           </div>`;
-      }
-
-      return;
-    }
-
-    if (apts) {
-
-      apts.forEach(a => {
-
-        if (
-          a.date &&
-          a.date.includes('/')
-        ) {
-
-          const p =
-            a.date.split('/');
-
-          if (p.length === 3) {
-
-            a.date =
-              `${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`;
-          }
-        }
-      });
-    }
-
-    const activeDatesSet =
-      new Set();
-
-    if (apts) {
-
-      apts.forEach(a => {
-
-        if (a.date) {
-          activeDatesSet.add(a.date);
-        }
-      });
-    }
-
-    const daysList = [];
-
-    const diasSemana = [
-      'Dom',
-      'Seg',
-      'Ter',
-      'Qua',
-      'Qui',
-      'Sex',
-      'Sáb'
-    ];
-
-    const hoje =
-      new Date();
-
-    hoje.setHours(0,0,0,0);
-
-    let cursor =
-      new Date(hoje);
-
-    let addedCount = 0;
-
-    const strHoje =
-      `${String(hoje.getDate()).padStart(2,'0')}/${String(hoje.getMonth()+1).padStart(2,'0')}/${hoje.getFullYear()}`;
-
-    activeDatesSet.add(strHoje);
-
-    while (addedCount < 14) {
-
-      if (cursor.getDay() !== 0) {
-
-        const d =
-          String(cursor.getDate()).padStart(2,'0');
-
-        const m =
-          String(cursor.getMonth()+1).padStart(2,'0');
-
-        activeDatesSet.add(
-          `${d}/${m}/${cursor.getFullYear()}`
-        );
-
-        addedCount++;
-      }
-
-      cursor.setDate(
-        cursor.getDate()+1
-      );
-    }
-
-    const sortedDates =
-      Array.from(activeDatesSet)
-        .sort(
-          (a,b) =>
-            parseBrDateToObj(a) -
-            parseBrDateToObj(b)
-        );
-
-    const futureDates =
-      sortedDates.filter(
-        dateStr =>
-          parseBrDateToObj(dateStr) >= hoje
-      );
-
-    futureDates.forEach(dateStr => {
-
-      const dObj =
-        parseBrDateToObj(dateStr);
-
-      let dName =
-        diasSemana[dObj.getDay()];
-
-      if (dateStr === strHoje) {
-        dName = 'HOJE';
-      }
-
-      daysList.push({
-        label:dateStr,
-        dayName:dName,
-        dayNumber:
-          `${String(dObj.getDate()).padStart(2,'0')}/${String(dObj.getMonth()+1).padStart(2,'0')}`
-      });
-    });
-
-    let todayCuts = 0;
-    let todayRevenue = 0;
-
-    const todayAptsRaw =
-      (apts || [])
-        .filter(a => a.date === strHoje)
-        .sort(
-          (a,b) =>
-            timeToMinutes(a.time) -
-            timeToMinutes(b.time)
-        );
-
-    todayAppointmentsCache =
-      todayAptsRaw;
-
-    todayAptsRaw.forEach(a => {
-
-      if (
-        a.calendar_event_id !== 'blocked_time' &&
-        a.service &&
-        !a.service.startsWith('🚫')
-      ) {
-
-        todayCuts++;
-
-        todayRevenue +=
-          parseFloat(a.price || 0);
-      }
-    });
-
-    document.getElementById(
-      'metric-total-cuts'
-    ).innerText = todayCuts;
-
-    document.getElementById(
-      'metric-total-revenue'
-    ).innerText =
-      `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
-
-    updateTodaySmartStats(
-      todayAptsRaw,
-      todayCuts,
-      todayRevenue
-    );
-
-    let boardHtml = '';
-
-    daysList.forEach(day => {
-
-      const dayAptsRaw =
-        (apts || [])
-          .filter(a => a.date === day.label)
-          .sort(
-            (a,b) =>
-              timeToMinutes(a.time) -
-              timeToMinutes(b.time)
-          );
-
-      const mergedApts =
-        mergeBlocks(dayAptsRaw);
-
-      let dayRev = 0;
-      let dayCuts = 0;
-      let cardsHtml = '';
-
-      const isToday =
-        day.label === strHoje;
-
-      if (!mergedApts.length) {
-
-        cardsHtml =
-          `<div class="p-5 text-center text-zinc-700 text-[9px] uppercase font-black tracking-widest">
-            Agenda livre
-           </div>`;
-
-      } else {
-
-        mergedApts.forEach(item => {
-
-          if (item.type !== 'block') {
-
-            dayRev +=
-              parseFloat(item.price || 0);
-
-            dayCuts++;
-          }
-
-          cardsHtml +=
-            generateCardHtml(item);
-        });
-      }
-
-      boardHtml += `
-        <div class="w-[290px] shrink-0 flex flex-col max-h-full">
-
-          <div class="${
-            mergedApts.length
-              ? 'bg-zinc-900/40 border border-zinc-800/60 shadow-lg'
-              : ''
-          } rounded-3xl overflow-hidden relative">
-
-            ${
-              isToday
-                ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>`
-                : ''
-            }
-
-            <div class="p-5 border-b border-zinc-800/50 flex items-center justify-between shrink-0">
-
-              <div>
-                <span class="text-[13px] uppercase font-black text-zinc-400 block tracking-widest">
-                  ${day.dayName}
-                </span>
-
-                <span class="text-[9px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">
-                  ${dayCuts} atend. · R$ ${dayRev.toFixed(2).replace('.',',')}
-                </span>
-              </div>
-
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-zinc-300 bg-zinc-800 border border-zinc-700 text-sm">
-                ${day.dayNumber.split('/')[0]}
-              </div>
-
-            </div>
-
-            <div class="${
-              mergedApts.length ? 'p-4' : 'p-0'
-            } overflow-y-auto custom-scroll flex flex-col items-center w-full">
-              ${cardsHtml}
-            </div>
-
-          </div>
-        </div>`;
-    });
-
-    if (board) {
-      board.innerHTML =
-        boardHtml;
-    }
-
-    let dailyHtml = '';
-
-    const mergedToday =
-      mergeBlocks(todayAptsRaw);
-
-    if (!mergedToday.length) {
-
-      dailyHtml = `
-        <div class="col-span-full flex flex-col items-center justify-center py-20 text-zinc-600 border-2 border-dashed border-zinc-800/50 rounded-3xl bg-zinc-900/20">
-          <span class="text-3xl mb-3">✂️</span>
-          <span class="text-xs font-black uppercase tracking-widest">
-            Agenda Livre
-          </span>
-          <span class="text-[9px] mt-2 text-zinc-700 uppercase font-bold">
-            Nenhum atendimento programado
-          </span>
-        </div>`;
-
-    } else {
-
-      mergedToday.forEach(item => {
-
-        dailyHtml +=
-          generateCardHtml(item);
-      });
-    }
-
-    if (dailyContainer) {
-      dailyContainer.innerHTML =
-        dailyHtml;
-    }
-
-    filterAgendaCards();
-
-  } catch (err) {
-
-    console.error(
-      'Erro no loadAgendaData:',
-      err
-    );
-
-    if (board) {
-
-      board.innerHTML =
-        `<div class="p-6 text-red-500 font-black uppercase">
-          Erro ao exibir agenda.
-         </div>`;
-    }
-  }
+  return `
+    <div class="bg-zinc-900 border border-zinc-800 hover:border-orange-500/40 rounded-2xl p-3.5 space-y-2">
+      <div class="flex justify-between items-center">
+        <span class="text-[11px] font-black text-orange-400">${item.time}</span>
+        <span class="text-xs font-black text-emerald-400">R$ ${parseFloat(item.price || 0).toFixed(2).replace('.', ',')}</span>
+      </div>
+      <div>
+        <p class="font-bold text-white text-sm truncate">${clientName}</p>
+        <p class="text-xs text-zinc-400 truncate">${item.service}</p>
+      </div>
+      <div class="flex justify-between items-center pt-2 border-t border-zinc-800 text-[10px]">
+        ${cleanPhone ? `<a href="https://wa.me/55${cleanPhone}" target="_blank" class="text-emerald-400 font-bold hover:underline">WhatsApp</a>` : `<span class="text-zinc-600">Sem fone</span>`}
+        <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-500 hover:text-red-400 font-bold">Cancelar</button>
+      </div>
+    </div>
+  `;
 }
 
-/* =========================
-   RESUMO INTELIGENTE
-========================= */
-
-function updateTodaySmartStats(
-  appointments,
-  total,
-  revenue
-) {
-
-  const now = new Date();
-
-  let next = null;
-
-  appointments.forEach(a => {
-
-    if (
-      a.calendar_event_id === 'blocked_time' ||
-      (a.service && a.service.startsWith('🚫'))
-    ) return;
-
-    const mins =
-      timeToMinutes(a.time);
-
-    const currentMins =
-      now.getHours()*60 +
-      now.getMinutes();
-
-    if (
-      mins >= currentMins &&
-      !next
-    ) {
-      next = a;
-    }
-  });
-
-  const nextTime =
-    document.getElementById(
-      'today-next-time'
-    );
-
-  const nextClient =
-    document.getElementById(
-      'today-next-client'
-    );
-
-  if (next) {
-
-    nextTime.innerText =
-      next.time || '--:--';
-
-    nextClient.innerText =
-      next.profiles?.full_name ||
-      'Cliente';
-
-  } else {
-
-    nextTime.innerText =
-      '--:--';
-
-    nextClient.innerText =
-      total
-        ? 'Todos os atendimentos concluídos'
-        : 'Nenhum agendamento';
-  }
-
-  document.getElementById(
-    'today-total-count'
-  ).innerText =
-    total;
-
-  document.getElementById(
-    'today-revenue'
-  ).innerText =
-    `R$ ${revenue.toFixed(2).replace('.',',')}`;
-
-  let completedRevenue = 0;
-
-  appointments.forEach(a => {
-
-    const isBlock =
-      a.calendar_event_id === 'blocked_time' ||
-      (a.service && a.service.startsWith('🚫'));
-
-    if (isBlock) return;
-
-    const mins =
-      timeToMinutes(a.time);
-
-    if (
-      mins <
-      now.getHours()*60 +
-      now.getMinutes()
-    ) {
-
-      completedRevenue +=
-        parseFloat(a.price || 0);
-    }
-  });
-
-  document.getElementById(
-    'today-completed'
-  ).innerText =
-    `R$ ${completedRevenue.toFixed(2).replace('.',',')} realizados`;
-
-  const valid =
-    appointments.filter(a =>
-      a.calendar_event_id !== 'blocked_time' &&
-      !(a.service || '').startsWith('🚫')
-    );
-
-  let occupiedMinutes = 0;
-
-  valid.forEach(a => {
-
-    let duration = 30;
-
-    const service =
-      (a.service || '').toLowerCase();
-
-    if (
-      service.includes('corte e barba') ||
-      service.includes('combo') ||
-      service.includes('completo')
-    ) duration = 60;
-
-    else if (
-      service.includes('progressiva')
-    ) duration = 120;
-
-    else if (
-      service.includes('sobrancelha')
-    ) duration = 20;
-
-    occupiedMinutes += duration;
-  });
-
-  const opening = 9 * 60;
-  const closing = 20 * 60;
-
-  const available =
-    closing - opening;
-
-  const occupancy =
-    available > 0
-      ? Math.min(
-          100,
-          Math.round(
-            (occupiedMinutes / available) * 100
-          )
-        )
-      : 0;
-
-  document.getElementById(
-    'today-occupancy'
-  ).innerText =
-    `${occupancy}%`;
-
-  document.getElementById(
-    'today-occupancy-bar'
-  ).style.width =
-    `${occupancy}%`;
-}
-
-function filterAgendaCards() {
-
-  const input =
-    document.getElementById(
-      'agenda-search'
-    );
-
-  if (!input) return;
-
-  const query =
-    input.value
-      .toLowerCase()
-      .trim();
-
-  const cards =
-    document.querySelectorAll(
-      '#daily-view-container .agenda-card'
-    );
-
-  let visible = 0;
-
-  cards.forEach(card => {
-
-    const data =
-      card.dataset.search || '';
-
-    const show =
-      !query ||
-      data.includes(query);
-
-    card.style.display =
-      show ? '' : 'none';
-
-    if (show) visible++;
-  });
-
-  const counter =
-    document.getElementById(
-      'agenda-result-count'
-    );
-
-  if (counter) {
-
-    if (query) {
-
-      counter.classList.remove('hidden');
-
-      counter.innerText =
-        `${visible} resultado${visible === 1 ? '' : 's'}`;
-
-    } else {
-
-      counter.classList.add('hidden');
-    }
-  }
-}
-
-/* =========================
-   EXPORTAR CSV
-========================= */
-
-function exportHistoryCSV() {
-
-  if (!allHistoryData.length) {
-
-    alert('Não há dados para exportar.');
-    return;
-  }
-
-  const rows = [
-    [
-      'Data Registro',
-      'Data Agendada',
-      'Horário',
-      'Cliente',
-      'Telefone',
-      'Serviço',
-      'Valor',
-      'Status'
-    ]
-  ];
-
-  allHistoryData.forEach(a => {
-
-    const isBlock =
-      a.calendar_event_id === 'blocked_time' ||
-      (a.service || '').startsWith('🚫');
-
-    let status = 'Confirmado';
-
-    if (
-      a.calendar_event_id ===
-      'cancelled_by_barber'
-    ) status = 'Cancelado RB';
-
-    else if (
-      a.calendar_event_id ===
-      'cancelled_by_client'
-    ) status = 'Cancelado Cliente';
-
-    else if (isBlock) {
-      status = 'Bloqueado';
-    }
-
-    rows.push([
-      formatDateForDisplay(a.created_at),
-      a.date || '',
-      a.time || '',
-      a.profiles?.full_name || '',
-      a.profiles?.phone || '',
-      a.service || '',
-      parseFloat(a.price || 0)
-        .toFixed(2)
-        .replace('.',','),
-      status
-    ]);
-  });
-
-  const csv =
-    rows.map(row =>
-      row.map(value =>
-        `"${String(value).replace(/"/g,'""')}"`
-      ).join(';')
-    ).join('\n');
-
-  const blob =
-    new Blob(
-      ['\ufeff' + csv],
-      { type:'text/csv;charset=utf-8;' }
-    );
-
-  const url =
-    URL.createObjectURL(blob);
-
-  const link =
-    document.createElement('a');
-
-  link.href = url;
-  link.download =
-    `RB-Barbearia-${new Date().toISOString().slice(0,10)}.csv`;
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
-}
-
-/* =========================
-   RESUMO DO DIA
-========================= */
-
-function copyDaySummary() {
-
-  const now = new Date();
-
-  const date =
-    now.toLocaleDateString(
-      'pt-BR',
-      {
-        day:'2-digit',
-        month:'2-digit',
-        year:'numeric'
-      }
-    );
-
-  const appointments =
-    todayAppointmentsCache.filter(a =>
-      a.calendar_event_id !== 'blocked_time' &&
-      !(a.service || '').startsWith('🚫')
-    );
-
-  const revenue =
-    appointments.reduce(
-      (sum,a) =>
-        sum + parseFloat(a.price || 0),
-      0
-    );
-
-  let text =
-    `RB BARBEARIA — RESUMO DO DIA\n` +
-    `${date}\n\n` +
-    `Atendimentos: ${appointments.length}\n` +
-    `Faturamento previsto: R$ ${revenue.toFixed(2).replace('.',',')}\n\n`;
-
-  appointments.forEach(a => {
-
-    text +=
-      `${a.time || '--:--'} — ` +
-      `${a.profiles?.full_name || 'Cliente'} — ` +
-      `${a.service || 'Serviço'} — ` +
-      `R$ ${parseFloat(a.price || 0).toFixed(2).replace('.',',')}\n`;
-  });
-
-  if (
-    navigator.clipboard &&
-    navigator.clipboard.writeText
-  ) {
-
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        alert('Resumo copiado!');
-      })
-      .catch(() => {
-        alert('Não foi possível copiar automaticamente.');
-      });
-
-  } else {
-
-    alert(text);
-  }
+function refreshAll() {
+  loadAgendaData();
+  loadSettings();
 }
 </script>
-
 </body>
 </html>
