@@ -3,722 +3,1208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>RB Barbearia</title>
+  <title>Admin Premium - RB Barbearia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js para gráficos profissionais -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0f0f0f; color: #ffffff; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    input { font-size: 16px !important; }
-  </style>
-  <meta property="og:title" content="RB Barbearia">
-  <meta property="og:description" content="Agende seu horário online de forma rápida e prática.">
-  <meta property="og:image" content="https://rb-barbearia.vercel.app/icone.png">
-  <meta property="og:url" content="https://rb-barbearia.vercel.app/">
-  <meta property="og:type" content="website">
-</head>
-<body class="antialiased min-h-screen flex justify-center bg-black select-none">
-
-  <div class="w-full max-w-md bg-[#0f0f0f] min-h-screen relative flex flex-col overflow-hidden shadow-2xl">
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; overscroll-behavior-y: none; }
     
-    <div id="toast-msg" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black text-xs font-bold px-4 py-2.5 rounded-full shadow-lg transition-all"></div>
+    .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f97316; }
+    input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+    
+    .drag-scroll { cursor: grab; }
+    .drag-scroll:active { cursor: grabbing; }
+    .no-select { user-select: none; }
+    
+    @keyframes glow { 0% { box-shadow: 0 0 15px rgba(249,115,22,0.1); } 100% { box-shadow: 0 0 35px rgba(249,115,22,0.3); } }
+    .wallet-card { animation: glow 4s infinite alternate; background: linear-gradient(135deg, rgba(24,24,27,0.9) 0%, rgba(9,9,11,0.95) 100%); border: 1px solid rgba(249,115,22,0.2); backdrop-filter: blur(12px); }
+    
+    .stat-card { background: linear-gradient(180deg, #18181b 0%, #09090b 100%); border: 1px solid #27272a; transition: all 0.3s ease; }
+    .stat-card:hover { border-color: #3f3f46; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    
+    .card-bg-image { background-size: cover; background-position: center; background-repeat: no-repeat; }
+  </style>
+</head>
+<body class="h-[100dvh] w-full flex overflow-hidden select-none antialiased text-sm bg-zinc-950">
 
-    <!-- MODAL TELEMÓVEL OBRIGATÓRIO -->
-    <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-50 bg-black/90 flex flex-col justify-end">
-      <div class="bg-[#1a1a1a] p-6 rounded-t-3xl space-y-4 border-t border-zinc-800">
-        <h3 class="text-lg font-bold text-white">Último passo!</h3>
-        <p class="text-sm text-zinc-400">Precisamos do seu Nome e WhatsApp para o histórico.</p>
-        <div class="space-y-3">
-          <div>
-            <label class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider mb-1.5 block">Nome e Sobrenome</label>
-            <input type="text" id="mandatory-name-input" placeholder="Ex: João Silva" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-          <div>
-            <label class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider mb-1.5 block">Número de WhatsApp</label>
-            <input type="text" id="mandatory-phone-input" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-        </div>
-        <button onclick="submitMandatoryPhone()" class="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors text-sm">
-          Salvar e Entrar
-        </button>
+  <audio id="notification-sound" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/water_droplet.mp3" preload="auto"></audio>
+
+  <!-- TELA DE SENHA -->
+  <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900/80 border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl relative overflow-hidden backdrop-blur-xl">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-32 bg-orange-500/10 blur-[50px] pointer-events-none"></div>
+      <div class="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center bg-zinc-950 border border-orange-500/30 overflow-hidden shadow-[0_0_20px_rgba(249,115,22,0.15)] relative z-10">
+        <img src="./icone.png" alt="Logo" class="w-full h-full object-cover opacity-90">
       </div>
+      <h2 class="text-2xl font-black text-white tracking-widest uppercase mb-1 relative z-10">Painel RB</h2>
+      <p class="text-[11px] text-zinc-400 mb-8 font-medium uppercase tracking-widest relative z-10">Acesso Restrito</p>
+      
+      <form id="login-form" onsubmit="checkAdmin(event)" class="relative z-10">
+        <input type="password" id="admin-pass" autocomplete="current-password" placeholder="SENHA MESTRA" class="w-full py-3.5 px-4 rounded-xl bg-zinc-950 border border-zinc-700 text-white focus:border-orange-500 outline-none mb-4 text-center tracking-widest font-bold transition-all placeholder:text-zinc-600">
+        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-all transform hover:scale-[1.02]">Desbloquear</button>
+      </form>
     </div>
+  </div>
 
-    <!-- ECRÃ DE LOGIN PRINCIPAL -->
-    <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-[#0f0f0f] absolute inset-0 overflow-y-auto">
-      <div class="text-center mb-8 mt-4">
-        <div class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-zinc-900 border border-zinc-800 overflow-hidden shadow-lg">
-          <img src="./icone.png" alt="Ícone Barbearia" class="w-full h-full object-cover">
-        </div>
-        <h1 class="text-xl font-medium text-white mb-2">Faça login para continuar</h1>
-        <p class="text-zinc-400 text-[13px] px-4">Agende online de forma rápida e acompanhe o seu histórico de cortes.</p>
-      </div>
-
-      <div id="last-login-badge" class="hidden mx-auto mb-6 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">
-        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
-        <span id="last-login-text">Último acesso: --</span>
-      </div>
-
-      <div class="space-y-3.5">
-        <button onclick="signInWithGoogle()" class="w-full py-3.5 px-4 rounded-xl font-medium text-white bg-transparent border border-zinc-700 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 text-[14px]">
-          <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Continuar com o Google
-        </button>
-        <button onclick="signInWithLinkedIn()" class="w-full py-3.5 px-4 rounded-xl font-medium text-white bg-transparent border border-zinc-700 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 text-[14px]">
-          <svg class="w-5 h-5 text-[#0A66C2]" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-          Continuar com o LinkedIn
-        </button>
-        <button onclick="signInWithSpotify()" class="w-full py-3.5 px-4 rounded-xl font-medium text-white bg-transparent border border-zinc-700 hover:bg-zinc-800 transition-colors flex items-center justify-center gap-3 text-[14px]">
-          <svg class="w-5 h-5 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.301 1.02zm1.44-3.3c-.301.42-.84.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15.001 10.62 18.661 12.9c.42.18.6.78.3 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.62.539.3.719 1.02.419 1.56-.299.48-1.02.659-1.559.3z"/></svg>
-          Continuar com o Spotify
-        </button>
-
-        <div class="relative flex py-3 items-center">
-          <div class="flex-grow border-t border-zinc-800"></div>
-          <span class="flex-shrink-0 mx-4 text-zinc-500 text-xs">ou</span>
-          <div class="flex-grow border-t border-zinc-800"></div>
-        </div>
-
-        <div class="space-y-3 bg-[#141414] p-5 rounded-2xl border border-zinc-800 text-left">
-          <p class="text-sm font-bold text-white mb-4 text-center">Acesso Direto</p>
-          <div>
-            <label class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider mb-1.5 block">Nome e Sobrenome</label>
-            <input type="text" id="phone-login-name" placeholder="Ex: João Silva" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-          <div>
-            <label class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider mb-1.5 block">Número de WhatsApp</label>
-            <input type="text" id="phone-login-number" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-          </div>
-          <button onclick="executePhoneLogin()" class="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors text-[14px]">
-            Entrar com Telefone
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ECRÃ PRINCIPAL -->
-    <div id="view-app" class="hidden flex-col h-full overflow-y-auto no-scrollbar">
-      <header class="pt-8 pb-4 px-4 bg-black">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <img id="header-avatar" src="./icone.png" alt="Sua Foto" class="w-10 h-10 rounded-full object-cover border border-zinc-800">
-            <h1 class="text-xl sm:text-2xl font-bold font-serif tracking-widest text-white">RB BARBEARIA</h1>
-          </div>
-          <button onclick="userSignOut()" class="text-xs text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20">Sair</button>
-        </div>
-        <div class="flex items-center gap-1 mt-3 text-amber-400 text-sm">
-          ★★★★★ <span class="text-zinc-500 text-xs ml-1">5.0</span>
-        </div>
-        <p class="text-zinc-400 text-xs mt-2 flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Novo Hamburgo / RS
-        </p>
-      </header>
-
-      <div class="flex border-b border-zinc-800 bg-black sticky top-0 z-10 px-2 sm:px-4">
-        <button onclick="switchAppTab('servicos')" id="tab-servicos" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center">SERVIÇOS</button>
-        <button onclick="switchAppTab('historico')" id="tab-historico" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center">HISTÓRICO</button>
-        <button onclick="switchAppTab('perfil')" id="tab-perfil" class="pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center">PERFIL</button>
-      </div>
-
-      <div id="tab-content-servicos" class="flex-1 pb-10">
-        <!-- Corte Masculino -->
-        <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
-          <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">Corte Masculino</p>
-            <div class="flex items-center gap-4 mt-1.5">
-              <span class="text-emerald-400 font-semibold text-[13px]">R$ 40,00</span>
-              <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 30 min</span>
-            </div>
-          </div>
-          <button onclick="startBooking('Corte Masculino', 40, 30)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
-        </div>
-
-        <!-- Barba -->
-        <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
-          <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">Barba</p>
-            <div class="flex items-center gap-4 mt-1.5">
-              <span class="text-emerald-400 font-semibold text-[13px]">R$ 30,00</span>
-              <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 30 min</span>
-            </div>
-          </div>
-          <button onclick="startBooking('Barba', 30, 30)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
-        </div>
-        
-        <!-- Sobrancelha -->
-        <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="./sobrancelha.jpeg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
-          <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">Sobrancelha</p>
-            <div class="flex items-center gap-4 mt-1.5">
-              <span class="text-emerald-400 font-semibold text-[13px]">R$ 15,00</span>
-              <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 20 min</span>
-            </div>
-          </div>
-          <button onclick="startBooking('Sobrancelha', 15, 20)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
-        </div>
-
-        <!-- Corte e Barba -->
-        <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-amber-500/30 shrink-0">
-          <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">Corte e Barba</p>
-            <div class="flex items-center gap-4 mt-1.5">
-              <span class="text-emerald-400 font-semibold text-[13px]">R$ 65,00</span>
-              <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 60 min</span>
-            </div>
-          </div>
-          <button onclick="startBooking('Corte e Barba', 65, 60)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
-        </div>
-        
-        <!-- Progressiva feminina orgânica -->
-        <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
-          <img src="./progressiva.jpg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
-          <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">Progressiva feminina orgânica</p>
-            <div class="flex items-center gap-4 mt-1.5">
-              <span class="text-emerald-400 font-semibold text-[13px]">R$ 180,00</span>
-              <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 120 min</span>
-            </div>
-          </div>
-          <button onclick="startBooking('Progressiva feminina orgânica', 180, 120)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
-        </div>
-      </div>
-
-      <div id="tab-content-historico" class="hidden flex-1 p-4 pb-10">
-        <div id="history-container" class="space-y-4"></div>
-      </div>
-
-      <!-- ABA PERFIL -->
-      <div id="tab-content-perfil" class="hidden flex-1 p-4 pb-10">
-        <div class="bg-[#141414] border border-zinc-800 rounded-2xl p-6">
-          <div class="flex justify-center mb-6">
-            <label class="cursor-pointer relative group">
-              <img id="profile-avatar-preview" src="./icone.png" class="w-24 h-24 rounded-full object-cover border border-zinc-700 shadow-xl transition-all group-hover:opacity-50">
-              <div class="absolute inset-0 bg-black/60 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg class="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span class="text-[10px] text-white font-bold uppercase tracking-wider">Alterar</span>
-              </div>
-              <input type="file" class="hidden" accept="image/*" onchange="handleAvatarUpload(this)">
-            </label>
-          </div>
-          <div class="space-y-4">
-            <div>
-              <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Nome e Sobrenome</label>
-              <input type="text" id="profile-name-input" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
-            </div>
-            <div>
-              <label class="text-xs text-zinc-400 uppercase font-semibold block mb-1">Número de WhatsApp (Apenas Leitura)</label>
-              <input type="text" id="profile-phone-input" readonly class="w-full px-4 py-3 bg-[#0f0f0f]/50 border border-zinc-800 rounded-xl text-zinc-500 outline-none cursor-not-allowed text-sm">
-            </div>
-            <button onclick="saveProfile()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm transition-colors mt-2">
-              Salvar Alterações
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ECRÃ DE SELEÇÃO DE DATA E HORA -->
-    <div id="view-datetime" class="hidden flex-col h-full bg-[#0f0f0f] z-20 overflow-y-auto no-scrollbar">
-      <header class="p-4 flex items-center gap-4 bg-black border-b border-zinc-800 sticky top-0 z-30">
-        <button onclick="cancelBooking()" class="text-white p-1">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
+  <!-- MODAL DETALHES -->
+  <div id="modal-details" class="hidden fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700/50 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl relative">
+      <button onclick="closeDetailsModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
+      <div class="flex items-center gap-4 border-b border-zinc-800 pb-4">
+        <div id="detail-img-container" class="w-14 h-14 rounded-xl object-cover border border-zinc-700 overflow-hidden shadow-lg"></div>
         <div>
-          <h2 id="booking-month-title" class="text-lg font-bold text-white">Mês</h2>
-          <p id="booking-service-name" class="text-zinc-400 text-xs">Serviço</p>
+          <h3 id="detail-service" class="font-bold text-white text-lg leading-tight">Serviço</h3>
+          <p id="detail-status" class="text-xs mt-1">Status</p>
         </div>
-      </header>
-
-      <div class="p-4 pb-32">
-        <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4" id="date-scroll-container"></div>
-        <div class="mt-4 mb-4 flex items-center justify-between">
-          <p class="text-[13px] text-zinc-400 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Horários disponíveis
-          </p>
-        </div>
-        <div class="grid grid-cols-3 gap-3" id="time-grid-container"></div>
       </div>
-
-      <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md p-4 bg-[#0f0f0f]/95 backdrop-blur-sm border-t border-zinc-800 z-30">
-        <button id="btn-save-appointment" disabled onclick="confirmBooking()" class="w-full py-4 rounded-xl font-bold text-white bg-blue-600 disabled:bg-zinc-800 disabled:text-zinc-500 transition-colors text-[15px]">
-          Confirmar Agendamento
-        </button>
+      <div class="space-y-3 pt-2">
+        <div class="bg-zinc-800/50 p-3 rounded-xl"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Cliente</p><p id="detail-client" class="text-sm font-bold text-white">Nome</p></div>
+        <div class="flex gap-3">
+          <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Data Agendada</p><p id="detail-date" class="text-sm font-bold text-orange-400">Data</p></div>
+          <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Modificado em</p><p id="detail-modified" class="text-xs font-semibold text-zinc-300">Data</p></div>
+        </div>
+        <div id="detail-whatsapp-container" class="pt-2"></div>
       </div>
     </div>
   </div>
 
+  <!-- MODAL BLOQUEIO -->
+  <div id="modal-block" class="hidden fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex flex-col justify-end md:items-center md:justify-center p-0 md:p-4">
+    <div class="bg-zinc-900 border border-zinc-700/50 md:rounded-3xl rounded-t-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
+        <h3 class="font-black text-white text-lg flex items-center gap-2 tracking-wide"><span class="text-red-500">🚫</span> Bloquear Horário</h3>
+        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
+      </div>
+      <div class="space-y-4 pt-2">
+        <div>
+          <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Data do Bloqueio</label>
+          <input type="date" id="block-date" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+        </div>
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Início</label>
+            <input type="time" id="block-start" value="12:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+          </div>
+          <div class="flex-1">
+            <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Fim</label>
+            <input type="time" id="block-end" value="14:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Motivo (Visível no Painel)</label>
+          <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga..." class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+        </div>
+        <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)] transform hover:scale-[1.02]">Confirmar Bloqueio</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APLICAÇÃO PRINCIPAL -->
+  <div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
+    
+    <!-- SIDEBAR ESQUERDA -->
+    <aside class="w-[65px] md:w-[72px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-6 shrink-0 z-20 shadow-[5px_0_15px_rgba(0,0,0,0.2)] relative">
+      <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-zinc-900 font-black text-lg shadow-[0_0_20px_rgba(249,115,22,0.3)]">RB</div>
+      
+      <nav class="flex flex-col gap-4 w-full px-3 mt-2 flex-1">
+        <!-- Hoje -->
+        <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
+          <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        </button>
+        <!-- Kanban -->
+        <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda Kanban">
+          <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </button>
+        <!-- Histórico -->
+        <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
+          <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        </button>
+        <!-- Clientes -->
+        <button onclick="switchTab('clientes')" id="nav-btn-clientes" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Clientes">
+          <div id="nav-ind-clientes" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </button>
+        <!-- FINANCEIRO (DASHBOARD) -->
+        <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Dashboard & Finanças">
+          <div id="nav-ind-financeiro" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
+          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </button>
+      </nav>
+      
+      <!-- Ajustes no rodapé da Sidebar -->
+      <button onclick="switchTab('config')" id="nav-btn-config" class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group mb-2" title="Configurações">
+        <div id="nav-ind-config" class="hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
+        <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </aside>
+
+    <!-- CONTAINER DIREITO -->
+    <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
+      
+      <!-- HEADER COMUM -->
+      <header class="h-[72px] flex items-center justify-between px-5 md:px-8 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0 z-20">
+        <div class="flex flex-col">
+          <div class="flex items-center gap-3">
+            <h1 class="text-xl font-black text-white tracking-wider">Painel RB</h1>
+            <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(16,185,129,0.05)]">
+              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span class="text-[9px] text-emerald-400 uppercase font-black tracking-widest">Live</span>
+            </span>
+          </div>
+          <p id="header-date" class="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Carregando data...</p>
+        </div>
+        
+        <div class="flex items-center gap-4 md:gap-6">
+          <button onclick="openBlockModal()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl text-xs hover:bg-zinc-800 hover:text-white transition-all font-bold shadow-sm">
+            <span class="text-red-500">🚫</span> Bloquear
+          </button>
+          <button onclick="openBlockModal()" class="flex md:hidden items-center justify-center w-10 h-10 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm">🚫</button>
+          
+          <div class="h-8 w-px bg-zinc-800 hidden md:block"></div>
+          
+          <div class="flex items-center gap-3">
+            <div class="hidden md:block text-right">
+              <p class="text-[13px] font-bold text-white leading-tight">Administrador</p>
+              <button onclick="logoutAdmin()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider transition-colors">Sair da Conta</button>
+            </div>
+            <div onclick="logoutAdmin()" class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-300 border-2 border-zinc-700 cursor-pointer md:cursor-default overflow-hidden shadow-sm">
+              <img src="./icone.png" class="w-full h-full object-cover" alt="Admin">
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- BARRA DE ESTATÍSTICAS (Aparece em Hoje e Kanban) -->
+      <div id="top-stats-bar" class="bg-zinc-950 border-b border-zinc-800 shrink-0 relative z-10 hidden">
+        <div class="px-5 md:px-8 py-3 flex items-center justify-between text-[11px] font-medium overflow-x-auto custom-scroll">
+          <div class="flex items-center gap-6 whitespace-nowrap">
+            <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_#3b82f6]"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Atendimentos (Hoje)</span> <span id="metric-total-cuts" class="text-white font-black text-sm">0</span></p>
+            <div class="h-4 w-px bg-zinc-800"></div>
+            <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento (Hoje)</span> <span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span></p>
+          </div>
+          <div class="flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6 opacity-80">
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Corte</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Barba</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Completo</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Sobrancelha</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-500"></span> Progressiva</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 1: HOJE -->
+      <main id="tab-hoje" class="hidden flex-1 flex-col min-h-0 p-5 md:p-8 overflow-y-auto custom-scroll relative z-0">
+        <h2 class="text-xl font-black text-zinc-100 mb-5 tracking-wide">Agenda Diária</h2>
+        <div id="daily-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start"></div>
+      </main>
+
+      <!-- ABA 2: KANBAN -->
+      <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0 relative z-0">
+        <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
+      </main>
+
+      <!-- ABA 3: HISTÓRICO -->
+      <main id="tab-historico" class="hidden flex-1 flex-col p-5 md:p-8 min-h-0 relative z-0">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4 shrink-0">
+          <h2 class="text-xl font-black text-zinc-100 tracking-wide">Registro Completo</h2>
+          <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1.5 rounded-xl shadow-sm">
+            <button onclick="setHistoryFilter('hoje')" id="filter-hoje" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-white bg-zinc-700/50 transition-all">Hoje</button>
+            <button onclick="setHistoryFilter('7dias')" id="filter-7dias" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white transition-all">7 Dias</button>
+            <button onclick="setHistoryFilter('tudo')" id="filter-tudo" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white transition-all">Tudo</button>
+          </div>
+        </div>
+        <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800 shadow-sm">
+              <tr>
+                <th class="px-5 py-4">Data Registro ▼</th>
+                <th class="px-5 py-4">Agendado Para</th>
+                <th class="px-5 py-4">Cliente</th>
+                <th class="px-5 py-4">Serviço</th>
+                <th class="px-5 py-4">Valor</th>
+                <th class="px-5 py-4">Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body" class="divide-y divide-zinc-800/60"></tbody>
+          </table>
+        </div>
+      </main>
+
+      <!-- ABA 4: CLIENTES -->
+      <main id="tab-clientes" class="hidden flex-1 flex-col p-5 md:p-8 min-h-0 relative z-0">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4 shrink-0">
+          <div>
+            <h2 class="text-xl font-black text-zinc-100 tracking-wide">Carteira de Clientes</h2>
+            <p class="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Ativos nos últimos 12 meses</p>
+          </div>
+          <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1.5 rounded-xl shadow-sm w-full md:w-auto overflow-hidden focus-within:border-orange-500 transition-colors">
+             <svg class="w-5 h-5 text-zinc-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+             <input type="text" id="search-client" placeholder="Buscar por nome ou número..." onkeyup="filterClients()" class="bg-transparent border-none text-white text-xs px-3 py-2 outline-none w-full md:w-64 placeholder:text-zinc-600 font-medium">
+          </div>
+        </div>
+        <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800 shadow-sm">
+              <tr>
+                <th class="px-5 py-4">Nome do Cliente</th>
+                <th class="px-5 py-4">Contato</th>
+                <th class="px-5 py-4">Última Visita</th>
+                <th class="px-5 py-4">Gasto Total</th>
+                <th class="px-5 py-4">Frequência</th>
+                <th class="px-5 py-4 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="clients-table-body" class="divide-y divide-zinc-800/60"></tbody>
+          </table>
+        </div>
+      </main>
+
+      <!-- ABA 5: FINANCEIRO & DASHBOARD -->
+      <main id="tab-financeiro" class="hidden flex-1 flex-col p-5 md:p-8 overflow-y-auto custom-scroll relative z-0">
+        
+        <div class="flex flex-col xl:flex-row justify-between xl:items-end mb-8 gap-5">
+          <div>
+            <h2 class="text-2xl font-black text-zinc-100 tracking-wide mb-1">Inteligência & Resultados</h2>
+            <p class="text-xs text-zinc-400 font-medium uppercase tracking-widest">Dashboard Executivo</p>
+          </div>
+          
+          <div class="flex flex-col sm:flex-row items-center gap-3 bg-zinc-900/80 p-2 rounded-2xl border border-zinc-800 shadow-lg backdrop-blur-sm">
+            <div class="flex gap-1 overflow-x-auto custom-scroll max-w-full">
+              <button onclick="setDashFilter('hoje')" id="d-filter-hoje" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">Hoje</button>
+              <button onclick="setDashFilter('7dias')" id="d-filter-7dias" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">7 Dias</button>
+              <button onclick="setDashFilter('mes')" id="d-filter-mes" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-white bg-zinc-700/50 shadow-sm transition-all">Este Mês</button>
+              <button onclick="setDashFilter('ano')" id="d-filter-ano" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">Este Ano</button>
+              <button onclick="setDashFilter('custom')" id="d-filter-custom" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">Manual</button>
+            </div>
+            
+            <div id="custom-date-filters" class="hidden flex items-center gap-2 px-2 pb-1 sm:pb-0 border-t sm:border-t-0 sm:border-l border-zinc-800 pt-2 sm:pt-0">
+              <input type="date" id="dash-start" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
+              <span class="text-zinc-500 text-[10px] font-bold">ATÉ</span>
+              <input type="date" id="dash-end" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
+              <button onclick="applyCustomDashFilter()" class="bg-orange-500 hover:bg-orange-400 text-zinc-900 px-3 py-1.5 rounded-lg text-xs font-black transition-colors">IR</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div class="wallet-card rounded-3xl p-7 relative overflow-hidden flex flex-col justify-center gap-6">
+            <div class="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/15 rounded-full blur-[40px] pointer-events-none"></div>
+            <div class="flex items-center justify-between relative z-10">
+              <span class="text-orange-400 text-[11px] uppercase font-black tracking-widest flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Wallet RB</span>
+              <span class="bg-orange-500/10 text-orange-400 text-[9px] px-2.5 py-1.5 rounded-md border border-orange-500/20 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
+            </div>
+            <div class="relative z-10">
+              <p class="text-orange-200/50 text-xs font-bold uppercase tracking-widest mb-1.5">Receita Líquida Realizada</p>
+              <h3 id="dash-wallet-saldo" class="text-5xl font-black text-white tracking-tighter drop-shadow-lg">R$ 0,00</h3>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 grid grid-cols-2 gap-5">
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Faturamento Periodo</span>
+              <p id="dash-fat-periodo" class="text-3xl font-black text-zinc-100 tracking-tight">R$ 0,00</p>
+              <span id="dash-cortes-periodo" class="text-xs text-zinc-500 mt-1.5 font-semibold">0 atendimentos</span>
+            </div>
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span> Ticket Médio</span>
+              <p id="dash-ticket-medio" class="text-3xl font-black text-zinc-100 tracking-tight">R$ 0,00</p>
+              <span class="text-xs text-zinc-500 mt-1.5 font-semibold">Por cliente no período</span>
+            </div>
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span> Agendados (Futuro)</span>
+              <p id="dash-agendamentos-futuros" class="text-3xl font-black text-zinc-100 tracking-tight">0</p>
+              <span id="dash-fat-futuro" class="text-xs text-emerald-400 mt-1.5 font-bold">Projeção: R$ 0,00</span>
+            </div>
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-colors"></div>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span> Tx. Cancelamento</span>
+              <p id="dash-tx-cancelamento" class="text-3xl font-black text-zinc-100 tracking-tight">0%</p>
+              <span id="dash-num-cancelados" class="text-xs text-zinc-500 mt-1.5 font-semibold">0 perdidos no período</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 shadow-xl relative backdrop-blur-sm">
+            <h3 id="chart-title" class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-6">Curva de Receita</h3>
+            <div class="w-full h-[250px] relative"><canvas id="revenueChart"></canvas></div>
+          </div>
+
+          <div class="flex flex-col gap-6">
+            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 shadow-xl flex-1 flex flex-col backdrop-blur-sm">
+              <h3 id="top-services-title" class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-5">🏆 Top Serviços (Volume)</h3>
+              <div id="dash-top-services" class="flex-1 flex flex-col justify-center gap-3"></div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 shadow-xl flex-1 flex flex-col backdrop-blur-sm">
+              <h3 id="top-clients-title" class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-5">💎 Top Clientes (Receita)</h3>
+              <div id="dash-top-clients" class="flex-1 flex flex-col justify-center gap-3"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ABA 6: CONFIGURAÇÕES -->
+      <main id="tab-config" class="hidden flex-1 flex-col items-start p-5 md:p-8 overflow-y-auto min-h-0 relative z-0">
+        <h2 class="text-xl font-black text-zinc-100 tracking-wide mb-6">Ajustes da Plataforma</h2>
+        <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl backdrop-blur-sm">
+          <h3 class="text-sm font-black tracking-widest uppercase text-orange-500 mb-6 border-b border-zinc-800/50 pb-3">Horário Operacional</h3>
+          <div class="space-y-5">
+            <div>
+              <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Abertura</label>
+              <input type="time" id="set-open" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
+            </div>
+            <div>
+              <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Fecho</label>
+              <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
+            </div>
+            <button onclick="saveSettings()" class="w-full py-4 mt-4 bg-zinc-200 hover:bg-white text-zinc-900 font-black uppercase tracking-widest rounded-xl text-xs transition-all shadow-[0_5px_15px_rgba(255,255,255,0.1)] transform hover:scale-[1.02]">
+              Salvar Alterações
+            </button>
+          </div>
+          <p class="text-[10px] text-zinc-500 mt-6 font-medium leading-relaxed text-center">Os horários são sincronizados instantaneamente com o aplicativo de agendamento dos clientes.</p>
+        </div>
+      </main>
+
+    </main>
+  </div>
+
   <script>
+    const ADMIN_PASSWORD = "rb";
     const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let realtimeSubscription = null;
+    let allHistoryData = [];
+    let currentHistoryFilter = 'hoje';
+    let dashFilter = 'mes';
+    let revenueChartInstance = null;
+    let allClientsList = [];
 
-    let clientUser = null;
-    let selectedService = null;
-    let selectedDuration = 30;
-    let selectedPrice = null;
-    let selectedDate = null;
-    let selectedTime = null;
-    let shopSettings = { open: '09:00', close: '20:00' };
-    let realtimeSub = null;
-    let currentAvatarBase64 = null;
+    const KANBAN_THEMES = [
+      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
+      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
+      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' }
+    ];
 
-    function generateUUID() {
-      if (crypto && crypto.randomUUID) return crypto.randomUUID();
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+    function getServiceTheme(serviceName) {
+      const s = (serviceName || '').toLowerCase();
+      if (s.includes('corte e barba') || s.includes('combo') || s.includes('completo')) { return { borderL: 'border-l-purple-500', borderHover: 'hover:border-purple-500/50', text: 'text-purple-300', img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80' }; }
+      if (s.includes('progressiva')) { return { borderL: 'border-l-pink-500', borderHover: 'hover:border-pink-500/50', text: 'text-pink-300', img: './progressiva.jpg' }; }
+      if (s.includes('barba')) { return { borderL: 'border-l-orange-500', borderHover: 'hover:border-orange-500/50', text: 'text-orange-300', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80' }; }
+      if (s.includes('sobrancelha')) { return { borderL: 'border-l-teal-500', borderHover: 'hover:border-teal-500/50', text: 'text-teal-300', img: './sobrancelha.jpeg' }; }
+      return { borderL: 'border-l-blue-500', borderHover: 'hover:border-blue-500/50', text: 'text-blue-300', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80' };
     }
 
-    function showToast(text) {
-      const toast = document.getElementById('toast-msg');
-      toast.innerText = text;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 2500);
-    }
+    function getServiceImage(serviceName) { return getServiceTheme(serviceName).img; }
 
-    function maskPhone(input) {
-      let v = input.value.replace(/\D/g, '');
-      if (v.length > 11) v = v.slice(0, 11);
-      if (v.length > 6) input.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
-      else if (v.length > 2) input.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
-      else input.value = v;
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const kanbanBoard = document.getElementById('kanban-board');
+      let isDown = false; let startX; let scrollLeft;
 
-    function setLastLoginMethod(method) {
-      localStorage.setItem('rb_last_login', method);
-    }
-
-    function checkLastLoginBadge() {
-      const method = localStorage.getItem('rb_last_login');
-      if (method) {
-        document.getElementById('last-login-text').innerText = `Último acesso: ${method}`;
-        document.getElementById('last-login-badge').classList.remove('hidden');
-      }
-    }
-
-    async function fetchSettings() {
-      try {
-        const { data } = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
-        if(data) {
-          shopSettings.open = data.open_time || '09:00';
-          shopSettings.close = data.close_time || '20:00';
-        }
-      } catch(e) {
-        console.error("Erro ao carregar settings", e);
-      }
-    }
-
-    function initClientRealtime() {
-      if(realtimeSub) return;
-      realtimeSub = sb.channel('public:appointments_client')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
-          if(selectedDate && !document.getElementById('view-datetime').classList.contains('hidden')) {
-            renderTimeOptions(selectedDate);
-          }
-          if(clientUser) { loadHistory(); }
-        }).subscribe();
-    }
-
-    async function executePhoneLogin() {
-      const name = document.getElementById('phone-login-name').value.trim();
-      const phoneRaw = document.getElementById('phone-login-number').value;
-      const cleanPhone = phoneRaw.replace(/\D/g, '');
-
-      if (!name.includes(' ')) { alert('Por favor, informe seu Nome e Sobrenome.'); return; }
-      if (cleanPhone.length < 10) { alert('Informe um WhatsApp válido com DDD.'); return; }
-
-      const { data: existingProfile } = await sb.from('profiles').select('*').eq('phone', cleanPhone).maybeSingle();
-      let finalUserId = existingProfile ? existingProfile.id : generateUUID();
-
-      if (!existingProfile) {
-        const { error } = await sb.from('profiles').insert([{ id: finalUserId, full_name: name, phone: cleanPhone }]);
-        if(error) { alert('Erro ao criar perfil. Tente novamente.'); return; }
+      if (kanbanBoard) {
+        kanbanBoard.addEventListener('mousedown', (e) => {
+          if(e.target.tagName.toLowerCase() === 'button' || e.target.tagName.toLowerCase() === 'a' || e.target.closest('button')) return;
+          isDown = true; kanbanBoard.classList.add('no-select');
+          startX = e.pageX - kanbanBoard.offsetLeft; scrollLeft = kanbanBoard.scrollLeft;
+        });
+        kanbanBoard.addEventListener('mouseleave', () => { isDown = false; kanbanBoard.classList.remove('no-select'); });
+        kanbanBoard.addEventListener('mouseup', () => { isDown = false; kanbanBoard.classList.remove('no-select'); });
+        kanbanBoard.addEventListener('mousemove', (e) => {
+          if (!isDown) return; e.preventDefault();
+          const walk = ((e.pageX - kanbanBoard.offsetLeft) - startX) * 1.5; 
+          kanbanBoard.scrollLeft = scrollLeft - walk;
+        });
       }
 
-      setLastLoginMethod('Telefone');
-      
-      clientUser = {
-        id: finalUserId,
-        name: existingProfile ? (existingProfile.full_name || name) : name,
-        email: existingProfile ? existingProfile.email : '',
-        phone: cleanPhone,
-        avatar_url: existingProfile ? existingProfile.avatar_url : null
-      };
-
-      localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
-      enterApp();
-    }
-
-    async function unifyAndEnterApp(authId, name, email, phone, avatarUrlFromAuth) {
-      const cleanPhone = phone.replace(/\D/g, '');
-      const { data: existingProfile } = await sb.from('profiles').select('*').eq('phone', cleanPhone).maybeSingle();
-      let finalUserId = authId;
-      let finalAvatar = avatarUrlFromAuth;
-
-      if (existingProfile) { 
-        finalUserId = existingProfile.id; 
-        finalAvatar = existingProfile.avatar_url || avatarUrlFromAuth;
-      } else { 
-        await sb.from('profiles').upsert([{ id: authId, full_name: name, phone: cleanPhone, avatar_url: avatarUrlFromAuth }]); 
-      }
-
-      clientUser = {
-        id: finalUserId,
-        name: existingProfile ? (existingProfile.full_name || name) : name,
-        email: email || '',
-        phone: cleanPhone,
-        avatar_url: finalAvatar
-      };
-
-      localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
-      document.getElementById('modal-mandatory-phone').classList.add('hidden');
-      enterApp();
-    }
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      await fetchSettings();
-      checkLastLoginBadge();
-      
-      const savedSession = localStorage.getItem('rb_client_session');
-      if (savedSession) {
-        try {
-          clientUser = JSON.parse(savedSession);
-          enterApp();
-          return;
-        } catch(e) {
-          localStorage.removeItem('rb_client_session');
-        }
-      }
-
-      sb.auth.onAuthStateChange(async (event, session) => {
-        if (session && session.user && !clientUser) {
-          const u = session.user;
-          const name = u.user_metadata?.full_name || 'Cliente';
-          const avatar = u.user_metadata?.avatar_url || null;
-          let phone = u.phone || u.user_metadata?.typed_phone || '';
-          const cleanPhone = phone.replace(/\D/g, '');
-          
-          if (cleanPhone.length >= 10) { 
-            await unifyAndEnterApp(u.id, name, u.email, cleanPhone, avatar); 
-          } else {
-            const { data: prof } = await sb.from('profiles').select('*').eq('id', u.id).maybeSingle();
-            if (prof && prof.phone && prof.phone.length >= 10) { 
-              await unifyAndEnterApp(u.id, prof.full_name || name, u.email, prof.phone, prof.avatar_url || avatar); 
-            } else { 
-              window.tempAuthUser = { ...u, tempAvatar: avatar };
-              if(name !== 'Cliente') document.getElementById('mandatory-name-input').value = name;
-              document.getElementById('modal-mandatory-phone').classList.remove('hidden'); 
-            }
-          }
-        }
-      });
+      Chart.defaults.color = '#71717a'; Chart.defaults.font.family = "'Inter', sans-serif";
+      updateHeaderDate();
+      if(localStorage.getItem('rb_admin_logged') === 'true') processLogin(); 
     });
 
-    async function submitMandatoryPhone() {
-      const nameInput = document.getElementById('mandatory-name-input').value.trim();
-      const phoneInput = document.getElementById('mandatory-phone-input').value;
-      const cleanPhone = phoneInput.replace(/\D/g, '');
-      
-      if (!nameInput.includes(' ')) { alert('Informe seu Nome e Sobrenome.'); return; }
-      if (cleanPhone.length < 10) { alert('Informe um WhatsApp válido com DDD.'); return; }
-      
-      const authUser = window.tempAuthUser;
-      await unifyAndEnterApp(authUser.id, nameInput, authUser.email, cleanPhone, authUser.tempAvatar);
+    function updateHeaderDate() {
+      const options = { weekday: 'long', day: 'numeric', month: 'long' };
+      let dateStr = new Date().toLocaleDateString('pt-BR', options);
+      const hDate = document.getElementById('header-date');
+      if (hDate) hDate.innerText = dateStr;
     }
 
-    async function signInWithGoogle() { setLastLoginMethod('Google'); await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); }
-    async function signInWithSpotify() { setLastLoginMethod('Spotify'); await sb.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: window.location.origin } }); }
-    async function signInWithLinkedIn() { setLastLoginMethod('LinkedIn'); await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo: window.location.origin } }); }
-
-    async function userSignOut() {
-      localStorage.removeItem('rb_client_session');
-      try { await sb.auth.signOut(); } catch(e) {}
-      window.location.reload();
+    function checkAdmin(e) {
+      if(e) e.preventDefault();
+      if (document.getElementById('admin-pass').value === ADMIN_PASSWORD) {
+        localStorage.setItem('rb_admin_logged', 'true'); processLogin();
+      } else { alert("Acesso Negado."); }
     }
 
-    function enterApp() {
-      document.getElementById('view-login').classList.add('hidden');
-      document.getElementById('view-login').classList.remove('flex');
+    function processLogin() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('main-panel').classList.remove('hidden');
+      document.getElementById('notification-sound').play().catch(()=>{}); 
+      document.getElementById('notification-sound').pause();
       
-      document.getElementById('view-app').classList.remove('hidden');
-      document.getElementById('view-app').classList.add('flex');
-      
-      loadProfileDataIntoUI();
-      loadHistory();
-      initClientRealtime();
+      switchTab('hoje'); 
+      loadAgendaData(); 
+      loadSettings(); 
+      subscribeToRealtime();
     }
 
-    function loadProfileDataIntoUI() {
-      if(!clientUser) return;
-      document.getElementById('profile-name-input').value = clientUser.name || '';
-      document.getElementById('profile-phone-input').value = clientUser.phone || '';
-      if(clientUser.avatar_url) {
-        document.getElementById('profile-avatar-preview').src = clientUser.avatar_url;
-        document.getElementById('header-avatar').src = clientUser.avatar_url;
-      }
-    }
+    function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
 
-    function handleAvatarUpload(input) {
-      const file = input.files[0];
-      if(!file) return;
-      if(file.size > 2 * 1024 * 1024) { alert('A imagem é muito grande. Escolha uma foto de até 2MB.'); return; }
+    function switchTab(tab) {
+      const tabs = ['tab-hoje', 'tab-kanban', 'tab-historico', 'tab-clientes', 'tab-financeiro', 'tab-config'];
+      const navs = ['hoje', 'kanban', 'historico', 'clientes', 'financeiro', 'config'];
       
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        currentAvatarBase64 = e.target.result;
-        document.getElementById('profile-avatar-preview').src = currentAvatarBase64;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function saveProfile() {
-      const newName = document.getElementById('profile-name-input').value.trim();
-      if(!newName.includes(' ')) { alert('Por favor, informe seu Nome e Sobrenome.'); return; }
-      
-      const updates = { full_name: newName };
-      if (currentAvatarBase64) updates.avatar_url = currentAvatarBase64;
-
-      const { error } = await sb.from('profiles').update(updates).eq('id', clientUser.id);
-      if(error) { alert('Erro ao salvar perfil: ' + error.message); return; }
-
-      clientUser.name = newName;
-      if(currentAvatarBase64) clientUser.avatar_url = currentAvatarBase64;
-      localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
-      
-      loadProfileDataIntoUI();
-      showToast('Perfil atualizado com sucesso!');
-    }
-
-    function switchAppTab(tab) {
-      const tabs = ['servicos', 'historico', 'perfil'];
-      tabs.forEach(t => {
-        const isCurrent = t === tab;
-        document.getElementById(`tab-content-${t}`).classList.toggle('hidden', !isCurrent);
-        document.getElementById(`tab-${t}`).className = isCurrent 
-          ? "pb-3 pt-4 text-xs sm:text-sm font-semibold text-blue-500 border-b-2 border-blue-500 flex-1 text-center" 
-          : "pb-3 pt-4 text-xs sm:text-sm font-semibold text-zinc-500 border-b-2 border-transparent flex-1 text-center";
+      tabs.forEach(id => { 
+        const el = document.getElementById(id);
+        if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
       });
-      if(tab === 'historico') loadHistory();
-    }
+      
+      navs.forEach(id => {
+        const btn = document.getElementById('nav-btn-' + id); 
+        const ind = document.getElementById('nav-ind-' + id);
+        if (btn) btn.className = "w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group";
+        if (ind) ind.classList.add('hidden');
+      });
 
-    function startBooking(service, price, duration) {
-      selectedService = service; selectedPrice = price; selectedDuration = duration;
-      document.getElementById('booking-service-name').innerText = service;
+      const activeTabEl = document.getElementById('tab-'+tab);
+      if (activeTabEl) { activeTabEl.classList.remove('hidden'); activeTabEl.classList.add('flex'); }
       
-      document.getElementById('view-app').classList.add('hidden');
-      document.getElementById('view-app').classList.remove('flex');
-      
-      document.getElementById('view-datetime').classList.remove('hidden');
-      document.getElementById('view-datetime').classList.add('flex');
-      
-      renderDateOptions();
-    }
+      const activeBtn = document.getElementById('nav-btn-'+tab); 
+      const activeInd = document.getElementById('nav-ind-'+tab);
+      if (activeBtn) activeBtn.className = "w-full aspect-square rounded-2xl flex items-center justify-center text-white bg-zinc-800 relative transition-all group shadow-inner border border-zinc-700/50";
+      if (activeInd) activeInd.classList.remove('hidden');
 
-    function cancelBooking() {
-      document.getElementById('view-datetime').classList.add('hidden');
-      document.getElementById('view-datetime').classList.remove('flex');
-      
-      document.getElementById('view-app').classList.remove('hidden');
-      document.getElementById('view-app').classList.add('flex');
-    }
-
-    function renderDateOptions() {
-      const container = document.getElementById('date-scroll-container');
-      const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-      const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-      
-      let html = ''; let added = 0; let offset = 0;
-      let firstMonth = ''; let firstYear = '';
-
-      while (added < 15) {
-        let d = new Date(); d.setDate(d.getDate() + offset);
-        if (d.getDay() !== 0) {
-          if(added === 0) { firstMonth = meses[d.getMonth()]; firstYear = d.getFullYear(); }
-          let dayName = dias[d.getDay()];
-          let dayNum = String(d.getDate()).padStart(2, '0');
-          let month = String(d.getMonth() + 1).padStart(2, '0');
-          let val = `${dayNum}/${month}/${d.getFullYear()}`;
-          
-          html += `
-            <label class="shrink-0 flex flex-col items-center cursor-pointer group">
-              <input type="radio" name="book_date" value="${val}" ${added === 0 ? 'checked' : ''} class="peer sr-only" onchange="onDateChanged()">
-              <span class="text-[11px] text-zinc-500 peer-checked:text-blue-500 font-semibold mb-2">${dayName}</span>
-              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white border border-transparent peer-checked:bg-blue-600 peer-checked:text-white group-hover:border-zinc-700 transition-all">${dayNum}</div>
-            </label>
-          `;
-          added++;
-        }
-        offset++;
+      const topStats = document.getElementById('top-stats-bar');
+      if (topStats) {
+        if (tab === 'hoje' || tab === 'kanban') topStats.classList.remove('hidden');
+        else topStats.classList.add('hidden');
       }
-      document.getElementById('booking-month-title').innerText = `${firstMonth} ${firstYear}`;
-      container.innerHTML = html;
-      onDateChanged();
+
+      if(tab === 'historico' || tab === 'financeiro' || tab === 'clientes') fetchHistoryData();
     }
 
-    function onDateChanged() {
-      const checked = document.querySelector('input[name="book_date"]:checked');
-      if (checked) { selectedDate = checked.value; renderTimeOptions(selectedDate); }
+    function playNotificationSound() { const a = document.getElementById('notification-sound'); if(a){ a.currentTime = 0; a.play().catch(()=>{}); } }
+    
+    function subscribeToRealtime() {
+      if (realtimeSubscription) return;
+      realtimeSubscription = sb.channel('custom-all-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+          playNotificationSound(); 
+          loadAgendaData(); 
+          fetchHistoryData();
+      }).subscribe();
     }
 
-    function timeToMinutes(timeStr) {
-      if(!timeStr) return 0;
-      const p = timeStr.split(':'); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+    function timeToMinutes(tStr) { 
+      if (!tStr) return 0; 
+      const p = tStr.split(':'); 
+      return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0); 
     }
 
-    async function renderTimeOptions(targetDate) {
-      const container = document.getElementById('time-grid-container');
-      container.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-zinc-500">Carregando horários...</div>`;
+    function add30Mins(timeStr) {
+      if (!timeStr) return ''; 
+      const parts = timeStr.split(':');
+      const h = parseInt(parts[0], 10) || 0;
+      const m = parseInt(parts[1], 10) || 0;
+      const d = new Date(0, 0, 0, h, m + 30); 
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
 
-      await fetchSettings();
+    function openBlockModal() {
+      const now = new Date(); 
+      const val = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      const i = document.getElementById('block-date'); 
+      if(i) { i.value = val; i.min = val; }
+      const modal = document.getElementById('modal-block');
+      if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+    }
 
-      const parts = targetDate.split('/');
-      const targetDateNoZero = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}/${parts[2]}`;
-      const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').in('date', [targetDate, targetDateNoZero]);
+    function closeBlockModal() { 
+      const modal = document.getElementById('modal-block');
+      if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    }
 
-      let occupiedIntervals = [];
-      if (booked) {
-        booked.forEach(b => {
-          if (b.calendar_event_id === 'cancelled_by_barber' || b.calendar_event_id === 'cancelled_by_client') return;
-          const startMin = timeToMinutes(b.time);
+    async function confirmBlock() {
+      const dateVal = document.getElementById('block-date').value; 
+      const start = document.getElementById('block-start').value;
+      const end = document.getElementById('block-end').value; 
+      const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
+      
+      if (!dateVal) return alert('Selecione uma data.');
+      const now = new Date(); 
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      const startMin = timeToMinutes(start); 
+      const endMin = timeToMinutes(end);
+
+      if (dateVal < todayStr) return alert('Data no passado.');
+      if (dateVal === todayStr && startMin <= (now.getHours() * 60 + now.getMinutes())) return alert('Horário passado.');
+      if(startMin > endMin) return alert('Fim menor que início.');
+
+      const [y, m, d] = dateVal.split('-'); 
+      const formattedDate = `${d}/${m}/${y}`; 
+      const formattedDateNoZero = `${parseInt(d, 10)}/${parseInt(m, 10)}/${y}`;
+      const btn = document.getElementById('btn-confirm-block'); 
+      btn.disabled = true; btn.innerText = 'Processando...';
+
+      const { data: existingApts, error: searchError } = await sb.from('appointments').select('*, profiles(full_name)').in('date', [formattedDate, formattedDateNoZero]).neq('calendar_event_id', 'cancelled_by_barber').neq('calendar_event_id', 'cancelled_by_client').neq('calendar_event_id', 'blocked_time');
+      if (searchError) { alert('Erro: ' + searchError.message); btn.disabled=false; btn.innerText='Confirmar Bloqueio'; return; }
+
+      let conflictClient = null;
+      if (existingApts && existingApts.length > 0) {
+        for (const apt of existingApts) {
+          const aptStart = timeToMinutes(apt.time); 
           let dur = 30;
-          if (b.service && (b.service.includes("Corte e Barba") || b.service.includes("Completo"))) dur = 60;
-          else if (b.service && b.service.includes("Progressiva")) dur = 120;
-          else if (b.service && b.service.includes("Sobrancelha")) dur = 20;
-          occupiedIntervals.push({ start: startMin, end: startMin + dur });
-        });
+          if (apt.service && (apt.service.includes("Corte e Barba") || apt.service.includes("Completo"))) dur = 60; 
+          else if (apt.service && apt.service.includes("Progressiva")) dur = 120; 
+          else if (apt.service && apt.service.includes("Sobrancelha")) dur = 20;
+          
+          if (aptStart < (endMin + 30) && (aptStart + dur) > startMin) { 
+            conflictClient = { name: apt.profiles?.full_name || 'Cliente', time: apt.time }; 
+            break; 
+          }
+        }
       }
 
-      const slots = [];
-      const startMin = timeToMinutes(shopSettings.open);
-      const endMin = timeToMinutes(shopSettings.close);
-      for(let t = startMin; t < endMin; t += 30) {
-        slots.push(`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`);
+      if (conflictClient) { alert(`Conflito: "${conflictClient.name}" às ${conflictClient.time}.`); btn.disabled=false; btn.innerText='Confirmar Bloqueio'; return; }
+
+      let targetUserId = null;
+      const { data: dummyProfile } = await sb.from('profiles').select('id').limit(1);
+      if (dummyProfile && dummyProfile.length > 0) targetUserId = dummyProfile[0].id;
+      else { 
+        const { data: dummyApt } = await sb.from('appointments').select('user_id').not('user_id', 'is', null).limit(1); 
+        if (dummyApt && dummyApt.length>0) targetUserId = dummyApt[0].user_id; 
+      }
+      
+      if (!targetUserId) { alert("Banco de dados exige pelo menos um perfil cadastrado para vincular o bloqueio."); btn.disabled=false; btn.innerText='Confirmar Bloqueio'; return; }
+
+      const inserts = [];
+      for (let t = startMin; t <= endMin; t += 30) {
+        let h = String(Math.floor(t/60)).padStart(2, '0'); 
+        let min = String(t%60).padStart(2, '0');
+        inserts.push({ user_id: targetUserId, service: `🚫 ${reason}`, price: 0, date: formattedDate, time: `${h}:${min}`, calendar_event_id: 'blocked_time' });
       }
 
-      let now = new Date();
-      let isToday = targetDate === `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-      let currentMinutes = now.getHours() * 60 + now.getMinutes();
+      await sb.from('appointments').insert(inserts); 
+      btn.disabled = false; btn.innerText = 'Confirmar Bloqueio';
+      closeBlockModal(); 
+      loadAgendaData();
+    }
 
-      let html = '';
-      slots.forEach(slot => {
-        const slotStart = timeToMinutes(slot);
-        const slotEnd = slotStart + selectedDuration;
+    async function deleteAppointment(idsStr, isBlocked) {
+      if (confirm(isBlocked ? "Liberar horário?" : "Cancelar agendamento?")) {
+        if (isBlocked) await sb.from('appointments').delete().in('id', idsStr.split(','));
+        else await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_barber', created_at: new Date().toISOString() }).eq('id', idsStr); 
+        loadAgendaData();
+      }
+    }
+
+    async function loadSettings() {
+      const {data} = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
+      if(data) { 
+        document.getElementById('set-open').value = data.open_time || '09:00'; 
+        document.getElementById('set-close').value = data.close_time || '20:00'; 
+      }
+    }
+
+    async function saveSettings() { 
+      await sb.from('settings').upsert({id: 1, open_time: document.getElementById('set-open').value, close_time: document.getElementById('set-close').value}); 
+      alert('Configurações salvas com sucesso!'); 
+    }
+
+    function formatDateForDisplay(isoString) {
+      if(!isoString) return '-'; 
+      const d = new Date(isoString);
+      if(isNaN(d.getTime())) return '-';
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} às ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function parseBrDateToObj(dateStr) {
+      if(!dateStr) return new Date();
+      if(dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      }
+      const p = dateStr.split('/');
+      if (p.length === 3) {
+        return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
+      }
+      return new Date();
+    }
+
+    // ==========================================
+    // LÓGICA DE DADOS GERAIS
+    // ==========================================
+    async function fetchHistoryData() {
+      try {
+        const { data, error } = await sb.from('appointments').select(`*, profiles(full_name, phone)`).order('created_at', {ascending: false});
+        if (error) throw error;
         
-        const isOccupied = occupiedIntervals.some(i => (slotStart < i.end && slotEnd > i.start));
-        const isPassed = isToday && slotStart <= currentMinutes;
+        allHistoryData = data || [];
+        allHistoryData.forEach(a => { 
+          if(a.date && a.date.includes('/')) { 
+            let p = a.date.split('/'); 
+            if(p.length === 3) a.date = `${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`; 
+          } 
+        });
+        
+        renderHistoryTable(); 
+        calculateDashboard();
+        renderClientsTable();
+      } catch(err) {
+        console.error("Falha ao buscar dados:", err);
+      }
+    }
 
-        if (isOccupied || isPassed) {
-          html += `<div class="py-3 rounded-lg border border-zinc-800 bg-[#141414] text-center opacity-30"><span class="text-zinc-500 font-medium text-sm line-through block">${slot}</span></div>`;
-        } else {
-          html += `
-            <label class="py-3 rounded-lg border border-zinc-700 bg-transparent text-center cursor-pointer transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-600 has-[:checked]:text-white text-zinc-300 font-medium text-sm hover:border-zinc-500">
-              <input type="radio" name="book_time" value="${slot}" class="peer sr-only" onchange="checkDateTimeSelection()">
-              ${slot}
-            </label>
-          `;
+    // ==========================================
+    // ABA DE HISTÓRICO
+    // ==========================================
+    function setHistoryFilter(filter) {
+      currentHistoryFilter = filter;
+      ['hoje', '7dias', 'tudo'].forEach(b => {
+        const el = document.getElementById('filter-'+b);
+        if(el) {
+          el.className = (b === filter) 
+            ? "px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-white bg-zinc-700/50 transition-all"
+            : "px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white transition-all";
         }
       });
-      container.innerHTML = html;
-      document.getElementById('btn-save-appointment').disabled = true;
+      renderHistoryTable();
     }
 
-    function checkDateTimeSelection() {
-      const t = document.querySelector('input[name="book_time"]:checked');
-      if (t) { selectedTime = t.value; document.getElementById('btn-save-appointment').disabled = false; }
-    }
+    function renderHistoryTable() {
+      const tbody = document.getElementById('history-table-body');
+      if(!tbody) return;
+      let filtered = allHistoryData;
+      const now = new Date(); 
+      const todayStr = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+      
+      if (currentHistoryFilter === 'hoje') {
+        filtered = allHistoryData.filter(a => {
+          const modD = new Date(a.created_at); 
+          const modStr = `${String(modD.getDate()).padStart(2,'0')}/${String(modD.getMonth()+1).padStart(2,'0')}/${modD.getFullYear()}`;
+          return modStr === todayStr || a.date === todayStr;
+        });
+      } else if (currentHistoryFilter === '7dias') {
+        const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+        filtered = allHistoryData.filter(a => new Date(a.created_at) >= sevenDaysAgo);
+      }
 
-    async function confirmBooking() {
-      const btn = document.getElementById('btn-save-appointment');
-      const originalText = btn.innerText;
-      btn.disabled = true; btn.innerText = "Aguarde...";
-
-      const { error } = await sb.from('appointments').insert([{
-        user_id: clientUser.id, 
-        service: selectedService, 
-        price: parseFloat(selectedPrice), 
-        date: selectedDate, 
-        time: selectedTime, 
-        calendar_event_id: 'internal_system' 
-      }]);
-
-      if (error) { 
-        alert('Erro ao agendar: ' + error.message); 
-        btn.disabled = false; 
-        btn.innerText = originalText; 
+      if(filtered.length === 0) { 
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Nenhum registro encontrado.</td></tr>`; 
         return; 
       }
-      
-      btn.innerText = "Confirmar Agendamento";
-      showToast('Horário agendado com sucesso!');
-      cancelBooking();
-      switchAppTab('historico');
+
+      let html = '';
+      filtered.forEach(a => {
+        const isBlock = a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫'));
+        const clientName = a.profiles?.full_name ? a.profiles.full_name : (isBlock ? 'Bloqueio' : 'Cliente Não Id.');
+        let statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Confirmado</span>`;
+        if (a.calendar_event_id === 'cancelled_by_barber') statusBadge = `<span class="bg-red-500/10 text-red-500 border border-red-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Cancelado (RB)</span>`;
+        else if (a.calendar_event_id === 'cancelled_by_client') statusBadge = `<span class="bg-orange-500/10 text-orange-500 border border-orange-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Cancelado (Cli)</span>`;
+        else if (isBlock) statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Bloqueado</span>`;
+
+        html += `
+          <tr class="hover:bg-zinc-800/40 transition-colors cursor-pointer group border-l-2 border-transparent hover:border-orange-500" onclick='openDetailsModal(${JSON.stringify(a).replace(/'/g, "&apos;")})'>
+            <td class="px-5 py-4 text-zinc-500 font-medium group-hover:text-zinc-300">${formatDateForDisplay(a.created_at)}</td>
+            <td class="px-5 py-4 font-black text-white">${a.date || '-'} <span class="text-zinc-500 font-medium ml-1">às ${a.time || '-'}</span></td>
+            <td class="px-5 py-4 text-zinc-300 font-bold truncate max-w-[180px]">${clientName}</td>
+            <td class="px-5 py-4 text-zinc-400 font-medium truncate max-w-[180px]">${a.service || ''}</td>
+            <td class="px-5 py-4 text-emerald-400 font-black tracking-wide">R$ ${parseFloat(a.price || 0).toFixed(2).replace('.', ',')}</td>
+            <td class="px-5 py-4">${statusBadge}</td>
+          </tr>`;
+      });
+      tbody.innerHTML = html;
     }
 
-    async function loadHistory() {
-      const container = document.getElementById('history-container');
-      if (!clientUser) return;
-      
-      try {
-        const { data, error } = await sb.from('appointments')
-          .select('id, service, price, date, time, calendar_event_id, created_at')
-          .eq('user_id', clientUser.id)
-          .neq('calendar_event_id', 'blocked_time')
-          .order('created_at', { ascending: false });
+    function openDetailsModal(item) {
+      const isBlock = item.calendar_event_id === 'blocked_time' || (item.service && item.service.startsWith('🚫'));
+      const clientName = item.profiles?.full_name ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente');
+      const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
+      const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '';
 
-        if (error) throw error;
+      document.getElementById('detail-img-container').innerHTML = `<img src="${getServiceImage(item.service)}" class="w-full h-full object-cover">`;
+      document.getElementById('detail-service').innerText = item.service || 'Serviço';
+      document.getElementById('detail-client').innerText = clientName;
+      document.getElementById('detail-date').innerText = `${item.date || '-'} às ${item.time || '-'}`;
+      document.getElementById('detail-modified').innerText = formatDateForDisplay(item.created_at);
 
-        const filteredData = (data || []).filter(item => item && item.service && !item.service.startsWith('🚫'));
+      let statusMsg = `<span class="text-emerald-400 font-bold">Confirmado</span>`;
+      if (item.calendar_event_id === 'cancelled_by_barber') statusMsg = `<span class="text-red-500 font-bold">Cancelado pela Barbearia</span>`;
+      else if (item.calendar_event_id === 'cancelled_by_client') statusMsg = `<span class="text-orange-500 font-bold">Cancelado pelo Cliente</span>`;
+      else if (isBlock) statusMsg = `<span class="text-zinc-400 font-bold">Bloqueado</span>`;
+      document.getElementById('detail-status').innerHTML = statusMsg;
 
-        if (filteredData.length === 0) {
-          container.innerHTML = `<p class="text-xs text-zinc-600 text-center py-8">Nenhum histórico encontrado.</p>`; 
-          return;
+      const wAppContainer = document.getElementById('detail-whatsapp-container');
+      if (whatsLink && !isBlock) wAppContainer.innerHTML = `<a href="${whatsLink}" target="_blank" class="flex items-center justify-center gap-2 bg-zinc-800/80 hover:bg-zinc-700 text-emerald-400 border border-emerald-500/20 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all mt-3 w-full shadow-sm">💬 Chamar WhatsApp</a>`;
+      else wAppContainer.innerHTML = '';
+      document.getElementById('modal-details').classList.remove('hidden');
+    }
+    
+    function closeDetailsModal() { document.getElementById('modal-details').classList.add('hidden'); }
+
+    // ==========================================
+    // CLIENTES
+    // ==========================================
+    function renderClientsTable() {
+      const clientMap = {};
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+      allHistoryData.forEach(apt => {
+        if (apt.calendar_event_id === 'blocked_time' || (apt.service && apt.service.startsWith('🚫'))) return;
+        if (!apt.profiles || !apt.user_id) return;
+        
+        const userId = apt.user_id;
+        const aptDate = parseBrDateToObj(apt.date);
+
+        if (!clientMap[userId]) {
+          clientMap[userId] = {
+            id: userId,
+            name: apt.profiles.full_name || 'Desconhecido',
+            phone: apt.profiles.phone || '',
+            lastVisit: aptDate,
+            totalSpent: 0,
+            visits: 0
+          };
         }
 
-        let html = '';
-        filteredData.forEach(item => {
-          const isCancelBarber = item.calendar_event_id === 'cancelled_by_barber';
-          const isCancelClient = item.calendar_event_id === 'cancelled_by_client';
-          const isCancelled = isCancelBarber || isCancelClient;
-          
-          let statusMsg = '';
-          if(isCancelBarber) statusMsg = 'Cancelado pela Barbearia';
-          else if (isCancelClient) statusMsg = 'Cancelado por você';
+        if (aptDate > clientMap[userId].lastVisit) {
+          clientMap[userId].lastVisit = aptDate;
+        }
 
-          html += `
-            <div class="p-4 border border-zinc-800 rounded-xl bg-[#141414] flex justify-between items-center ${isCancelled ? 'opacity-50' : ''}">
-              <div>
-                <p class="font-bold text-white text-sm ${isCancelled ? 'line-through' : ''}">${item.service}</p>
-                <p class="text-zinc-400 text-xs mt-1">${item.date} às ${item.time}</p>
-                ${isCancelled ? `<span class="text-[10px] text-red-500 mt-1 block">${statusMsg}</span>` : ''}
-              </div>
-              ${!isCancelled ? `<button onclick="executeCancel('${item.id}')" class="text-red-400 hover:text-red-300 transition-colors text-xs font-medium bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20">Cancelar</button>` : `<span class="text-zinc-500 text-sm line-through">R$ ${item.price}</span>`}
-            </div>
-          `;
-        });
-        container.innerHTML = html;
-      } catch (err) {
-        console.error("Falha ao carregar histórico:", err);
-        container.innerHTML = `<p class="text-xs text-red-500 text-center py-8">Erro ao sincronizar histórico.</p>`;
+        if (apt.calendar_event_id !== 'cancelled_by_barber' && apt.calendar_event_id !== 'cancelled_by_client') {
+          clientMap[userId].totalSpent += parseFloat(apt.price || 0);
+          clientMap[userId].visits += 1;
+        }
+      });
+
+      allClientsList = Object.values(clientMap).filter(client => {
+         return client.lastVisit >= twelveMonthsAgo;
+      });
+
+      allClientsList.sort((a, b) => a.name.localeCompare(b.name));
+      populateClientsUI(allClientsList);
+    }
+
+    function filterClients() {
+      const input = document.getElementById('search-client');
+      if(!input) return;
+      const query = input.value.toLowerCase();
+      const filtered = allClientsList.filter(c => c.name.toLowerCase().includes(query) || (c.phone && c.phone.includes(query)));
+      populateClientsUI(filtered);
+    }
+
+    function populateClientsUI(clients) {
+      const tbody = document.getElementById('clients-table-body');
+      if(!tbody) return;
+      if (clients.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Nenhum cliente encontrado.</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      clients.forEach(c => {
+        const cleanPhone = (c.phone || '').replace(/\D/g, '');
+        const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '#';
+        const dateStr = `${String(c.lastVisit.getDate()).padStart(2,'0')}/${String(c.lastVisit.getMonth()+1).padStart(2,'0')}/${c.lastVisit.getFullYear()}`;
+        
+        let whatsBtn = cleanPhone ? 
+          `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-white text-[10px] uppercase font-black tracking-widest bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all shadow-sm border border-emerald-500/20 hover:border-emerald-500">Chamar</a>` : 
+          `<span class="text-zinc-600 text-[9px] uppercase font-bold tracking-widest">Sem contato</span>`;
+
+        html += `
+          <tr class="hover:bg-zinc-800/40 transition-colors border-l-2 border-transparent hover:border-orange-500">
+            <td class="px-5 py-4 font-black text-white capitalize">${c.name.toLowerCase()}</td>
+            <td class="px-5 py-4 text-zinc-400 font-medium">${c.phone || '-'}</td>
+            <td class="px-5 py-4 text-zinc-300 font-medium">${dateStr}</td>
+            <td class="px-5 py-4 text-emerald-400 font-black">R$ ${c.totalSpent.toFixed(2).replace('.',',')}</td>
+            <td class="px-5 py-4 text-zinc-300 font-bold">${c.visits} <span class="text-[10px] text-zinc-500 font-medium">cortes</span></td>
+            <td class="px-5 py-4 text-right">${whatsBtn}</td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    // ==========================================
+    // DASHBOARD EXECUTIVO
+    // ==========================================
+    function setDashFilter(filter) {
+      dashFilter = filter;
+      ['hoje', '7dias', 'mes', 'ano', 'custom'].forEach(b => {
+        let el = document.getElementById('d-filter-'+b);
+        if(el) {
+          if(b === filter) { el.classList.remove('text-zinc-400','hover:text-white'); el.classList.add('text-white','bg-zinc-700/50','shadow-sm'); }
+          else { el.classList.remove('text-white','bg-zinc-700/50','shadow-sm'); el.classList.add('text-zinc-400','hover:text-white'); }
+        }
+      });
+      const c = document.getElementById('custom-date-filters');
+      if(filter === 'custom') {
+        if(c) c.classList.remove('hidden');
+      } else { 
+        if(c) c.classList.add('hidden'); 
+        calculateDashboard(); 
       }
     }
 
-    async function executeCancel(id) {
-      if(confirm('Tem certeza que deseja cancelar este agendamento?')) {
-        await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_client', created_at: new Date().toISOString() }).eq('id', id);
-        showToast('Cancelado com sucesso!');
-        loadHistory();
+    function applyCustomDashFilter() { calculateDashboard(); }
+
+    function calculateDashboard() {
+      try {
+        const now = new Date(); 
+        now.setHours(23,59,59,999);
+        let startD, endD; 
+        let chartTitle = "";
+
+        if (dashFilter === 'hoje') { 
+          startD = new Date(now); startD.setHours(0,0,0,0); endD = now; chartTitle = "Receita: Hoje (Por Hora)"; 
+        } else if (dashFilter === '7dias') { 
+          startD = new Date(now); startD.setDate(now.getDate() - 6); startD.setHours(0,0,0,0); endD = now; chartTitle = "Receita: Últimos 7 Dias"; 
+        } else if (dashFilter === 'mes') { 
+          startD = new Date(now.getFullYear(), now.getMonth(), 1); endD = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); chartTitle = "Receita: Este Mês (Por Dia)"; 
+        } else if (dashFilter === 'ano') { 
+          startD = new Date(now.getFullYear(), 0, 1); endD = new Date(now.getFullYear(), 11, 31, 23, 59, 59); chartTitle = "Receita: Este Ano (Por Mês)"; 
+        } else if (dashFilter === 'custom') {
+          const s = document.getElementById('dash-start')?.value; 
+          const e = document.getElementById('dash-end')?.value;
+          if(!s || !e) return;
+          startD = new Date(s + 'T00:00:00'); endD = new Date(e + 'T23:59:59'); chartTitle = "Receita: Período Personalizado";
+        }
+
+        const chartTitleEl = document.getElementById('chart-title');
+        if(chartTitleEl) chartTitleEl.innerText = chartTitle;
+
+        let revPeriodo = 0; let cutsPeriodo = 0; let revMesRealizada = 0;
+        let canceladosPeriodo = 0; let aptsValidosTotal = 0; let aptsFuturos = 0; let revFutura = 0;
+        let serviceCounter = {}; let clientCounter = {};
+        
+        let chartLabels = []; let chartData = []; let chartMap = {};
+        const diffDays = Math.ceil((endD - startD) / (1000 * 60 * 60 * 24));
+        
+        if (dashFilter === 'hoje') {
+          for(let h=8; h<=21; h++) { let hs=String(h).padStart(2,'0')+':00'; chartMap[hs] = 0; chartLabels.push(hs); }
+        } else if (diffDays <= 31) {
+          for(let d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)) {
+            let s = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; chartMap[s] = 0; chartLabels.push(s);
+          }
+        } else {
+          const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+          for(let m=startD.getMonth(); m<=endD.getMonth() + (endD.getFullYear()-startD.getFullYear())*12; m++) {
+            let ano = startD.getFullYear() + Math.floor(m/12); let mName = `${meses[m%12]}/${String(ano).slice(-2)}`; chartMap[mName] = 0; chartLabels.push(mName);
+          }
+        }
+
+        allHistoryData.forEach(a => {
+          let aptDate = parseBrDateToObj(a.date);
+          let isCancelled = (a.calendar_event_id === 'cancelled_by_barber' || a.calendar_event_id === 'cancelled_by_client');
+          let isBlock = (a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫')));
+          let price = parseFloat(a.price || 0);
+
+          if (!isCancelled && !isBlock && aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear() && aptDate <= now) {
+            revMesRealizada += price;
+          }
+
+          if (aptDate >= startD && aptDate <= endD) {
+            if (!isBlock) aptsValidosTotal++;
+            if (isCancelled && !isBlock) canceladosPeriodo++;
+            
+            if (!isCancelled && !isBlock) {
+              const aptTimeMins = timeToMinutes(a.time);
+              const isPastDate = aptDate < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+              const isTodayPassed = aptDate.toDateString() === new Date().toDateString() && aptTimeMins <= (new Date().getHours()*60 + new Date().getMinutes());
+
+              if (isPastDate || isTodayPassed) {
+                revPeriodo += price; 
+                cutsPeriodo++;
+                if(a.service) serviceCounter[a.service] = (serviceCounter[a.service] || 0) + 1;
+                if(a.profiles?.full_name) {
+                  if(!clientCounter[a.profiles.full_name]) clientCounter[a.profiles.full_name] = { count: 0, rev: 0 };
+                  clientCounter[a.profiles.full_name].count++; 
+                  clientCounter[a.profiles.full_name].rev += price;
+                }
+                if (dashFilter === 'hoje' && a.time) { 
+                  let h = a.time.split(':')[0]+':00'; 
+                  if(chartMap[h] !== undefined) chartMap[h] += price; 
+                } else if (diffDays <= 31) { 
+                  let s = `${String(aptDate.getDate()).padStart(2,'0')}/${String(aptDate.getMonth()+1).padStart(2,'0')}`; 
+                  if(chartMap[s] !== undefined) chartMap[s] += price; 
+                } else { 
+                  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; 
+                  let mName = `${meses[aptDate.getMonth()]}/${String(aptDate.getFullYear()).slice(-2)}`; 
+                  if(chartMap[mName] !== undefined) chartMap[mName] += price; 
+                }
+              } else {
+                aptsFuturos++; 
+                revFutura += price;
+              }
+            }
+          }
+        });
+
+        document.getElementById('dash-wallet-saldo').innerText = `R$ ${revMesRealizada.toFixed(2).replace('.', ',')}`;
+        document.getElementById('dash-fat-periodo').innerText = `R$ ${revPeriodo.toFixed(2).replace('.', ',')}`;
+        document.getElementById('dash-cortes-periodo').innerText = `${cutsPeriodo} atendimentos concluídos`;
+        let tMedio = cutsPeriodo > 0 ? (revPeriodo / cutsPeriodo) : 0;
+        document.getElementById('dash-ticket-medio').innerText = `R$ ${tMedio.toFixed(2).replace('.', ',')}`;
+        document.getElementById('dash-agendamentos-futuros').innerText = aptsFuturos;
+        document.getElementById('dash-fat-futuro').innerText = `Projeção: R$ ${revFutura.toFixed(2).replace('.', ',')}`;
+        let txCanc = aptsValidosTotal > 0 ? ((canceladosPeriodo / aptsValidosTotal) * 100).toFixed(1) : 0;
+        document.getElementById('dash-tx-cancelamento').innerText = `${txCanc}%`;
+        document.getElementById('dash-num-cancelados').innerText = `${canceladosPeriodo} perdidos no período`;
+
+        const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        let topServ = Object.keys(serviceCounter).map(k => ({name: k, count: serviceCounter[k]})).sort((a,b) => b.count - a.count).slice(0, 5);
+        let sHtml = topServ.length===0 ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center mt-4">Sem dados</p>` : '';
+        topServ.forEach((s, i) => { sHtml += `<div class="flex items-center justify-between p-3.5 bg-zinc-800/30 border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><span class="text-zinc-100 text-xs font-black uppercase tracking-wider">${s.name}</span></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">${s.count}x</span></div>`; });
+        document.getElementById('dash-top-services').innerHTML = sHtml;
+
+        let topCli = Object.keys(clientCounter).map(k => ({name: k, rev: clientCounter[k].rev, count: clientCounter[k].count})).sort((a,b) => b.rev - a.rev).slice(0, 5);
+        let cHtml = topCli.length===0 ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center mt-4">Sem dados</p>` : '';
+        topCli.forEach((c, i) => { cHtml += `<div class="flex items-center justify-between p-3.5 bg-zinc-800/30 border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><div class="flex flex-col"><span class="text-zinc-100 text-xs font-black uppercase tracking-wider truncate max-w-[140px]">${c.name}</span><span class="text-[9px] text-zinc-500 font-bold uppercase">${c.count} visitas</span></div></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">R$ ${c.rev.toFixed(2).replace('.',',')}</span></div>`; });
+        document.getElementById('dash-top-clients').innerHTML = cHtml;
+
+        chartData = chartLabels.map(l => chartMap[l] || 0);
+        if(revenueChartInstance) revenueChartInstance.destroy();
+        const chartCanvas = document.getElementById('revenueChart');
+        if (chartCanvas) {
+          const ctx = chartCanvas.getContext('2d');
+          let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+          gradient.addColorStop(0, 'rgba(249, 115, 22, 0.4)'); 
+          gradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
+
+          revenueChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: chartLabels,
+              datasets: [{
+                label: 'Faturamento', data: chartData, borderColor: '#f97316', backgroundColor: gradient, borderWidth: 3,
+                pointBackgroundColor: '#fff', pointBorderColor: '#f97316', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(24, 24, 27, 0.9)', titleColor: '#a1a1aa', bodyColor: '#fff', bodyFont: { weight: 'bold', size: 14 }, padding: 12, borderColor: '#3f3f46', borderWidth: 1, callbacks: { label: function(context) { return ' R$ ' + context.parsed.y.toFixed(2).replace('.',','); } } } },
+              scales: { y: { beginAtZero: true, grid: { color: '#27272a', drawBorder: false }, ticks: { color: '#a1a1aa', font: { size: 10, weight: 'bold' } } }, x: { grid: { display: false, drawBorder: false }, ticks: { color: '#a1a1aa', font: { size: 10, weight: 'bold' } } } }
+            }
+          });
+        }
+      } catch(err) {
+        console.error("Erro no cálculo do Dashboard:", err);
+      }
+    }
+
+    // ==========================================
+    // RENDERIZAÇÃO DA AGENDA / KANBAN
+    // ==========================================
+    function mergeBlocks(dayApts) {
+      let merged = []; let currentBlock = null;
+      dayApts.forEach(item => {
+        const isBlock = item.calendar_event_id === 'blocked_time' || (item.service && item.service.startsWith('🚫'));
+        if (isBlock) {
+          if (!currentBlock) currentBlock = { ...item, type: 'block', end_time: item.time, block_ids: [item.id] };
+          else {
+            if (add30Mins(currentBlock.end_time) === item.time && currentBlock.service === item.service) { 
+              currentBlock.end_time = item.time; 
+              currentBlock.block_ids.push(item.id); 
+            } else { 
+              merged.push(currentBlock); 
+              currentBlock = { ...item, type: 'block', end_time: item.time, block_ids: [item.id] }; 
+            }
+          }
+        } else {
+          if (currentBlock) { merged.push(currentBlock); currentBlock = null; }
+          merged.push({ ...item, type: 'apt' });
+        }
+      });
+      if (currentBlock) merged.push(currentBlock); 
+      return merged;
+    }
+
+    function generateCardHtml(item) {
+      const isBlock = item.type === 'block';
+      const clientName = item.profiles?.full_name ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente Não Id.');
+      const cleanPhone = (item.profiles?.phone || '').replace(/\D/g, '');
+      const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
+
+      if (isBlock) {
+        const idsStr = (item.block_ids || [item.id]).join(',');
+        const timeDisplay = item.time === item.end_time ? `Às ${item.time}` : `Das ${item.time} até ${item.end_time}`;
+        return `
+          <div class="bg-red-950/30 border border-red-900/40 border-l-4 border-l-red-600 rounded-2xl p-4 relative shrink-0 mb-4 shadow-md backdrop-blur-sm w-full">
+            <div class="flex items-center justify-between mb-2.5 relative z-10">
+              <span class="text-[9px] font-black text-red-400 bg-red-500/10 px-2 py-0.5 rounded shadow-sm uppercase tracking-widest border border-red-500/20">🚫 Bloqueio</span>
+              <button onclick="deleteAppointment('${idsStr}', true)" class="text-zinc-400 hover:text-red-400 text-[10px] font-black uppercase tracking-wider transition-colors">Liberar ✕</button>
+            </div>
+            <p class="font-black text-zinc-100 text-sm relative z-10">${timeDisplay}</p>
+            <p class="text-[10px] text-zinc-400 mt-1.5 truncate uppercase font-bold tracking-wide relative z-10">${(item.service || '').replace('🚫 ', '')}</p>
+          </div>`;
+      } else {
+        const sTheme = getServiceTheme(item.service);
+
+        return `
+          <div class="card-bg-image rounded-2xl flex flex-col mb-4 shrink-0 transition-all transform hover:-translate-y-1 shadow-lg group w-full border border-zinc-800 ${sTheme.borderHover} relative overflow-hidden" style="background-image: url('${sTheme.img}');">
+            <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-[2px] group-hover:bg-zinc-950/60 transition-all duration-300"></div>
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sTheme.borderL} opacity-80 group-hover:opacity-100 transition-opacity"></div>
+
+            <div class="relative z-10 p-4 w-full">
+                <div class="flex items-center justify-between mb-3 w-full">
+                <span class="text-[11px] font-black ${sTheme.text} tracking-wider bg-zinc-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-zinc-700/50 shadow-sm">${item.time || '-'}</span>
+                <span class="text-[11px] font-black text-emerald-400 bg-emerald-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-emerald-500/30 shadow-sm">R$ ${parseFloat(item.price || 0).toFixed(2).replace('.', ',')}</span>
+                </div>
+                <p class="font-black text-zinc-50 text-[15px] leading-tight truncate tracking-wide drop-shadow-md w-full">${clientName}</p>
+                <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest drop-shadow-md opacity-90 w-full">${item.service || '-'}</p>
+                
+                <div class="pt-3.5 mt-3.5 border-t border-zinc-700/50 flex items-center justify-between w-full">
+                ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-white text-[10px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-500/20 hover:border-emerald-500 transition-all">💬 Chamar</a>` : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
+                <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-400 hover:text-white text-[10px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-all shadow-sm border border-zinc-700/50 hover:border-red-500">Cancelar</button>
+                </div>
+            </div>
+          </div>`;
+      }
+    }
+
+    async function loadAgendaData() {
+      const board = document.getElementById('kanban-board');
+      const dailyContainer = document.getElementById('daily-view-container');
+      
+      if (board && board.innerHTML === '') board.innerHTML = `<div class="p-6 text-zinc-500 text-xs font-black uppercase tracking-widest">Sincronizando Base de Dados...</div>`;
+
+      try {
+        const { data: apts, error } = await sb.from('appointments').select(`id, service, date, time, price, calendar_event_id, user_id, profiles(full_name, phone)`).neq('calendar_event_id', 'cancelled_by_barber').neq('calendar_event_id', 'cancelled_by_client');
+        if (error) { 
+          if(board) board.innerHTML = `<div class="p-6 text-red-500 font-black uppercase">Falha na conexão com o servidor.</div>`; 
+          return; 
+        }
+
+        if (apts) {
+          apts.forEach(a => { 
+            if (a.date && a.date.includes('/')) { 
+              let p = a.date.split('/'); 
+              if (p.length === 3) a.date = `${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`; 
+            } 
+          });
+        }
+
+        const activeDatesSet = new Set();
+        if (apts) apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
+
+        const daysList = []; 
+        const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        const hoje = new Date(); 
+        hoje.setHours(0,0,0,0);
+        let cursor = new Date(hoje); 
+        let addedCount = 0;
+        const strHoje = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
+        activeDatesSet.add(strHoje);
+
+        while (addedCount < 14) {
+          if (cursor.getDay() !== 0) {
+            const d = cursor.getDate().toString().padStart(2, '0'); 
+            const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
+            activeDatesSet.add(`${d}/${m}/${cursor.getFullYear()}`); 
+            addedCount++;
+          }
+          cursor.setDate(cursor.getDate() + 1);
+        }
+
+        const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
+          return parseBrDateToObj(a) - parseBrDateToObj(b);
+        });
+
+        const futureDates = sortedDates.filter(dateStr => { 
+          return parseBrDateToObj(dateStr) >= hoje; 
+        });
+
+        futureDates.forEach(dateStr => {
+          const dObj = parseBrDateToObj(dateStr);
+          let dName = diasSemana[dObj.getDay()]; 
+          if(dateStr === strHoje) dName = "HOJE";
+          daysList.push({ label: dateStr, dayName: dName, dayNumber: `${String(dObj.getDate()).padStart(2,'0')}/${String(dObj.getMonth()+1).padStart(2,'0')}` });
+        });
+
+        let todayCuts = 0; 
+        let todayRevenue = 0;
+        const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+        
+        todayAptsRaw.forEach(a => { 
+          if (a.calendar_event_id !== 'blocked_time' && a.service && !a.service.startsWith('🚫')) { 
+            todayCuts++; 
+            todayRevenue += parseFloat(a.price || 0); 
+          } 
+        });
+
+        const cutsEl = document.getElementById('metric-total-cuts');
+        const revEl = document.getElementById('metric-total-revenue');
+        if(cutsEl) cutsEl.innerText = todayCuts;
+        if(revEl) revEl.innerText = `R$ ${todayRevenue.toFixed(2).replace('.', ',')}`;
+
+        let boardHtml = '';
+        daysList.forEach((day, index) => {
+          const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+          const mergedApts = mergeBlocks(dayAptsRaw);
+          
+          let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
+          const isToday = day.label === strHoje; 
+          
+          const bgHeader = isToday ? 'bg-zinc-900/90' : 'bg-transparent';
+          const bgList = mergedApts.length > 0 ? 'bg-zinc-900/40 border border-zinc-800/60 shadow-lg backdrop-blur-md' : 'bg-transparent border-transparent';
+          
+          if (mergedApts.length === 0) cardsHtml = `<div class="w-full flex flex-col items-center justify-center text-center p-3 text-zinc-700 bg-transparent opacity-0"></div>`; 
+          else { 
+            mergedApts.forEach(item => { 
+              if (item.type !== 'block') { 
+                dayRev += parseFloat(item.price || 0); 
+                dayCuts++; 
+              } 
+              cardsHtml += generateCardHtml(item); 
+            }); 
+          }
+
+          boardHtml += `
+            <div class="w-[290px] shrink-0 flex flex-col max-h-full">
+              <div class="flex flex-col ${bgList} rounded-3xl overflow-hidden relative transition-all">
+                ${isToday && mergedApts.length > 0 ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>` : ''}
+                
+                <div class="${bgHeader} p-5 border-b border-zinc-800/50 flex items-center justify-between shrink-0 transition-colors z-10 ${mergedApts.length === 0 ? 'border-b-0' : ''}">
+                  <div>
+                    <span class="text-[13px] uppercase font-black text-zinc-400 block tracking-widest drop-shadow-sm">${day.dayName}</span>
+                    <span class="text-[10px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} Cli - R$ ${dayRev.toFixed(2).replace('.', ',')}</span>
+                  </div>
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-zinc-300 bg-zinc-800 border border-zinc-700 text-sm shadow-sm">${day.dayNumber.split('/')[0]}</div>
+                </div>
+                
+                <div class="${mergedApts.length > 0 ? 'p-4' : 'p-0'} overflow-y-auto custom-scroll relative pointer-events-auto z-0 flex flex-col items-center w-full">${cardsHtml}</div>
+              </div>
+            </div>`;
+        });
+        
+        if(board) board.innerHTML = boardHtml;
+
+        let dailyHtml = ''; 
+        const mergedToday = mergeBlocks(todayAptsRaw);
+        if (mergedToday.length === 0) {
+          dailyHtml = `<div class="col-span-full flex items-center justify-center py-20 text-zinc-600 text-xs font-black uppercase tracking-widest border-2 border-dashed border-zinc-800/50 rounded-3xl bg-zinc-900/20">Agenda Livre / Sem Movimento</div>`;
+        } else {
+          mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); });
+        }
+        if(dailyContainer) dailyContainer.innerHTML = dailyHtml;
+
+      } catch (err) { 
+        console.error("Erro no loadAgendaData:", err);
+        if(board) board.innerHTML = `<div class="p-6 text-red-500 font-black uppercase">Erro ao exibir agenda.</div>`; 
       }
     }
   </script>
