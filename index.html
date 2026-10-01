@@ -15,7 +15,6 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     input { font-size: 16px !important; }
   </style>
-  <!-- Meta tags para WhatsApp e Redes Sociais -->
   <meta property="og:title" content="RB Barbearia">
   <meta property="og:description" content="Agende seu horário online de forma rápida e prática.">
   <meta property="og:image" content="https://rb-barbearia.vercel.app/icone.png">
@@ -59,7 +58,6 @@
         <p class="text-zinc-400 text-[13px] px-4">Agende online de forma rápida e acompanhe o seu histórico de cortes.</p>
       </div>
 
-      <!-- CRACHÁ DO ÚLTIMO ACESSO -->
       <div id="last-login-badge" class="hidden mx-auto mb-6 bg-blue-500/10 border border-blue-500/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">
         <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
         <span id="last-login-text">Último acesso: --</span>
@@ -85,20 +83,16 @@
           <div class="flex-grow border-t border-zinc-800"></div>
         </div>
 
-        <!-- FORMULÁRIO DE LOGIN APENAS POR TELEFONE -->
         <div class="space-y-3 bg-[#141414] p-5 rounded-2xl border border-zinc-800 text-left">
           <p class="text-sm font-bold text-white mb-4 text-center">Acesso Direto</p>
-          
           <div>
             <label class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider mb-1.5 block">Nome e Sobrenome</label>
             <input type="text" id="phone-login-name" placeholder="Ex: João Silva" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
           </div>
-          
           <div>
             <label class="text-[11px] text-zinc-400 uppercase font-bold tracking-wider mb-1.5 block">Número de WhatsApp</label>
             <input type="text" id="phone-login-number" placeholder="(51) 99999-9999" oninput="maskPhone(this)" class="w-full px-4 py-3 bg-[#0f0f0f] border border-zinc-700 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
           </div>
-          
           <button onclick="executePhoneLogin()" class="w-full py-3.5 mt-2 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors text-[14px]">
             Entrar com Telefone
           </button>
@@ -132,12 +126,12 @@
       </div>
 
       <div id="tab-content-servicos" class="flex-1 pb-10">
-        <!-- 01 - Corte Masculino -->
+        
+        <!-- Corte Masculino -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">01 - Corte Masculino</p>
-            <p class="text-[11px] text-zinc-400 mt-0.5">Estilo em cada detalhe</p>
+            <p class="font-bold text-white text-[15px]">Corte Masculino</p>
             <div class="flex items-center gap-4 mt-1.5">
               <span class="text-emerald-400 font-semibold text-[13px]">R$ 40,00</span>
               <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 30 min</span>
@@ -146,12 +140,11 @@
           <button onclick="startBooking('Corte Masculino', 40, 30)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
 
-        <!-- 02 - Barba -->
+        <!-- Barba -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">02 - Barba</p>
-            <p class="text-[11px] text-zinc-400 mt-0.5">Deixe seu visual ainda melhor</p>
+            <p class="font-bold text-white text-[15px]">Barba</p>
             <div class="flex items-center gap-4 mt-1.5">
               <span class="text-emerald-400 font-semibold text-[13px]">R$ 30,00</span>
               <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 30 min</span>
@@ -160,12 +153,11 @@
           <button onclick="startBooking('Barba', 30, 30)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
         
-        <!-- 03 - Sobrancelha -->
+        <!-- Sobrancelha -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="./sobrancelha.jpeg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">03 - Sobrancelha</p>
-            <p class="text-[11px] text-zinc-400 mt-0.5">Mais expressão para o seu olhar</p>
+            <p class="font-bold text-white text-[15px]">Sobrancelha</p>
             <div class="flex items-center gap-4 mt-1.5">
               <span class="text-emerald-400 font-semibold text-[13px]">R$ 15,00</span>
               <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 20 min</span>
@@ -174,32 +166,30 @@
           <button onclick="startBooking('Sobrancelha', 15, 20)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
 
-        <!-- 04 - Cuidado Completo -->
+        <!-- Corte e Barba -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-xl object-cover border border-amber-500/30 shrink-0">
           <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">04 - Cuidado Completo</p>
-            <p class="text-[11px] text-zinc-400 mt-0.5">Do seu jeito, do seu estilo</p>
+            <p class="font-bold text-white text-[15px]">Corte e Barba</p>
             <div class="flex items-center gap-4 mt-1.5">
               <span class="text-emerald-400 font-semibold text-[13px]">R$ 65,00</span>
               <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 60 min</span>
             </div>
           </div>
-          <button onclick="startBooking('Cuidado Completo', 65, 60)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
+          <button onclick="startBooking('Corte e Barba', 65, 60)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
         
-        <!-- 05 - Progressiva Orgânica -->
+        <!-- Progressiva feminina orgânica -->
         <div class="p-4 border-b border-zinc-800/50 flex items-center justify-between gap-4">
           <img src="./progressiva.jpg" class="w-16 h-16 rounded-xl object-cover border border-zinc-800 shrink-0">
           <div class="flex-1">
-            <p class="font-bold text-white text-[15px]">05 - Progressiva Orgânica</p>
-            <p class="text-[11px] text-zinc-400 mt-0.5">Ganhe de brinde esmaltação tradicional</p>
+            <p class="font-bold text-white text-[15px]">Progressiva feminina orgânica</p>
             <div class="flex items-center gap-4 mt-1.5">
               <span class="text-emerald-400 font-semibold text-[13px]">R$ 180,00</span>
               <span class="text-zinc-500 text-[12px] flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 120 min</span>
             </div>
           </div>
-          <button onclick="startBooking('Progressiva Orgânica', 180, 120)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
+          <button onclick="startBooking('Progressiva feminina orgânica', 180, 120)" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition-colors shrink-0">Agendar</button>
         </div>
       </div>
 
@@ -338,7 +328,6 @@
         }).subscribe();
     }
 
-    // LOGIN POR TELEFONE EXCLUSIVO
     async function executePhoneLogin() {
       const name = document.getElementById('phone-login-name').value.trim();
       const phoneRaw = document.getElementById('phone-login-number').value;
@@ -369,7 +358,6 @@
       enterApp();
     }
 
-    // LOGIN OAUTH (GMAIL, SPOTIFY, LINKEDIN)
     async function unifyAndEnterApp(authId, name, email, phone, avatarUrlFromAuth) {
       const cleanPhone = phone.replace(/\D/g, '');
       const { data: existingProfile } = await sb.from('profiles').select('*').eq('phone', cleanPhone).maybeSingle();
@@ -465,7 +453,6 @@
       initClientRealtime();
     }
 
-    // LÓGICA DO PERFIL
     function loadProfileDataIntoUI() {
       if(!clientUser) return;
       document.getElementById('profile-name-input').value = clientUser.name || '';
@@ -598,7 +585,7 @@
           if (b.calendar_event_id === 'cancelled_by_barber' || b.calendar_event_id === 'cancelled_by_client') return;
           const startMin = timeToMinutes(b.time);
           let dur = 30;
-          if (b.service && b.service.includes("Cuidado Completo")) dur = 60;
+          if (b.service && b.service.includes("Corte e Barba")) dur = 60;
           else if (b.service && b.service.includes("Progressiva")) dur = 120;
           else if (b.service && b.service.includes("Sobrancelha")) dur = 20;
           occupiedIntervals.push({ start: startMin, end: startMin + dur });
