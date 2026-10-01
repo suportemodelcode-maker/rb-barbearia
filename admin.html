@@ -39,7 +39,11 @@
     .manual-time-option { transition: all 0.2s ease; }
     .manual-time-option.selected { border-color: #10b981; background: rgba(16, 185, 129, 0.1); color: #fff; }
     .manual-time-option.available:hover { border-color: #3f3f46; }
-    @media (max-width: 767px) { .desktop-only { display:none !important; } }
+    
+    @media (max-width: 767px) { 
+      .desktop-only { display:none !important; } 
+      .desktop-indicator { display: none !important; }
+    }
     @media (min-width:768px) { .mobile-only { display:none !important; } }
   </style>
 </head>
@@ -122,10 +126,6 @@
           <input type="time" id="block-end" value="14:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
         </div>
       </div>
-      <div>
-        <label class="text-[10px] text-zinc-400 uppercase font-black tracking-wider block mb-1.5">Motivo (Opcional)</label>
-        <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga..." class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500">
-      </div>
       <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-xl transition-all">
         Confirmar Bloqueio
       </button>
@@ -199,39 +199,40 @@
 </div>
 
 <!-- PAINEL PRINCIPAL -->
-<div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
+<div id="main-panel" class="hidden w-full h-full flex flex-col md:flex-row overflow-hidden relative">
   
-  <aside class="w-[65px] md:w-[74px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-5 shrink-0 z-20 shadow-[5px_0_25px_rgba(0,0,0,.25)]">
-    <div class="w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-zinc-950 font-black text-lg shadow-[0_0_25px_rgba(249,115,22,.25)]">RB</div>
-    <nav class="flex flex-col gap-2.5 w-full px-2.5 mt-2 flex-1">
-      <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
-        <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
+  <aside class="fixed md:relative bottom-0 left-0 w-full md:w-[74px] h-[75px] md:h-full bg-zinc-950 border-t md:border-t-0 md:border-r border-zinc-800 flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-5 px-2 md:px-0 gap-1 md:gap-5 shrink-0 z-40 shadow-[0_-5px_20px_rgba(0,0,0,.3)] md:shadow-[5px_0_25px_rgba(0,0,0,.25)]">
+    <div class="hidden md:flex w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl items-center justify-center text-zinc-950 font-black text-lg shadow-[0_0_25px_rgba(249,115,22,.25)]">RB</div>
+    
+    <nav class="flex flex-row md:flex-col gap-1 md:gap-2.5 w-full md:w-auto px-1 md:px-2.5 mt-0 md:mt-2 flex-1 md:flex-auto justify-around md:justify-start items-center">
+      <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-12 h-12 md:w-full md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
+        <div id="nav-ind-hoje" class="desktop-indicator hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
         <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
       </button>
-      <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda">
-        <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
+      <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-12 h-12 md:w-full md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda">
+        <div id="nav-ind-kanban" class="desktop-indicator hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
         <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </button>
-      <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
-        <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
+      <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-12 h-12 md:w-full md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
+        <div id="nav-ind-historico" class="desktop-indicator hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
         <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
       </button>
-      <button onclick="switchTab('clientes')" id="nav-btn-clientes" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Clientes">
-        <div id="nav-ind-clientes" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
+      <button onclick="switchTab('clientes')" id="nav-btn-clientes" class="w-12 h-12 md:w-full md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Clientes">
+        <div id="nav-ind-clientes" class="desktop-indicator hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
         <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
       </button>
-      <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Financeiro">
-        <div id="nav-ind-financeiro" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
+      <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-12 h-12 md:w-full md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Financeiro">
+        <div id="nav-ind-financeiro" class="desktop-indicator hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
         <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </button>
     </nav>
-    <button onclick="switchTab('config')" id="nav-btn-config" class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group mb-2" title="Configurações">
-      <div id="nav-ind-config" class="hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
+    <button onclick="switchTab('config')" id="nav-btn-config" class="w-12 h-12 md:w-[48px] md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group md:mb-2 shrink-0" title="Configurações">
+      <div id="nav-ind-config" class="desktop-indicator hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
       <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c1.756-.426 1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543-.826-3.31-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
     </button>
   </aside>
 
-  <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
+  <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative pb-[75px] md:pb-0">
     <header class="h-[72px] flex items-center justify-between px-4 md:px-8 border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl shrink-0 z-20">
       <div class="flex flex-col min-w-0">
         <h1 class="text-lg md:text-xl font-black text-white tracking-wide">Painel RB</h1>
@@ -644,10 +645,14 @@ function switchTab(tab) {
     const el = document.getElementById(id);
     if (el) { el.classList.add('hidden'); el.classList.remove('flex'); }
   });
+  
+  // Limpa classes dos botões
   ['hoje','kanban','historico','clientes','financeiro','config'].forEach(id => {
     const btn = document.getElementById('nav-btn-' + id);
     const ind = document.getElementById('nav-ind-' + id);
-    if (btn) btn.className = 'w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group';
+    if (btn) btn.className = btn.id === 'nav-btn-config' 
+        ? 'w-12 h-12 md:w-[48px] md:aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group md:mb-2 shrink-0'
+        : 'w-12 h-12 md:w-full md:aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group';
     if (ind) ind.classList.add('hidden');
   });
 
@@ -655,11 +660,9 @@ function switchTab(tab) {
   if (activeTab) { activeTab.classList.remove('hidden'); activeTab.classList.add('flex'); }
   const activeBtn = document.getElementById('nav-btn-' + tab);
   const activeInd = document.getElementById('nav-ind-' + tab);
-  if (activeBtn) { activeBtn.classList.add('nav-active'); activeBtn.classList.remove('text-zinc-500'); activeBtn.classList.add('text-white'); }
+  if (activeBtn) { activeBtn.classList.add('nav-active'); activeBtn.classList.remove('text-zinc-500', 'text-zinc-400'); activeBtn.classList.add('text-white'); }
   if (activeInd) activeInd.classList.remove('hidden');
 
-  const topStats = document.getElementById('top-stats-bar');
-  if (topStats) { if (tab === 'hoje' || tab === 'kanban') topStats.classList.remove('hidden'); else topStats.classList.add('hidden'); }
   if (tab === 'historico' || tab === 'financeiro' || tab === 'clientes') fetchHistoryData();
   if (tab === 'financeiro') setTimeout(calculateDashboard, 100);
 }
@@ -833,8 +836,6 @@ async function saveManualBooking() {
   btn.disabled = true;
   btn.innerText = 'Salvando...';
 
-  // Lógica de Perfil: Tenta encontrar o WhatsApp, se não existir, gera um UUID e cria o perfil. 
-  // Mesmo se o whats for vazio, cria um perfil (o dashboard agrupa por nome no pior dos casos).
   let finalUserId = generateUUID();
   if (cleanPhone.length >= 10) {
     const { data: existingProfile } = await sb.from('profiles').select('id').eq('phone', cleanPhone).maybeSingle();
@@ -877,7 +878,6 @@ function openBlockModal() {
   const val = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const input = document.getElementById('block-date');
   if (input) { input.value = val; input.min = val; }
-  document.getElementById('block-reason').value = '';
   document.getElementById('modal-block').classList.remove('hidden');
   document.getElementById('modal-block').classList.add('flex');
 }
@@ -891,7 +891,7 @@ async function confirmBlock() {
   const dateVal = document.getElementById('block-date').value;
   const start = document.getElementById('block-start').value;
   const end = document.getElementById('block-end').value;
-  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; 
+  const reason = 'Bloqueado'; 
 
   if (!dateVal) return alert('Selecione uma data.');
   const now = new Date();
@@ -964,7 +964,7 @@ async function confirmBlock() {
 
   const { error: insertError } = await sb.from('appointments').insert(inserts);
   if (insertError) alert('Erro ao bloquear: ' + insertError.message);
-  else { closeBlockModal(); document.getElementById('block-reason').value = ''; loadAgendaData(); }
+  else { closeBlockModal(); loadAgendaData(); }
   btn.disabled = false; btn.innerText = 'Confirmar Bloqueio';
 }
 
@@ -1426,18 +1426,18 @@ function generateCardHtml(item) {
   const sTheme = getServiceTheme(item.service);
   return `
     <div class="agenda-card card-bg-image rounded-2xl flex flex-col mb-4 shrink-0 transition-all transform hover:-translate-y-1 shadow-lg group w-full border border-zinc-800 ${sTheme.borderHover} relative overflow-hidden" data-search="${(clientName + ' ' + (item.service || '') + ' ' + (item.time || '')).toLowerCase()}" style="background-image:url('${sTheme.img}')">
-      <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-[2px] group-hover:bg-zinc-950/60 transition-all"></div>
-      <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sTheme.borderL}"></div>
-      <div class="relative z-10 p-4 w-full">
+      <div class="absolute inset-0 bg-zinc-950/50 backdrop-blur-sm group-hover:bg-zinc-950/30 transition-all"></div>
+      <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sTheme.borderL} z-20"></div>
+      <div class="relative z-10 p-4 w-full drop-shadow-md">
         <div class="flex items-center justify-between mb-3">
-          <span class="text-[11px] font-black ${sTheme.text} bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-zinc-700/50">${item.time || '-'}</span>
-          <span class="text-[11px] font-black text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">R$ ${parseFloat(item.price || 0).toFixed(2).replace('.',',')}</span>
+          <span class="text-[11px] font-black text-white bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-zinc-700/50 shadow-sm">${item.time || '-'}</span>
+          <span class="text-[11px] font-black text-emerald-400 bg-zinc-900/90 px-2.5 py-1 rounded-lg border border-emerald-500/30 shadow-sm">R$ ${parseFloat(item.price || 0).toFixed(2).replace('.',',')}</span>
         </div>
-        <p class="font-black text-zinc-50 text-[15px] leading-tight truncate tracking-wide">${clientName}</p>
-        <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest">${item.service || '-'}</p>
-        <div class="pt-3.5 mt-3.5 border-t border-zinc-700/50 flex items-center justify-between">
-          ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-all"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.216h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.67-1.04-5.18-2.929-7.071A9.92 9.92 0 0012.012 2zm5.826 14.18c-.246.697-1.436 1.34-1.986 1.385-.436.036-1.002.138-3.197-.773-2.653-1.101-4.341-3.812-4.473-3.987-.132-.175-1.066-1.423-1.066-2.716 0-1.293.673-1.93.916-2.193.242-.261.527-.261.705-.261.176 0 .354.004.508.01.172.007.404-.065.632.485.242.585.827 2.023.898 2.17.071.146.119.317.027.502-.089.183-.135.297-.27.447-.133.15-.286.326-.402.457-.131.149-.271.314-.117.579.155.265.69 1.137 1.479 1.843.918.819 1.769 1.072 2.035 1.196.265.124.421.102.576-.051.155-.153.669-.778.85-1.045.18-.266.36-.222.604-.132.245.091 1.543.729 1.808.861.265.133.441.198.508.31.066.112.066.65-.18 1.347z"/></svg> WhatsApp</a>` : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
-          <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-400 hover:text-white text-[9px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg border border-zinc-700/50 transition-all">Cancelar</button>
+        <p class="font-black text-white text-[15px] leading-tight truncate tracking-wide drop-shadow-lg">${clientName}</p>
+        <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest drop-shadow-md">${item.service || '-'}</p>
+        <div class="pt-3.5 mt-3.5 border-t border-zinc-500/30 flex items-center justify-between">
+          ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-zinc-950 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg border border-emerald-500/20 transition-all backdrop-blur-sm"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.779 1.216h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.67-1.04-5.18-2.929-7.071A9.92 9.92 0 0012.012 2zm5.826 14.18c-.246.697-1.436 1.34-1.986 1.385-.436.036-1.002.138-3.197-.773-2.653-1.101-4.341-3.812-4.473-3.987-.132-.175-1.066-1.423-1.066-2.716 0-1.293.673-1.93.916-2.193.242-.261.527-.261.705-.261.176 0 .354.004.508.01.172.007.404-.065.632.485.242.585.827 2.023.898 2.17.071.146.119.317.027.502-.089.183-.135.297-.27.447-.133.15-.286.326-.402.457-.131.149-.271.314-.117.579.155.265.69 1.137 1.479 1.843.918.819 1.769 1.072 2.035 1.196.265.124.421.102.576-.051.155-.153.669-.778.85-1.045.18-.266.36-.222.604-.132.245.091 1.543.729 1.808.861.265.133.441.198.508.31.066.112.066.65-.18 1.347z"/></svg> WhatsApp</a>` : `<span class="text-zinc-300 font-bold text-[9px] uppercase tracking-widest drop-shadow-md">Sem contato</span>`}
+          <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-300 hover:text-white text-[9px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg border border-zinc-700/50 transition-all backdrop-blur-sm">Cancelar</button>
         </div>
       </div>
     </div>`;
