@@ -6,26 +6,30 @@
   <title>Admin Premium - RB Barbearia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js para gráficos profissionais -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    /* Nova paleta Zinc (Cinza Escuro elegante) */
     body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; overscroll-behavior-y: none; }
     
     .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f97316; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #eab308; }
     input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
     
+    .bg-grid { background-image: repeating-linear-gradient(#18181b 0 1px, transparent 1px 100%); background-size: 100% 90px; }
     .drag-scroll { cursor: grab; }
     .drag-scroll:active { cursor: grabbing; }
     .no-select { user-select: none; }
     
-    @keyframes glow { 0% { box-shadow: 0 0 15px rgba(249,115,22,0.1); } 100% { box-shadow: 0 0 35px rgba(249,115,22,0.3); } }
-    .wallet-card { animation: glow 4s infinite alternate; background: linear-gradient(135deg, rgba(24,24,27,0.9) 0%, rgba(9,9,11,0.95) 100%); border: 1px solid rgba(249,115,22,0.2); backdrop-filter: blur(12px); }
+    /* Carteira Glassmorphism & Gold Glow */
+    @keyframes glow { 0% { box-shadow: 0 0 15px rgba(234,179,8,0.1); } 100% { box-shadow: 0 0 35px rgba(234,179,8,0.25); } }
+    .wallet-card { animation: glow 4s infinite alternate; background: linear-gradient(135deg, rgba(24,24,27,0.9) 0%, rgba(9,9,11,0.95) 100%); border: 1px solid rgba(234,179,8,0.25); backdrop-filter: blur(12px); }
     
     .stat-card { background: linear-gradient(180deg, #18181b 0%, #09090b 100%); border: 1px solid #27272a; transition: all 0.3s ease; }
     .stat-card:hover { border-color: #3f3f46; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
@@ -40,16 +44,16 @@
   <!-- TELA DE SENHA -->
   <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
     <div class="bg-zinc-900/80 border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl relative overflow-hidden backdrop-blur-xl">
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-32 bg-orange-500/10 blur-[50px] pointer-events-none"></div>
-      <div class="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center bg-zinc-950 border border-orange-500/30 overflow-hidden shadow-[0_0_20px_rgba(249,115,22,0.15)] relative z-10">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-32 bg-yellow-500/10 blur-[50px] pointer-events-none"></div>
+      <div class="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center bg-zinc-950 border border-yellow-500/30 overflow-hidden shadow-[0_0_20px_rgba(234,179,8,0.15)] relative z-10">
         <img src="./icone.png" alt="Logo" class="w-full h-full object-cover opacity-90">
       </div>
       <h2 class="text-2xl font-black text-white tracking-widest uppercase mb-1 relative z-10">Painel RB</h2>
       <p class="text-[11px] text-zinc-400 mb-8 font-medium uppercase tracking-widest relative z-10">Acesso Restrito</p>
       
       <form id="login-form" onsubmit="checkAdmin(event)" class="relative z-10">
-        <input type="password" id="admin-pass" autocomplete="current-password" placeholder="SENHA MESTRA" class="w-full py-3.5 px-4 rounded-xl bg-zinc-950 border border-zinc-700 text-white focus:border-orange-500 outline-none mb-4 text-center tracking-widest font-bold transition-all placeholder:text-zinc-600">
-        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-all transform hover:scale-[1.02]">Desbloquear</button>
+        <input type="password" id="admin-pass" autocomplete="current-password" placeholder="SENHA MESTRA" class="w-full py-3.5 px-4 rounded-xl bg-zinc-950 border border-zinc-700 text-white focus:border-yellow-500 outline-none mb-4 text-center tracking-widest font-bold transition-all placeholder:text-zinc-600">
+        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(234,179,8,0.2)] transition-all transform hover:scale-[1.02]">Desbloquear</button>
       </form>
     </div>
   </div>
@@ -68,7 +72,7 @@
       <div class="space-y-3 pt-2">
         <div class="bg-zinc-800/50 p-3 rounded-xl"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Cliente</p><p id="detail-client" class="text-sm font-bold text-white">Nome</p></div>
         <div class="flex gap-3">
-          <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Data Agendada</p><p id="detail-date" class="text-sm font-bold text-orange-400">Data</p></div>
+          <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Data Agendada</p><p id="detail-date" class="text-sm font-bold text-yellow-500">Data</p></div>
           <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Modificado em</p><p id="detail-modified" class="text-xs font-semibold text-zinc-300">Data</p></div>
         </div>
         <div id="detail-whatsapp-container" class="pt-2"></div>
@@ -107,43 +111,89 @@
     </div>
   </div>
 
-  <!-- APLICAÇÃO PRINCIPAL -->
-  <div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
+  <!-- APLICAÇÃO PRINCIPAL (CUIDADO COM A MARGEM ESQUERDA p/ SIDEBAR FIXA) -->
+  <div id="main-panel" class="hidden w-full h-full flex overflow-hidden pl-[72px]">
     
-    <!-- SIDEBAR ESQUERDA -->
-    <aside class="w-[65px] md:w-[72px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-6 shrink-0 z-20 shadow-[5px_0_15px_rgba(0,0,0,0.2)] relative">
-      <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-zinc-900 font-black text-lg shadow-[0_0_20px_rgba(249,115,22,0.3)]">RB</div>
+    <!-- SIDEBAR ESQUERDA FLUTUANTE QUE EXPANDE (TEMA GOLD) -->
+    <aside class="group w-[72px] md:hover:w-[250px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col py-6 shrink-0 z-50 transition-all duration-300 fixed left-0 top-0 overflow-hidden shadow-2xl">
+      <!-- Logo -->
+      <div class="px-4 flex items-center gap-4 w-[250px] mb-8">
+        <div class="w-10 h-10 shrink-0 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-zinc-950 font-black text-lg shadow-[0_0_15px_rgba(234,179,8,0.4)]">RB</div>
+        <span class="text-white font-black text-lg tracking-widest opacity-0 md:group-hover:opacity-100 transition-opacity whitespace-nowrap">PAINEL RB</span>
+      </div>
       
-      <nav class="flex flex-col gap-4 w-full px-3 mt-2 flex-1">
-        <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
-          <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
-          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      <nav class="flex flex-col gap-3 w-full px-3 flex-1 overflow-x-hidden">
+        <!-- Dashboard (Hoje) -->
+        <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn" title="Dashboard">
+          <div class="flex items-center gap-4 w-[220px]">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span class="text-[13px] font-bold opacity-0 md:group-hover:opacity-100 transition-opacity text-left flex-1 whitespace-nowrap">Dashboard</span>
+            <svg class="w-4 h-4 opacity-0 md:group-hover:opacity-100 transition-opacity text-zinc-600 group-hover/btn:text-yellow-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
         </button>
-        <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda Kanban">
-          <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
-          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <!-- Agendamentos (Kanban) -->
+        <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn" title="Agendamentos">
+          <div class="flex items-center gap-4 w-[220px]">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span class="text-[13px] font-bold opacity-0 md:group-hover:opacity-100 transition-opacity text-left flex-1 whitespace-nowrap">Agendamentos</span>
+            <svg class="w-4 h-4 opacity-0 md:group-hover:opacity-100 transition-opacity text-zinc-600 group-hover/btn:text-yellow-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
         </button>
-        <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
-          <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
-          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        <!-- Histórico (Registros) -->
+        <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn" title="Histórico">
+          <div class="flex items-center gap-4 w-[220px]">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            <span class="text-[13px] font-bold opacity-0 md:group-hover:opacity-100 transition-opacity text-left flex-1 whitespace-nowrap">Histórico</span>
+            <svg class="w-4 h-4 opacity-0 md:group-hover:opacity-100 transition-opacity text-zinc-600 group-hover/btn:text-yellow-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
         </button>
-        <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Dashboard & Finanças">
-          <div id="nav-ind-financeiro" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
-          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <!-- Clientes -->
+        <button onclick="switchTab('clientes')" id="nav-btn-clientes" class="w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn" title="Clientes">
+          <div class="flex items-center gap-4 w-[220px]">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span class="text-[13px] font-bold opacity-0 md:group-hover:opacity-100 transition-opacity text-left flex-1 whitespace-nowrap">Clientes</span>
+            <svg class="w-4 h-4 opacity-0 md:group-hover:opacity-100 transition-opacity text-zinc-600 group-hover/btn:text-yellow-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </button>
+        <!-- Financeiro -->
+        <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn" title="Financeiro">
+          <div class="flex items-center gap-4 w-[220px]">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="text-[13px] font-bold opacity-0 md:group-hover:opacity-100 transition-opacity text-left flex-1 whitespace-nowrap">Financeiro</span>
+            <svg class="w-4 h-4 opacity-0 md:group-hover:opacity-100 transition-opacity text-zinc-600 group-hover/btn:text-yellow-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </button>
+        <!-- Configurações -->
+        <button onclick="switchTab('config')" id="nav-btn-config" class="w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn" title="Serviços / Ajustes">
+          <div class="flex items-center gap-4 w-[220px]">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="text-[13px] font-bold opacity-0 md:group-hover:opacity-100 transition-opacity text-left flex-1 whitespace-nowrap">Configurações</span>
+            <svg class="w-4 h-4 opacity-0 md:group-hover:opacity-100 transition-opacity text-zinc-600 group-hover/btn:text-yellow-500 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </div>
         </button>
       </nav>
-      
-      <button onclick="switchTab('config')" id="nav-btn-config" class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group mb-2" title="Configurações">
-        <div id="nav-ind-config" class="hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
-        <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      </button>
+
+      <!-- Rodapé Sidebar (Perfil / Sair) -->
+      <div class="mt-auto px-3 w-full pb-4 shrink-0 overflow-hidden">
+        <div class="w-full h-[52px] bg-zinc-900/80 rounded-xl border border-zinc-800 flex items-center px-2 cursor-pointer hover:border-zinc-700 transition-colors" onclick="logoutAdmin()">
+          <div class="flex items-center gap-3 w-[220px]">
+            <div class="w-8 h-8 rounded-full bg-zinc-800 shrink-0 overflow-hidden border border-zinc-700">
+               <img src="./icone.png" class="w-full h-full object-cover">
+            </div>
+            <div class="flex flex-col opacity-0 md:group-hover:opacity-100 transition-opacity">
+              <span class="text-white text-[12px] font-bold whitespace-nowrap">Admin Barbearia</span>
+              <span class="text-zinc-500 text-[9px] uppercase font-bold tracking-widest whitespace-nowrap">Proprietário - Sair</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </aside>
 
-    <!-- CONTAINER DIREITO -->
+    <!-- CONTAINER DIREITO (Espaço para a Sidebar Colapsada) -->
     <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
       
-      <!-- HEADER COMUM -->
-      <header class="h-[72px] flex items-center justify-between px-5 md:px-8 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md shrink-0 z-20">
+      <!-- HEADER COMUM (Sem o botão de perfil porque já está na lateral) -->
+      <header class="h-[72px] flex items-center justify-between px-5 md:px-8 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0 z-20">
         <div class="flex flex-col">
           <div class="flex items-center gap-3">
             <h1 class="text-xl font-black text-white tracking-wider">Painel RB</h1>
@@ -157,25 +207,13 @@
         
         <div class="flex items-center gap-4 md:gap-6">
           <button onclick="openBlockModal()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl text-xs hover:bg-zinc-800 hover:text-white transition-all font-bold shadow-sm">
-            <span class="text-red-500">🚫</span> Bloquear
+            <span class="text-red-500">🚫</span> Bloquear Horário
           </button>
           <button onclick="openBlockModal()" class="flex md:hidden items-center justify-center w-10 h-10 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm">🚫</button>
-          
-          <div class="h-8 w-px bg-zinc-800 hidden md:block"></div>
-          
-          <div class="flex items-center gap-3">
-            <div class="hidden md:block text-right">
-              <p class="text-[13px] font-bold text-white leading-tight">Administrador</p>
-              <button onclick="logoutAdmin()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider transition-colors">Sair da Conta</button>
-            </div>
-            <div onclick="logoutAdmin()" class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-300 border-2 border-zinc-700 cursor-pointer md:cursor-default overflow-hidden shadow-sm">
-              <img src="./icone.png" class="w-full h-full object-cover" alt="Admin">
-            </div>
-          </div>
         </div>
       </header>
 
-      <!-- BARRA DE ESTATÍSTICAS -->
+      <!-- BARRA DE ESTATÍSTICAS (Aparece em Hoje e Kanban) -->
       <div id="top-stats-bar" class="bg-zinc-950 border-b border-zinc-800 shrink-0 relative z-10 hidden">
         <div class="px-5 md:px-8 py-3 flex items-center justify-between text-[11px] font-medium overflow-x-auto custom-scroll">
           <div class="flex items-center gap-6 whitespace-nowrap">
@@ -185,7 +223,7 @@
           </div>
           <div class="flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6 opacity-80">
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Corte</div>
-            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Barba</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Barba</div>
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Completo</div>
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span> Sobrancelha</div>
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-500"></span> Progressiva</div>
@@ -231,7 +269,36 @@
         </div>
       </main>
 
-      <!-- ABA 4: FINANCEIRO & DASHBOARD -->
+      <!-- ABA 4: CLIENTES -->
+      <main id="tab-clientes" class="hidden flex-1 flex-col p-5 md:p-8 min-h-0 relative z-0">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4 shrink-0">
+          <div>
+            <h2 class="text-xl font-black text-zinc-100 tracking-wide">Carteira de Clientes</h2>
+            <p class="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-1">Ativos nos últimos 12 meses</p>
+          </div>
+          <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1.5 rounded-xl shadow-sm w-full md:w-auto overflow-hidden focus-within:border-yellow-500 transition-colors">
+             <svg class="w-5 h-5 text-zinc-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+             <input type="text" id="search-client" placeholder="Buscar por nome ou número..." onkeyup="filterClients()" class="bg-transparent border-none text-white text-xs px-3 py-2 outline-none w-full md:w-64 placeholder:text-zinc-600 font-medium">
+          </div>
+        </div>
+        <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800 shadow-sm">
+              <tr>
+                <th class="px-5 py-4">Nome do Cliente</th>
+                <th class="px-5 py-4">Contato</th>
+                <th class="px-5 py-4">Última Visita</th>
+                <th class="px-5 py-4">Gasto Total</th>
+                <th class="px-5 py-4">Frequência</th>
+                <th class="px-5 py-4 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="clients-table-body" class="divide-y divide-zinc-800/60"></tbody>
+          </table>
+        </div>
+      </main>
+
+      <!-- ABA 5: FINANCEIRO & DASHBOARD -->
       <main id="tab-financeiro" class="hidden flex-1 flex-col p-5 md:p-8 overflow-y-auto custom-scroll relative z-0">
         
         <div class="flex flex-col xl:flex-row justify-between xl:items-end mb-8 gap-5">
@@ -250,23 +317,23 @@
             </div>
             
             <div id="custom-date-filters" class="hidden flex items-center gap-2 px-2 pb-1 sm:pb-0 border-t sm:border-t-0 sm:border-l border-zinc-800 pt-2 sm:pt-0">
-              <input type="date" id="dash-start" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
+              <input type="date" id="dash-start" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-yellow-500">
               <span class="text-zinc-500 text-[10px] font-bold">ATÉ</span>
-              <input type="date" id="dash-end" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
-              <button onclick="applyCustomDashFilter()" class="bg-orange-500 hover:bg-orange-400 text-zinc-900 px-3 py-1.5 rounded-lg text-xs font-black transition-colors">IR</button>
+              <input type="date" id="dash-end" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-yellow-500">
+              <button onclick="applyCustomDashFilter()" class="bg-yellow-500 hover:bg-yellow-400 text-zinc-900 px-3 py-1.5 rounded-lg text-xs font-black transition-colors">IR</button>
             </div>
           </div>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div class="wallet-card rounded-3xl p-7 relative overflow-hidden flex flex-col justify-center gap-6">
-            <div class="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/15 rounded-full blur-[40px] pointer-events-none"></div>
+            <div class="absolute -top-10 -right-10 w-48 h-48 bg-yellow-500/15 rounded-full blur-[40px] pointer-events-none"></div>
             <div class="flex items-center justify-between relative z-10">
-              <span class="text-orange-400 text-[11px] uppercase font-black tracking-widest flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Wallet RB</span>
-              <span class="bg-orange-500/10 text-orange-400 text-[9px] px-2.5 py-1.5 rounded-md border border-orange-500/20 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
+              <span class="text-yellow-500 text-[11px] uppercase font-black tracking-widest flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Wallet RB</span>
+              <span class="bg-yellow-500/10 text-yellow-500 text-[9px] px-2.5 py-1.5 rounded-md border border-yellow-500/20 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
             </div>
             <div class="relative z-10">
-              <p class="text-orange-200/50 text-xs font-bold uppercase tracking-widest mb-1.5">Receita Líquida Realizada</p>
+              <p class="text-yellow-200/50 text-xs font-bold uppercase tracking-widest mb-1.5">Receita Líquida Realizada</p>
               <h3 id="dash-wallet-saldo" class="text-5xl font-black text-white tracking-tighter drop-shadow-lg">R$ 0,00</h3>
             </div>
           </div>
@@ -318,19 +385,19 @@
         </div>
       </main>
 
-      <!-- ABA 5: CONFIGURAÇÕES -->
+      <!-- ABA 6: CONFIGURAÇÕES -->
       <main id="tab-config" class="hidden flex-1 flex-col items-start p-5 md:p-8 overflow-y-auto min-h-0 relative z-0">
         <h2 class="text-xl font-black text-zinc-100 tracking-wide mb-6">Ajustes da Plataforma</h2>
         <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl backdrop-blur-sm">
-          <h3 class="text-sm font-black tracking-widest uppercase text-orange-500 mb-6 border-b border-zinc-800/50 pb-3">Horário Operacional</h3>
+          <h3 class="text-sm font-black tracking-widest uppercase text-yellow-500 mb-6 border-b border-zinc-800/50 pb-3">Horário Operacional</h3>
           <div class="space-y-5">
             <div>
               <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Abertura</label>
-              <input type="time" id="set-open" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
+              <input type="time" id="set-open" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-yellow-500 text-sm font-bold transition-all shadow-inner">
             </div>
             <div>
               <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Fecho</label>
-              <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
+              <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-yellow-500 text-sm font-bold transition-all shadow-inner">
             </div>
             <button onclick="saveSettings()" class="w-full py-4 mt-4 bg-zinc-200 hover:bg-white text-zinc-900 font-black uppercase tracking-widest rounded-xl text-xs transition-all shadow-[0_5px_15px_rgba(255,255,255,0.1)] transform hover:scale-[1.02]">
               Salvar Alterações
@@ -354,6 +421,7 @@
     let currentHistoryFilter = 'hoje';
     let dashFilter = 'mes';
     let revenueChartInstance = null;
+    let allClientsList = [];
 
     const KANBAN_THEMES = [
       { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
@@ -365,7 +433,7 @@
       const s = (serviceName || '').toLowerCase();
       if (s.includes('corte e barba') || s.includes('combo') || s.includes('completo')) { return { borderL: 'border-l-purple-500', borderHover: 'hover:border-purple-500/50', text: 'text-purple-300', img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80' }; }
       if (s.includes('progressiva')) { return { borderL: 'border-l-pink-500', borderHover: 'hover:border-pink-500/50', text: 'text-pink-300', img: './progressiva.jpg' }; }
-      if (s.includes('barba')) { return { borderL: 'border-l-orange-500', borderHover: 'hover:border-orange-500/50', text: 'text-orange-300', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80' }; }
+      if (s.includes('barba')) { return { borderL: 'border-l-yellow-500', borderHover: 'hover:border-yellow-500/50', text: 'text-yellow-400', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80' }; }
       if (s.includes('sobrancelha')) { return { borderL: 'border-l-teal-500', borderHover: 'hover:border-teal-500/50', text: 'text-teal-300', img: './sobrancelha.jpeg' }; }
       return { borderL: 'border-l-blue-500', borderHover: 'hover:border-blue-500/50', text: 'text-blue-300', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80' };
     }
@@ -418,26 +486,26 @@
     function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
 
     function switchTab(tab) {
-      const tabs = ['tab-hoje', 'tab-kanban', 'tab-historico', 'tab-financeiro', 'tab-config'];
-      const navs = ['hoje', 'kanban', 'historico', 'financeiro', 'config'];
+      const tabs = ['tab-hoje', 'tab-kanban', 'tab-historico', 'tab-clientes', 'tab-financeiro', 'tab-config'];
+      const navs = ['hoje', 'kanban', 'historico', 'clientes', 'financeiro', 'config'];
       
       tabs.forEach(id => { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); });
       navs.forEach(id => {
         const btn = document.getElementById('nav-btn-' + id); const ind = document.getElementById('nav-ind-' + id);
-        btn.className = "w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group";
+        btn.className = "w-full h-[46px] flex items-center px-3 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 border border-transparent transition-all shrink-0 overflow-hidden group/btn";
         ind.classList.add('hidden');
       });
 
       document.getElementById('tab-'+tab).classList.remove('hidden'); document.getElementById('tab-'+tab).classList.add('flex');
       
       const activeBtn = document.getElementById('nav-btn-'+tab); const activeInd = document.getElementById('nav-ind-'+tab);
-      activeBtn.className = "w-full aspect-square rounded-2xl flex items-center justify-center text-white bg-zinc-800 relative transition-all group shadow-inner border border-zinc-700/50";
+      activeBtn.className = "w-full h-[46px] flex items-center px-3 rounded-xl text-yellow-500 bg-yellow-500/5 border border-yellow-500/50 transition-all shadow-[0_0_15px_rgba(234,179,8,0.15)] shrink-0 overflow-hidden group/btn";
       activeInd.classList.remove('hidden');
 
       if (tab === 'hoje' || tab === 'kanban') document.getElementById('top-stats-bar').classList.remove('hidden');
       else document.getElementById('top-stats-bar').classList.add('hidden');
 
-      if(tab === 'historico' || tab === 'financeiro') fetchHistoryData();
+      if(tab === 'historico' || tab === 'financeiro' || tab === 'clientes') fetchHistoryData();
     }
 
     function playNotificationSound() { const a = document.getElementById('notification-sound'); a.currentTime = 0; a.play().catch(()=>{}); }
@@ -529,7 +597,7 @@
       allHistoryData = data || [];
       allHistoryData.forEach(a => { if(a.date){ let p=a.date.split('/'); if(p.length===3) a.date=`${String(p[0]).padStart(2,'0')}/${String(p[1]).padStart(2,'0')}/${p[2]}`; } });
       
-      renderHistoryTable(); calculateDashboard();
+      renderHistoryTable(); calculateDashboard(); renderClientsTable();
     }
 
     function setHistoryFilter(filter) {
@@ -565,11 +633,11 @@
         const clientName = a.profiles ? a.profiles.full_name : (isBlock ? 'Bloqueio' : 'Cliente Não Id.');
         let statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Confirmado</span>`;
         if (a.calendar_event_id === 'cancelled_by_barber') statusBadge = `<span class="bg-red-500/10 text-red-500 border border-red-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Cancelado (RB)</span>`;
-        else if (a.calendar_event_id === 'cancelled_by_client') statusBadge = `<span class="bg-orange-500/10 text-orange-500 border border-orange-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Cancelado (Cli)</span>`;
+        else if (a.calendar_event_id === 'cancelled_by_client') statusBadge = `<span class="bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Cancelado (Cli)</span>`;
         else if (isBlock) statusBadge = `<span class="bg-zinc-800 text-zinc-400 border border-zinc-700 px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm">Bloqueado</span>`;
 
         html += `
-          <tr class="hover:bg-zinc-800/40 transition-colors cursor-pointer group border-l-2 border-transparent hover:border-orange-500" onclick='openDetailsModal(${JSON.stringify(a).replace(/'/g, "&apos;")})'>
+          <tr class="hover:bg-zinc-800/40 transition-colors cursor-pointer group border-l-2 border-transparent hover:border-yellow-500" onclick='openDetailsModal(${JSON.stringify(a).replace(/'/g, "&apos;")})'>
             <td class="px-5 py-4 text-zinc-500 font-medium group-hover:text-zinc-300">${formatDateForDisplay(a.created_at)}</td>
             <td class="px-5 py-4 font-black text-white">${a.date} <span class="text-zinc-500 font-medium ml-1">às ${a.time}</span></td>
             <td class="px-5 py-4 text-zinc-300 font-bold truncate max-w-[180px]">${clientName}</td>
@@ -595,7 +663,7 @@
 
       let statusMsg = `<span class="text-emerald-400 font-bold">Confirmado</span>`;
       if (item.calendar_event_id === 'cancelled_by_barber') statusMsg = `<span class="text-red-500 font-bold">Cancelado pela Barbearia</span>`;
-      else if (item.calendar_event_id === 'cancelled_by_client') statusMsg = `<span class="text-orange-500 font-bold">Cancelado pelo Cliente</span>`;
+      else if (item.calendar_event_id === 'cancelled_by_client') statusMsg = `<span class="text-yellow-500 font-bold">Cancelado pelo Cliente</span>`;
       else if (isBlock) statusMsg = `<span class="text-zinc-400 font-bold">Bloqueado</span>`;
       document.getElementById('detail-status').innerHTML = statusMsg;
 
@@ -605,6 +673,58 @@
       document.getElementById('modal-details').classList.remove('hidden');
     }
     function closeDetailsModal() { document.getElementById('modal-details').classList.add('hidden'); }
+
+    function renderClientsTable() {
+      const clientMap = {};
+      const twelveMonthsAgo = new Date(); twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+      allHistoryData.forEach(apt => {
+        if (apt.calendar_event_id === 'blocked_time' || (apt.service && apt.service.startsWith('🚫'))) return;
+        if (!apt.profiles) return;
+        
+        const userId = apt.user_id;
+        const p = apt.date.split('/'); const aptDate = new Date(p[2], p[1]-1, p[0]);
+
+        if (!clientMap[userId]) clientMap[userId] = { id: userId, name: apt.profiles.full_name || 'Desconhecido', phone: apt.profiles.phone || '', lastVisit: aptDate, totalSpent: 0, visits: 0 };
+        if (aptDate > clientMap[userId].lastVisit) clientMap[userId].lastVisit = aptDate;
+        
+        if (apt.calendar_event_id !== 'cancelled_by_barber' && apt.calendar_event_id !== 'cancelled_by_client') {
+          clientMap[userId].totalSpent += parseFloat(apt.price || 0); clientMap[userId].visits += 1;
+        }
+      });
+
+      allClientsList = Object.values(clientMap).filter(c => c.lastVisit >= twelveMonthsAgo).sort((a, b) => a.name.localeCompare(b.name));
+      populateClientsUI(allClientsList);
+    }
+
+    function filterClients() {
+      const query = document.getElementById('search-client').value.toLowerCase();
+      const filtered = allClientsList.filter(c => c.name.toLowerCase().includes(query) || c.phone.includes(query));
+      populateClientsUI(filtered);
+    }
+
+    function populateClientsUI(clients) {
+      const tbody = document.getElementById('clients-table-body');
+      if (clients.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Nenhum cliente encontrado.</td></tr>`; return; }
+
+      let html = '';
+      clients.forEach(c => {
+        const cleanPhone = c.phone.replace(/\D/g, ''); const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}` : '#';
+        const dateStr = `${String(c.lastVisit.getDate()).padStart(2,'0')}/${String(c.lastVisit.getMonth()+1).padStart(2,'0')}/${c.lastVisit.getFullYear()}`;
+        let whatsBtn = cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-white text-[10px] uppercase font-black tracking-widest bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all shadow-sm border border-emerald-500/20 hover:border-emerald-500">Chamar</a>` : `<span class="text-zinc-600 text-[9px] uppercase font-bold tracking-widest">Sem contato</span>`;
+
+        html += `
+          <tr class="hover:bg-zinc-800/40 transition-colors border-l-2 border-transparent hover:border-yellow-500">
+            <td class="px-5 py-4 font-black text-white capitalize">${c.name.toLowerCase()}</td>
+            <td class="px-5 py-4 text-zinc-400 font-medium">${c.phone || '-'}</td>
+            <td class="px-5 py-4 text-zinc-300 font-medium">${dateStr}</td>
+            <td class="px-5 py-4 text-emerald-400 font-black">R$ ${c.totalSpent.toFixed(2).replace('.',',')}</td>
+            <td class="px-5 py-4 text-zinc-300 font-bold">${c.visits} <span class="text-[10px] text-zinc-500 font-medium">cortes</span></td>
+            <td class="px-5 py-4 text-right">${whatsBtn}</td>
+          </tr>`;
+      });
+      tbody.innerHTML = html;
+    }
 
     function setDashFilter(filter) {
       dashFilter = filter;
@@ -623,13 +743,7 @@
     }
 
     function calculateDashboard() {
-      const validApts = allHistoryData.filter(a => 
-        a.calendar_event_id !== 'cancelled_by_barber' && 
-        a.calendar_event_id !== 'cancelled_by_client' && 
-        a.calendar_event_id !== 'blocked_time' &&
-        a.service && !a.service.startsWith('🚫')
-      );
-
+      const validApts = allHistoryData.filter(a => a.calendar_event_id !== 'cancelled_by_barber' && a.calendar_event_id !== 'cancelled_by_client' && a.calendar_event_id !== 'blocked_time' && a.service && !a.service.startsWith('🚫'));
       const now = new Date(); now.setHours(23,59,59,999);
       let startD, endD; let chartTitle = "";
 
@@ -652,18 +766,9 @@
       let chartLabels = []; let chartData = []; let chartMap = {};
       const diffDays = Math.ceil((endD - startD) / (1000 * 60 * 60 * 24));
       
-      if (dashFilter === 'hoje') {
-        for(let h=8; h<=21; h++) { let hs=String(h).padStart(2,'0')+':00'; chartMap[hs] = 0; chartLabels.push(hs); }
-      } else if (diffDays <= 31) {
-        for(let d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)) {
-          let s = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; chartMap[s] = 0; chartLabels.push(s);
-        }
-      } else {
-        const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-        for(let m=startD.getMonth(); m<=endD.getMonth() + (endD.getFullYear()-startD.getFullYear())*12; m++) {
-          let ano = startD.getFullYear() + Math.floor(m/12); let mName = `${meses[m%12]}/${String(ano).slice(-2)}`; chartMap[mName] = 0; chartLabels.push(mName);
-        }
-      }
+      if (dashFilter === 'hoje') { for(let h=8; h<=21; h++) { let hs=String(h).padStart(2,'0')+':00'; chartMap[hs] = 0; chartLabels.push(hs); } } 
+      else if (diffDays <= 31) { for(let d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)) { let s = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`; chartMap[s] = 0; chartLabels.push(s); } } 
+      else { const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; for(let m=startD.getMonth(); m<=endD.getMonth() + (endD.getFullYear()-startD.getFullYear())*12; m++) { let ano = startD.getFullYear() + Math.floor(m/12); let mName = `${meses[m%12]}/${String(ano).slice(-2)}`; chartMap[mName] = 0; chartLabels.push(mName); } }
 
       allHistoryData.forEach(a => {
         let aptDate = parseBrDateToObj(a.date);
@@ -671,34 +776,25 @@
         let isBlock = (a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫')));
         let price = parseFloat(a.price || 0);
 
-        if (!isCancelled && !isBlock && aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear() && aptDate <= now) {
-          revMesRealizada += price;
-        }
+        if (!isCancelled && !isBlock && aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear() && aptDate <= now) revMesRealizada += price;
 
         if (aptDate >= startD && aptDate <= endD) {
           if (!isBlock) aptsValidosTotal++;
           if (isCancelled && !isBlock) canceladosPeriodo++;
-          
           if (!isCancelled && !isBlock) {
             if (aptDate < now || (aptDate.getTime() === new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime() && timeToMinutes(a.time) <= (now.getHours()*60+now.getMinutes()))) {
               revPeriodo += price; cutsPeriodo++;
               if(a.service) serviceCounter[a.service] = (serviceCounter[a.service] || 0) + 1;
-              if(a.profiles?.full_name) {
-                if(!clientCounter[a.profiles.full_name]) clientCounter[a.profiles.full_name] = { count: 0, rev: 0 };
-                clientCounter[a.profiles.full_name].count++; clientCounter[a.profiles.full_name].rev += price;
-              }
+              if(a.profiles?.full_name) { if(!clientCounter[a.profiles.full_name]) clientCounter[a.profiles.full_name] = { count: 0, rev: 0 }; clientCounter[a.profiles.full_name].count++; clientCounter[a.profiles.full_name].rev += price; }
               if (dashFilter === 'hoje') { let h = a.time.split(':')[0]+':00'; if(chartMap[h] !== undefined) chartMap[h] += price; }
               else if (diffDays <= 31) { let s = `${String(aptDate.getDate()).padStart(2,'0')}/${String(aptDate.getMonth()+1).padStart(2,'0')}`; if(chartMap[s] !== undefined) chartMap[s] += price; }
               else { const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; let mName = `${meses[aptDate.getMonth()]}/${String(aptDate.getFullYear()).slice(-2)}`; if(chartMap[mName] !== undefined) chartMap[mName] += price; }
-            } else {
-              aptsFuturos++; revFutura += price;
-            }
+            } else { aptsFuturos++; revFutura += price; }
           }
         }
       });
 
       document.getElementById('dash-wallet-saldo').innerText = `R$ ${revMesRealizada.toFixed(2).replace('.', ',')}`;
-      
       document.getElementById('dash-fat-periodo').innerText = `R$ ${revPeriodo.toFixed(2).replace('.', ',')}`;
       document.getElementById('dash-cortes-periodo').innerText = `${cutsPeriodo} atendimentos concluídos`;
       let tMedio = cutsPeriodo > 0 ? (revPeriodo / cutsPeriodo) : 0;
@@ -724,15 +820,15 @@
       if(revenueChartInstance) revenueChartInstance.destroy();
       const ctx = document.getElementById('revenueChart').getContext('2d');
       let gradient = ctx.createLinearGradient(0, 0, 0, 300);
-      gradient.addColorStop(0, 'rgba(249, 115, 22, 0.4)'); gradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
+      gradient.addColorStop(0, 'rgba(234, 179, 8, 0.4)'); gradient.addColorStop(1, 'rgba(234, 179, 8, 0.0)');
 
       revenueChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: chartLabels,
           datasets: [{
-            label: 'Faturamento', data: chartData, borderColor: '#f97316', backgroundColor: gradient, borderWidth: 3,
-            pointBackgroundColor: '#fff', pointBorderColor: '#f97316', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4
+            label: 'Faturamento', data: chartData, borderColor: '#eab308', backgroundColor: gradient, borderWidth: 3,
+            pointBackgroundColor: '#fff', pointBorderColor: '#eab308', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4
           }]
         },
         options: {
@@ -767,8 +863,7 @@
       const whatsLink = cleanPhone ? `https://wa.me/55${cleanPhone}?text=Ol%C3%A1%20${encodeURIComponent(clientName)}%2C%20confirmando%20seu%20hor%C3%A1rio%20na%20RB%20Barbearia!` : '#';
 
       if (isBlock) {
-        const idsStr = item.block_ids.join(',');
-        const timeDisplay = item.time === item.end_time ? `Às ${item.time}` : `Das ${item.time} até ${item.end_time}`;
+        const idsStr = item.block_ids.join(','); const timeDisplay = item.time === item.end_time ? `Às ${item.time}` : `Das ${item.time} até ${item.end_time}`;
         return `
           <div class="bg-red-950/30 border border-red-900/40 border-l-4 border-l-red-600 rounded-2xl p-4 relative shrink-0 mb-4 shadow-md backdrop-blur-sm w-full">
             <div class="flex items-center justify-between mb-2.5 relative z-10">
@@ -780,12 +875,10 @@
           </div>`;
       } else {
         const sTheme = getServiceTheme(item.service);
-
         return `
           <div class="card-bg-image rounded-2xl flex flex-col mb-4 shrink-0 transition-all transform hover:-translate-y-1 shadow-lg group w-full border border-zinc-800 ${sTheme.borderHover} relative overflow-hidden" style="background-image: url('${sTheme.img}');">
             <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-[2px] group-hover:bg-zinc-950/60 transition-all duration-300"></div>
             <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sTheme.borderL} opacity-80 group-hover:opacity-100 transition-opacity"></div>
-
             <div class="relative z-10 p-4 w-full">
                 <div class="flex items-center justify-between mb-3 w-full">
                 <span class="text-[11px] font-black ${sTheme.text} tracking-wider bg-zinc-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-zinc-700/50 shadow-sm">${item.time}</span>
@@ -793,7 +886,6 @@
                 </div>
                 <p class="font-black text-zinc-50 text-[15px] leading-tight truncate tracking-wide drop-shadow-md w-full">${clientName}</p>
                 <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest drop-shadow-md opacity-90 w-full">${item.service}</p>
-                
                 <div class="pt-3.5 mt-3.5 border-t border-zinc-700/50 flex items-center justify-between w-full">
                 ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-white text-[10px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-500/20 hover:border-emerald-500 transition-all">💬 Chamar</a>` : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
                 <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-400 hover:text-white text-[10px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-all shadow-sm border border-zinc-700/50 hover:border-red-500">Cancelar</button>
@@ -804,9 +896,7 @@
     }
 
     async function loadAgendaData() {
-      const board = document.getElementById('kanban-board');
-      const dailyContainer = document.getElementById('daily-view-container');
-      
+      const board = document.getElementById('kanban-board'); const dailyContainer = document.getElementById('daily-view-container');
       if (board.innerHTML === '') board.innerHTML = `<div class="p-6 text-zinc-500 text-xs font-black uppercase tracking-widest">Sincronizando Base de Dados...</div>`;
 
       try {
@@ -817,26 +907,17 @@
 
         const activeDatesSet = new Set();
         if (apts) apts.forEach(a => { if (a.date) activeDatesSet.add(a.date); });
-
         const daysList = []; const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const hoje = new Date(); hoje.setHours(0,0,0,0);
-        let cursor = new Date(hoje); let addedCount = 0;
-        const strHoje = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
+        let cursor = new Date(hoje); let addedCount = 0; const strHoje = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`;
         activeDatesSet.add(strHoje);
 
         while (addedCount < 14) {
-          if (cursor.getDay() !== 0) {
-            const d = cursor.getDate().toString().padStart(2, '0'); const m = (cursor.getMonth() + 1).toString().padStart(2, '0');
-            activeDatesSet.add(`${d}/${m}/${cursor.getFullYear()}`); addedCount++;
-          }
+          if (cursor.getDay() !== 0) { const d = cursor.getDate().toString().padStart(2, '0'); const m = (cursor.getMonth() + 1).toString().padStart(2, '0'); activeDatesSet.add(`${d}/${m}/${cursor.getFullYear()}`); addedCount++; }
           cursor.setDate(cursor.getDate() + 1);
         }
 
-        const sortedDates = Array.from(activeDatesSet).sort((a, b) => {
-          const [dA, mA, yA] = a.split('/').map(Number); const [dB, mB, yB] = b.split('/').map(Number);
-          return new Date(yA, mA - 1, dA) - new Date(yB, mB - 1, dB);
-        });
-
+        const sortedDates = Array.from(activeDatesSet).sort((a, b) => { const [dA, mA, yA] = a.split('/').map(Number); const [dB, mB, yB] = b.split('/').map(Number); return new Date(yA, mA - 1, dA) - new Date(yB, mB - 1, dB); });
         const futureDates = sortedDates.filter(dateStr => { const [d, m, y] = dateStr.split('/').map(Number); return new Date(y, m - 1, d) >= hoje; });
 
         futureDates.forEach(dateStr => {
@@ -849,8 +930,7 @@
         const todayAptsRaw = (apts || []).filter(a => a.date === strHoje).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
         todayAptsRaw.forEach(a => { if (a.calendar_event_id !== 'blocked_time' && a.service && !a.service.startsWith('🚫')) { todayCuts++; todayRevenue += parseFloat(a.price || 0); } });
 
-        document.getElementById('metric-total-cuts').innerText = todayCuts;
-        document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue.toFixed(2).replace('.', ',')}`;
+        document.getElementById('metric-total-cuts').innerText = todayCuts; document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue.toFixed(2).replace('.', ',')}`;
 
         let boardHtml = '';
         daysList.forEach((day, index) => {
@@ -860,36 +940,22 @@
           
           let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
           const isToday = day.label === strHoje; 
-          
-          // Novo comportamento: Cor de fundo dinâmica com base no conteúdo (Estilo Trello)
           const bgHeader = isToday ? 'bg-zinc-900/90' : 'bg-transparent';
-          
-          // Se tiver conteúdo a lista fica com o fundo fumê, se vazia, ela some e fica transparente
           const bgList = mergedApts.length > 0 ? 'bg-zinc-900/40 border border-zinc-800/60 shadow-lg backdrop-blur-md' : 'bg-transparent border-transparent';
           
-          if (mergedApts.length === 0) cardsHtml = `<div class="w-full flex flex-col items-center justify-center text-center p-3 text-zinc-700 bg-transparent opacity-0"></div>`; // Div invisível para segurar o título da coluna
+          if (mergedApts.length === 0) cardsHtml = `<div class="w-full flex flex-col items-center justify-center text-center p-3 text-zinc-700 bg-transparent opacity-0"></div>`; 
           else { mergedApts.forEach(item => { if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; } cardsHtml += generateCardHtml(item); }); }
 
-          // Remove o height estático e h-full para a lista crescer apenas o que precisar (ajuste de altura dinâmica)
           boardHtml += `
             <div class="w-[290px] shrink-0 flex flex-col max-h-full">
-              
-              <!-- Container Visível da Lista -->
               <div class="flex flex-col ${bgList} rounded-3xl overflow-hidden relative transition-all">
-                ${isToday && mergedApts.length > 0 ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>` : ''}
-                
+                ${isToday && mergedApts.length > 0 ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-yellow-600"></div>` : ''}
                 <div class="${bgHeader} p-5 border-b border-zinc-800/50 flex items-center justify-between shrink-0 transition-colors z-10 ${mergedApts.length === 0 ? 'border-b-0' : ''}">
-                  <div>
-                    <span class="text-[13px] uppercase font-black text-zinc-400 block tracking-widest drop-shadow-sm">${day.dayName}</span>
-                    <span class="text-[10px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} Cli - R$ ${dayRev}</span>
-                  </div>
+                  <div><span class="text-[13px] uppercase font-black text-zinc-400 block tracking-widest drop-shadow-sm">${day.dayName}</span><span class="text-[10px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} Cli - R$ ${dayRev}</span></div>
                   <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-zinc-300 bg-zinc-800 border border-zinc-700 text-sm shadow-sm">${day.dayNumber.split('/')[0]}</div>
                 </div>
-                
-                <!-- O padding dinâmico tira os espaços sobrando quando não há cards -->
                 <div class="${mergedApts.length > 0 ? 'p-4' : 'p-0'} overflow-y-auto custom-scroll relative pointer-events-auto z-0 flex flex-col items-center w-full">${cardsHtml}</div>
               </div>
-
             </div>`;
         });
         board.innerHTML = boardHtml;
