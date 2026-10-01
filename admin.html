@@ -19,6 +19,13 @@
     input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
     /* Linhas de grade sutis para o fundo do Kanban */
     .bg-grid { background-image: repeating-linear-gradient(#18181b 0 1px, transparent 1px 100%); background-size: 100% 90px; }
+    
+    /* Cursor para indicar a ação de arrastar */
+    .drag-scroll { cursor: grab; }
+    .drag-scroll:active { cursor: grabbing; }
+    
+    /* Previne seleção de texto durante o arraste */
+    .no-select { user-select: none; }
   </style>
 </head>
 <body class="h-[100dvh] w-full flex overflow-hidden select-none antialiased text-sm bg-[#09090b]">
@@ -130,7 +137,7 @@
     </aside>
 
     <!-- ÁREA PRINCIPAL -->
-    <main class="flex-1 flex flex-col h-full bg-[#0a0a0c] overflow-hidden">
+    <main class="flex-1 flex flex-col h-full bg-[#0a0a0c] overflow-hidden relative">
       
       <!-- HEADER SUPERIOR -->
       <header class="h-16 flex items-center justify-between px-4 md:px-6 border-b border-zinc-800/80 bg-[#0a0a0c] shrink-0">
@@ -172,7 +179,7 @@
       </header>
 
       <!-- BARRA DE ESTATÍSTICAS -->
-      <div class="bg-[#0a0a0c] border-b border-zinc-800/80 shrink-0">
+      <div class="bg-[#0a0a0c] border-b border-zinc-800/80 shrink-0 relative z-10">
         <div class="px-4 md:px-6 py-2.5 flex items-center justify-between text-[11px] font-medium overflow-x-auto custom-scroll">
           <div class="flex items-center gap-4 md:gap-6 whitespace-nowrap">
             <p><span id="metric-total-cuts" class="text-white font-bold text-sm">0</span> <span class="text-zinc-500 uppercase tracking-wider text-[9px]">Atendimentos Hoje</span></p>
@@ -188,7 +195,7 @@
       </div>
 
       <!-- ABA 1: VISAO DO DIA (HOJE) -->
-      <main id="tab-hoje" class="flex-1 flex flex-col min-h-0 bg-[#0a0a0c] p-4 md:p-6 overflow-y-auto custom-scroll">
+      <main id="tab-hoje" class="flex-1 flex flex-col min-h-0 bg-[#0a0a0c] p-4 md:p-6 overflow-y-auto custom-scroll relative z-0">
         <h2 class="text-lg font-bold text-white mb-4">Agenda de Hoje</h2>
         <div id="daily-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <!-- Preenchido via JS -->
@@ -196,14 +203,15 @@
       </main>
 
       <!-- ABA 2: KANBAN (QUADRO) -->
-      <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0">
-        <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-[#0a0a0c]">
+      <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0 relative z-0">
+        <!-- Adicionada a classe drag-scroll aqui -->
+        <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-[#0a0a0c] drag-scroll">
           <!-- Colunas preenchidas via JS -->
         </div>
       </main>
 
       <!-- ABA 3: HISTÓRICO -->
-      <main id="tab-historico" class="hidden flex-1 flex-col bg-[#0a0a0c] p-4 md:p-6 min-h-0">
+      <main id="tab-historico" class="hidden flex-1 flex-col bg-[#0a0a0c] p-4 md:p-6 min-h-0 relative z-0">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-3 shrink-0">
           <h2 class="text-lg font-bold text-white">Histórico Geral</h2>
           <div class="flex items-center gap-1 bg-[#18181b] border border-zinc-800 p-1 rounded-lg">
@@ -232,7 +240,7 @@
       </main>
 
       <!-- ABA 4: CONFIGURAÇÕES -->
-      <main id="tab-config" class="hidden flex-1 flex-col items-start p-4 md:p-6 overflow-y-auto min-h-0 bg-[#0a0a0c]">
+      <main id="tab-config" class="hidden flex-1 flex-col items-start p-4 md:p-6 overflow-y-auto min-h-0 bg-[#0a0a0c] relative z-0">
         <h2 class="text-lg font-bold text-white mb-4">Ajustes do Sistema</h2>
         <div class="bg-[#18181b] border border-zinc-800 rounded-2xl p-6 w-full max-w-sm shadow-lg">
           <h3 class="text-sm font-bold text-zinc-300 mb-4 border-b border-zinc-800/50 pb-2">Horário de Funcionamento</h3>
@@ -266,7 +274,6 @@
     let allHistoryData = [];
     let currentHistoryFilter = 'hoje';
 
-    // Paleta de cores premium baseada na imagem para as colunas do Kanban
     const KANBAN_THEMES = [
       { bg: 'bg-[#2a0e17]', border: 'border-pink-500/30', borderL: 'border-l-pink-500', text: 'text-pink-400', hover: 'hover:bg-[#38111e]', circleBg: 'bg-pink-500', acc: 'text-pink-500' },
       { bg: 'bg-[#2d180b]', border: 'border-orange-500/30', borderL: 'border-l-orange-500', text: 'text-orange-400', hover: 'hover:bg-[#3a1d0d]', circleBg: 'bg-orange-500', acc: 'text-orange-500' },
@@ -275,10 +282,47 @@
       { bg: 'bg-[#0d1b2a]', border: 'border-blue-500/30', borderL: 'border-l-blue-500', text: 'text-blue-400', hover: 'hover:bg-[#13263a]', circleBg: 'bg-blue-500', acc: 'text-blue-500' }
     ];
 
-    window.onload = () => { 
+    // ==========================================
+    // LÓGICA DE DRAG TO SCROLL (ARRASTAR)
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      const kanbanBoard = document.getElementById('kanban-board');
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      kanbanBoard.addEventListener('mousedown', (e) => {
+        // Não iniciar arraste se clicar em botões, links ou dentro dos cards (para não conflitar com scrolls verticais dos cards)
+        if(e.target.tagName.toLowerCase() === 'button' || e.target.tagName.toLowerCase() === 'a' || e.target.closest('button')) return;
+        
+        isDown = true;
+        kanbanBoard.classList.add('no-select'); // previne seleção de texto
+        startX = e.pageX - kanbanBoard.offsetLeft;
+        scrollLeft = kanbanBoard.scrollLeft;
+      });
+
+      kanbanBoard.addEventListener('mouseleave', () => {
+        isDown = false;
+        kanbanBoard.classList.remove('no-select');
+      });
+
+      kanbanBoard.addEventListener('mouseup', () => {
+        isDown = false;
+        kanbanBoard.classList.remove('no-select');
+      });
+
+      kanbanBoard.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - kanbanBoard.offsetLeft;
+        const walk = (x - startX) * 1.5; // Velocidade do scroll (1.5 = normal/rápido)
+        kanbanBoard.scrollLeft = scrollLeft - walk;
+      });
+
       updateHeaderDate();
       if(localStorage.getItem('rb_admin_logged') === 'true') processLogin(); 
-    };
+    });
+    // ==========================================
 
     function updateHeaderDate() {
       const now = new Date();
@@ -311,13 +355,11 @@
     function logoutAdmin() { localStorage.removeItem('rb_admin_logged'); window.location.reload(); }
 
     function switchTab(tab) {
-      // Ocultar todas as abas
       ['tab-hoje', 'tab-kanban', 'tab-historico', 'tab-config'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
         document.getElementById(id).classList.remove('flex');
       });
       
-      // Resetar estilo dos botões da sidebar
       ['hoje', 'kanban', 'historico', 'config'].forEach(id => {
         const btn = document.getElementById('nav-btn-' + id);
         const ind = document.getElementById('nav-ind-' + id);
@@ -325,11 +367,9 @@
         ind.classList.add('hidden');
       });
 
-      // Mostrar aba ativa
       document.getElementById('tab-'+tab).classList.remove('hidden');
       document.getElementById('tab-'+tab).classList.add('flex');
       
-      // Ativar botão selecionado
       const activeBtn = document.getElementById('nav-btn-'+tab);
       const activeInd = document.getElementById('nav-ind-'+tab);
       activeBtn.className = "w-full aspect-square rounded-xl flex items-center justify-center text-orange-500 bg-orange-500/10 border border-orange-500/20 relative transition-all group";
@@ -662,7 +702,6 @@
             <p class="text-[9px] text-zinc-500 mt-0.5 truncate uppercase font-semibold">${(item.service || '').replace('🚫 ', '')}</p>
           </div>`;
       } else {
-        // Usa o tema dinâmico se for provido (Kanban), senão usa o padrão (Aba Hoje - Azul/Generico)
         const cBg = theme ? theme.bg : 'bg-[#18181b]';
         const cBorder = theme ? theme.border : 'border-zinc-800/80';
         const cBorderL = theme ? theme.borderL : 'border-l-blue-500';
@@ -769,7 +808,6 @@
         document.getElementById('metric-total-cuts').innerText = todayCuts;
         document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue}`;
 
-        // Construindo Kanban com as cores rotativas
         let boardHtml = '';
         daysList.forEach((day, index) => {
           const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
@@ -792,7 +830,6 @@
           boardHtml += `
             <div class="w-[260px] shrink-0 bg-[#0a0a0c] border-r border-zinc-800/80 flex flex-col h-full max-h-full">
               
-              <!-- Cabeçalho da Coluna -->
               <div class="${bgHeader} p-3 border-b border-zinc-800/80 flex items-center justify-between shrink-0 shadow-sm transition-colors">
                 <div>
                   <span class="text-[12px] uppercase font-black ${theme.acc} block tracking-widest">${day.dayName}</span>
@@ -803,21 +840,19 @@
                 </div>
               </div>
               
-              <!-- Corpo da Coluna (Grid Background) -->
-              <div class="p-3 overflow-y-auto flex-1 custom-scroll bg-grid relative">
+              <!-- Colunas recebem pointer-events-none nos filhos durante o arraste para não bugar -->
+              <div class="p-3 overflow-y-auto flex-1 custom-scroll bg-grid relative pointer-events-auto">
                 ${cardsHtml}
               </div>
             </div>`;
         });
         board.innerHTML = boardHtml;
 
-        // Aba Hoje (Grid simples)
         let dailyHtml = '';
         const mergedToday = mergeBlocks(todayAptsRaw);
         if (mergedToday.length === 0) {
           dailyHtml = `<div class="col-span-full text-center py-10 text-zinc-500 text-sm font-medium border border-dashed border-zinc-800 rounded-xl">Agenda livre para hoje.</div>`;
         } else {
-          // O tema nulo na chamada abaixo forçará o estilo genérico/azul da aba hoje
           mergedToday.forEach(item => { dailyHtml += generateCardHtml(item, null); });
         }
         dailyContainer.innerHTML = dailyHtml;
