@@ -133,18 +133,19 @@
   </div>
 </div>
 
-<!-- PAINEL -->
+<!-- PAINEL PRINCIPAL -->
 <div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
+  
   <aside class="w-[65px] md:w-[74px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-5 shrink-0 z-20 shadow-[5px_0_25px_rgba(0,0,0,.25)]">
     <div class="w-11 h-11 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-zinc-950 font-black text-lg shadow-[0_0_25px_rgba(249,115,22,.25)]">RB</div>
     <nav class="flex flex-col gap-2.5 w-full px-2.5 mt-2 flex-1">
       <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
         <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
       </button>
       <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda">
         <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
+        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </button>
       <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
         <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full"></div>
@@ -177,6 +178,7 @@
         </div>
         <p id="header-date" class="text-[9px] md:text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5 truncate">Carregando data...</p>
       </div>
+
       <div class="flex items-center gap-2 md:gap-5">
         <button onclick="refreshAll()" title="Atualizar dados" class="w-9 h-9 md:w-auto md:h-10 md:px-3 flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-all">
           <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M5.05 18.95A9 9 0 1018.95 5.05L20 6"/></svg>
@@ -210,6 +212,13 @@
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span><span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento</span><span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span>
           </p>
         </div>
+        <div class="hidden lg:flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6 opacity-80">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Corte</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span>Barba</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Combo</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-teal-500"></span>Sobrancelha</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-pink-500"></span>Progressiva</span>
+        </div>
       </div>
     </div>
 
@@ -225,6 +234,7 @@
           <button onclick="switchTab('kanban')" class="mobile-action px-3 py-2 bg-orange-500 text-zinc-950 rounded-xl text-[9px] uppercase font-black tracking-wider hover:bg-orange-400">Abrir agenda</button>
         </div>
       </div>
+
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         <div class="premium-card rounded-2xl p-4 relative overflow-hidden">
           <div class="absolute -right-5 -top-5 w-20 h-20 rounded-full bg-orange-500/10 blur-2xl"></div>
@@ -245,14 +255,18 @@
         <div class="stat-card rounded-2xl p-4">
           <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Ocupação</p>
           <p id="today-occupancy" class="text-xl md:text-2xl font-black text-purple-400 mt-1">0%</p>
-          <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-2"><div id="today-occupancy-bar" class="h-full bg-purple-500 rounded-full transition-all" style="width:0%"></div></div>
+          <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-2">
+            <div id="today-occupancy-bar" class="h-full bg-purple-500 rounded-full transition-all" style="width:0%"></div>
+          </div>
         </div>
       </div>
+
       <div class="glass-soft rounded-2xl p-2 mb-5 flex items-center gap-2">
         <svg class="w-4 h-4 text-zinc-500 ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <input id="agenda-search" oninput="filterAgendaCards()" placeholder="Buscar cliente ou serviço na agenda..." class="w-full bg-transparent outline-none text-xs text-white placeholder:text-zinc-600 py-2 px-2">
         <span id="agenda-result-count" class="hidden md:block text-[9px] uppercase font-black text-zinc-600 tracking-widest px-3 whitespace-nowrap"></span>
       </div>
+
       <div id="daily-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start"></div>
     </main>
 
@@ -265,7 +279,8 @@
         </div>
         <button onclick="refreshAll()" class="text-zinc-500 hover:text-white text-[9px] uppercase font-black tracking-widest">↻ Sincronizar</button>
       </div>
-      <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-stretch min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
+      <!-- Modificado items-stretch para items-start e ajuste na div filha para garantir funcionamento do scroll vertical em cada coluna do kanban -->
+      <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
     </main>
 
     <!-- ABA HISTÓRICO -->
@@ -287,7 +302,14 @@
       <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
         <table class="w-full text-left text-sm whitespace-nowrap">
           <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800">
-            <tr><th class="px-5 py-4">Registro</th><th class="px-5 py-4">Agendado</th><th class="px-5 py-4">Cliente</th><th class="px-5 py-4">Serviço</th><th class="px-5 py-4">Valor</th><th class="px-5 py-4">Status</th></tr>
+            <tr>
+              <th class="px-5 py-4">Registro</th>
+              <th class="px-5 py-4">Agendado</th>
+              <th class="px-5 py-4">Cliente</th>
+              <th class="px-5 py-4">Serviço</th>
+              <th class="px-5 py-4">Valor</th>
+              <th class="px-5 py-4">Status</th>
+            </tr>
           </thead>
           <tbody id="history-table-body" class="divide-y divide-zinc-800/60"></tbody>
         </table>
@@ -310,7 +332,14 @@
       <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
         <table class="w-full text-left text-sm whitespace-nowrap">
           <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800">
-            <tr><th class="px-5 py-4">Nome</th><th class="px-5 py-4">Contato</th><th class="px-5 py-4">Última Visita</th><th class="px-5 py-4">Gasto Total</th><th class="px-5 py-4">Frequência</th><th class="px-5 py-4 text-right">Ação</th></tr>
+            <tr>
+              <th class="px-5 py-4">Nome</th>
+              <th class="px-5 py-4">Contato</th>
+              <th class="px-5 py-4">Última Visita</th>
+              <th class="px-5 py-4">Gasto Total</th>
+              <th class="px-5 py-4">Frequência</th>
+              <th class="px-5 py-4 text-right">Ação</th>
+            </tr>
           </thead>
           <tbody id="clients-table-body" class="divide-y divide-zinc-800/60"></tbody>
         </table>
@@ -402,7 +431,9 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full max-w-4xl">
         <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 md:p-8 shadow-2xl">
-          <h3 class="text-sm font-black tracking-widest uppercase text-orange-500 mb-6 border-b border-zinc-800 pb-3">Horário Operacional</h3>
+          <h3 class="text-sm font-black tracking-widest uppercase text-orange-500 mb-6 border-b border-zinc-800 pb-3">
+            Horário Operacional
+          </h3>
           <div class="space-y-5">
             <div>
               <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Abertura</label>
@@ -412,6 +443,7 @@
               <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Fecho</label>
               <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 font-bold">
             </div>
+            
             <div class="mt-6 border-t border-zinc-800 pt-5">
               <h4 class="text-[11px] font-black tracking-widest uppercase text-zinc-300 mb-4">Intervalo de Descanso</h4>
               <div class="grid grid-cols-2 gap-4">
@@ -425,6 +457,7 @@
                 </div>
               </div>
             </div>
+
             <button onclick="saveSettings()" class="w-full py-4 mt-4 bg-zinc-200 hover:bg-white text-zinc-900 font-black uppercase tracking-widest rounded-xl text-xs transition-all">
               Salvar Alterações
             </button>
@@ -432,19 +465,29 @@
         </div>
 
         <div class="premium-card rounded-3xl p-6 md:p-8">
-          <h3 class="text-sm font-black tracking-widest uppercase text-white mb-6 border-b border-zinc-800 pb-3">Atalhos Rápidos</h3>
+          <h3 class="text-sm font-black tracking-widest uppercase text-white mb-6 border-b border-zinc-800 pb-3">
+            Atalhos Rápidos
+          </h3>
           <div class="grid grid-cols-2 gap-3">
             <button onclick="switchTab('kanban')" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-orange-500/40 text-left transition-all">
-              <span class="text-xl">📅</span><p class="text-xs font-black text-white mt-3">Agenda</p><p class="text-[9px] text-zinc-500 mt-1">Ver horários</p>
+              <span class="text-xl">📅</span>
+              <p class="text-xs font-black text-white mt-3">Agenda</p>
+              <p class="text-[9px] text-zinc-500 mt-1">Ver horários</p>
             </button>
             <button onclick="openBlockModal()" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-red-500/40 text-left transition-all">
-              <span class="text-xl">🚫</span><p class="text-xs font-black text-white mt-3">Bloquear</p><p class="text-[9px] text-zinc-500 mt-1">Fechar horário</p>
+              <span class="text-xl">🚫</span>
+              <p class="text-xs font-black text-white mt-3">Bloquear</p>
+              <p class="text-[9px] text-zinc-500 mt-1">Fechar horário</p>
             </button>
             <button onclick="switchTab('clientes')" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-blue-500/40 text-left transition-all">
-              <span class="text-xl">👤</span><p class="text-xs font-black text-white mt-3">Clientes</p><p class="text-[9px] text-zinc-500 mt-1">Carteira</p>
+              <span class="text-xl">👤</span>
+              <p class="text-xs font-black text-white mt-3">Clientes</p>
+              <p class="text-[9px] text-zinc-500 mt-1">Carteira</p>
             </button>
             <button onclick="switchTab('financeiro')" class="p-4 rounded-2xl bg-zinc-950/70 border border-zinc-800 hover:border-emerald-500/40 text-left transition-all">
-              <span class="text-xl">📊</span><p class="text-xs font-black text-white mt-3">Resultados</p><p class="text-[9px] text-zinc-500 mt-1">Financeiro</p>
+              <span class="text-xl">📊</span>
+              <p class="text-xs font-black text-white mt-3">Resultados</p>
+              <p class="text-[9px] text-zinc-500 mt-1">Financeiro</p>
             </button>
           </div>
         </div>
@@ -455,8 +498,10 @@
 
 <script>
 const ADMIN_PASSWORD = "rb";
+
 const SUPABASE_URL = 'https://cifrmupwumffzrcqwfjv.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_AcMuSuUE6DK5gGQ9eStmMw_muIgJsG6';
+
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let realtimeSubscription = null;
@@ -477,6 +522,7 @@ function getServiceTheme(serviceName) {
   if (s.includes('sobrancelha')) return { borderL: 'border-l-teal-500', borderHover: 'hover:border-teal-500/50', text: 'text-teal-300', img: './sobrancelha.jpeg' };
   return { borderL: 'border-l-blue-500', borderHover: 'hover:border-blue-500/50', text: 'text-blue-300', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80' };
 }
+
 function getServiceImage(serviceName) { return getServiceTheme(serviceName).img; }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -611,7 +657,7 @@ async function confirmBlock() {
   const dateVal = document.getElementById('block-date').value;
   const start = document.getElementById('block-start').value;
   const end = document.getElementById('block-end').value;
-  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; // Opção flexível
+  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; // Default se vazio
 
   if (!dateVal) return alert('Selecione uma data.');
   const now = new Date();
@@ -1138,9 +1184,16 @@ function renderBoards() {
     }
   });
 
-  document.getElementById('metric-total-cuts').innerText = todayCuts;
-  document.getElementById('metric-total-revenue').innerText = `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
-  document.getElementById('count-hoje').innerText = todayCuts;
+  // Atualização com fallback para evitar quebra caso o HTML mude (o bug estava aqui)
+  const elTotalCuts = document.getElementById('metric-total-cuts');
+  if (elTotalCuts) elTotalCuts.innerText = todayCuts;
+
+  const elTotalRev = document.getElementById('metric-total-revenue');
+  if (elTotalRev) elTotalRev.innerText = `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
+
+  const countHojeEl = document.getElementById('count-hoje');
+  if (countHojeEl) countHojeEl.innerText = todayCuts;
+
   updateTodaySmartStats(todayAptsRaw, todayCuts, todayRevenue);
 
   // Render Hoje
@@ -1213,18 +1266,25 @@ function updateTodaySmartStats(appointments, total, revenue) {
 
   const nextTime = document.getElementById('today-next-time');
   const nextClient = document.getElementById('today-next-client');
-  if (next) { nextTime.innerText = next.time || '--:--'; nextClient.innerText = next.profiles?.full_name || 'Cliente'; }
-  else { nextTime.innerText = '--:--'; nextClient.innerText = total ? 'Atendimentos concluídos' : 'Nenhum agendamento'; }
+  if (nextTime && nextClient) {
+    if (next) { nextTime.innerText = next.time || '--:--'; nextClient.innerText = next.profiles?.full_name || 'Cliente'; }
+    else { nextTime.innerText = '--:--'; nextClient.innerText = total ? 'Atendimentos concluídos' : 'Nenhum agendamento'; }
+  }
 
-  document.getElementById('today-total-count').innerText = total;
-  document.getElementById('today-revenue').innerText = `R$ ${revenue.toFixed(2).replace('.',',')}`;
+  const elTotalCount = document.getElementById('today-total-count');
+  if (elTotalCount) elTotalCount.innerText = total;
+
+  const elTodayRev = document.getElementById('today-revenue');
+  if (elTodayRev) elTodayRev.innerText = `R$ ${revenue.toFixed(2).replace('.',',')}`;
 
   let completedRevenue = 0;
   appointments.forEach(a => {
     if (a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫'))) return;
     if (timeToMinutes(a.time) < now.getHours()*60 + now.getMinutes()) completedRevenue += parseFloat(a.price || 0);
   });
-  document.getElementById('today-completed').innerText = `R$ ${completedRevenue.toFixed(2).replace('.',',')} realizados`;
+  
+  const elTodayComp = document.getElementById('today-completed');
+  if (elTodayComp) elTodayComp.innerText = `R$ ${completedRevenue.toFixed(2).replace('.',',')} realizados`;
 
   const valid = appointments.filter(a => a.calendar_event_id !== 'blocked_time' && !(a.service || '').startsWith('🚫'));
   let occupiedMinutes = 0;
@@ -1239,8 +1299,12 @@ function updateTodaySmartStats(appointments, total, revenue) {
 
   const opening = 9 * 60, closing = 20 * 60, available = closing - opening;
   const occupancy = available > 0 ? Math.min(100, Math.round((occupiedMinutes / available) * 100)) : 0;
-  document.getElementById('today-occupancy').innerText = `${occupancy}%`;
-  document.getElementById('today-occupancy-bar').style.width = `${occupancy}%`;
+  
+  const elOccupancy = document.getElementById('today-occupancy');
+  if (elOccupancy) elOccupancy.innerText = `${occupancy}%`;
+  
+  const elOccupancyBar = document.getElementById('today-occupancy-bar');
+  if (elOccupancyBar) elOccupancyBar.style.width = `${occupancy}%`;
 }
 
 function filterAgendaCards() {
