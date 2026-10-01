@@ -34,8 +34,6 @@
     .nav-active { background: linear-gradient(135deg,#27272a,#18181b) !important; border-color: rgba(249,115,22,.28) !important; box-shadow: inset 0 0 20px rgba(249,115,22,.04),0 8px 20px rgba(0,0,0,.2); color: white !important; }
     .mobile-action { transition: transform .2s ease, border-color .2s ease, background .2s ease; }
     .mobile-action:active { transform: scale(.96); }
-    .pulse-ring { box-shadow: 0 0 0 0 rgba(16,185,129,.4); animation: pulseRing 2.2s infinite; }
-    @keyframes pulseRing { 70% { box-shadow: 0 0 0 7px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
     @media (max-width: 767px) { .desktop-only { display:none !important; } }
     @media (min-width:768px) { .mobile-only { display:none !important; } }
   </style>
@@ -169,21 +167,11 @@
   <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
     <header class="h-[72px] flex items-center justify-between px-4 md:px-8 border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-xl shrink-0 z-20">
       <div class="flex flex-col min-w-0">
-        <div class="flex items-center gap-2.5">
-          <h1 class="text-lg md:text-xl font-black text-white tracking-wide">Painel RB</h1>
-          <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-md">
-            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full pulse-ring"></span>
-            <span class="text-[8px] md:text-[9px] text-emerald-400 uppercase font-black tracking-widest">Live</span>
-          </span>
-        </div>
+        <h1 class="text-lg md:text-xl font-black text-white tracking-wide">Painel RB</h1>
         <p id="header-date" class="text-[9px] md:text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5 truncate">Carregando data...</p>
       </div>
 
       <div class="flex items-center gap-2 md:gap-5">
-        <button onclick="refreshAll()" title="Atualizar dados" class="w-9 h-9 md:w-auto md:h-10 md:px-3 flex items-center justify-center gap-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white rounded-xl transition-all">
-          <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M5.05 18.95A9 9 0 1018.95 5.05L20 6"/></svg>
-          <span class="hidden md:inline text-[10px] uppercase tracking-widest font-black">Atualizar</span>
-        </button>
         <button onclick="openBlockModal()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl text-xs hover:bg-zinc-800 hover:text-white transition-all font-bold">
           <span class="text-red-500">🚫</span> Bloquear
         </button>
@@ -248,12 +236,12 @@
           <p class="text-[10px] text-zinc-500 font-medium mt-1">programados hoje</p>
         </div>
         <div class="stat-card rounded-2xl p-4">
-          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Receita</p>
+          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Receita do dia</p>
           <p id="today-revenue" class="text-xl md:text-2xl font-black text-emerald-400 mt-1">R$ 0</p>
-          <p id="today-completed" class="text-[10px] text-zinc-500 font-medium mt-1">R$ 0 realizados</p>
+          <p id="today-completed" class="text-[10px] text-zinc-500 font-medium mt-1">R$ 0 realizados hoje</p>
         </div>
         <div class="stat-card rounded-2xl p-4">
-          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Ocupação</p>
+          <p class="text-[8px] text-zinc-500 uppercase tracking-widest font-black">Ocupação do dia</p>
           <p id="today-occupancy" class="text-xl md:text-2xl font-black text-purple-400 mt-1">0%</p>
           <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-2">
             <div id="today-occupancy-bar" class="h-full bg-purple-500 rounded-full transition-all" style="width:0%"></div>
@@ -277,9 +265,7 @@
           <p class="text-[9px] text-orange-500 uppercase font-black tracking-[.25em]">Planejamento</p>
           <h2 class="text-sm font-black text-white">Agenda dos próximos dias</h2>
         </div>
-        <button onclick="refreshAll()" class="text-zinc-500 hover:text-white text-[9px] uppercase font-black tracking-widest">↻ Sincronizar</button>
       </div>
-      <!-- Modificado items-stretch para items-start e ajuste na div filha para garantir funcionamento do scroll vertical em cada coluna do kanban -->
       <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-zinc-950 p-4 md:p-6 gap-4 md:gap-6 drag-scroll"></div>
     </main>
 
@@ -597,14 +583,6 @@ function switchTab(tab) {
   if (tab === 'financeiro') setTimeout(calculateDashboard, 100);
 }
 
-function refreshAll() {
-  const icon = document.getElementById('refresh-icon');
-  if (icon) icon.classList.add('animate-spin');
-  Promise.all([loadAgendaData(), fetchHistoryData(), loadSettings()]).finally(() => {
-    setTimeout(() => { if (icon) icon.classList.remove('animate-spin'); }, 500);
-  });
-}
-
 function playNotificationSound() {
   const audio = document.getElementById('notification-sound');
   if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
@@ -657,7 +635,7 @@ async function confirmBlock() {
   const dateVal = document.getElementById('block-date').value;
   const start = document.getElementById('block-start').value;
   const end = document.getElementById('block-end').value;
-  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; // Default se vazio
+  const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado'; 
 
   if (!dateVal) return alert('Selecione uma data.');
   const now = new Date();
@@ -970,8 +948,11 @@ function calculateDashboard() {
       startD = new Date(s + 'T00:00:00'); endD = new Date(e + 'T23:59:59'); chartTitle = 'Receita: Período Personalizado';
     }
 
-    document.getElementById('chart-title').innerText = chartTitle;
-    let revPeriodo = 0, cutsPeriodo = 0, revMesRealizada = 0, canceladosPeriodo = 0, aptsValidosTotal = 0, aptsFuturos = 0, revFutura = 0;
+    const titleEl = document.getElementById('chart-title');
+    if (titleEl) titleEl.innerText = chartTitle;
+
+    let revPeriodo = 0, cutsPeriodo = 0, revMesRealizada = 0, canceladosPeriodo = 0, aptsValidosTotal = 0;
+    let aptsFuturos = 0, revFutura = 0; 
     const serviceCounter = {}, clientCounter = {};
     let chartLabels = [], chartMap = {};
     const diffDays = Math.ceil((endD - startD) / (1000 * 60 * 60 * 24));
@@ -998,12 +979,28 @@ function calculateDashboard() {
       const isBlock = a.calendar_event_id === 'blocked_time' || (a.service && a.service.startsWith('🚫'));
       const price = parseFloat(a.price || 0);
 
+      // Receita total mês atual
       if (!isCancelled && !isBlock && aptDate.getMonth() === now.getMonth() && aptDate.getFullYear() === now.getFullYear() && aptDate <= now) {
         revMesRealizada += price;
       }
+
+      // Projeção futura global (independente do filtro de data da tela)
+      if (!isCancelled && !isBlock) {
+        const aptTime = timeToMinutes(a.time);
+        const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const isPastDate = aptDate < todayDate;
+        const isTodayPassed = aptDate.toDateString() === todayDate.toDateString() && aptTime <= now.getHours()*60 + now.getMinutes();
+
+        if (!isPastDate && !isTodayPassed) {
+          aptsFuturos++; revFutura += price;
+        }
+      }
+
+      // Restante dos dados conforme filtro escolhido
       if (aptDate >= startD && aptDate <= endD) {
         if (!isBlock) aptsValidosTotal++;
         if (isCancelled && !isBlock) canceladosPeriodo++;
+        
         if (!isCancelled && !isBlock) {
           const aptTime = timeToMinutes(a.time);
           const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1030,7 +1027,7 @@ function calculateDashboard() {
               const label = `${meses[aptDate.getMonth()]}/${String(aptDate.getFullYear()).slice(-2)}`;
               if (chartMap[label] !== undefined) chartMap[label] += price;
             }
-          } else { aptsFuturos++; revFutura += price; }
+          }
         }
       }
     });
@@ -1041,7 +1038,7 @@ function calculateDashboard() {
     const ticket = cutsPeriodo > 0 ? revPeriodo / cutsPeriodo : 0;
     document.getElementById('dash-ticket-medio').innerText = `R$ ${ticket.toFixed(2).replace('.',',')}`;
     document.getElementById('dash-agendamentos-futuros').innerText = aptsFuturos;
-    document.getElementById('dash-fat-futuro').innerText = `Projeção: R$ ${revFutura.toFixed(2).replace('.',',')}`;
+    document.getElementById('dash-fat-futuro').innerText = `Projeção global: R$ ${revFutura.toFixed(2).replace('.',',')}`;
     const txCanc = aptsValidosTotal > 0 ? ((canceladosPeriodo / aptsValidosTotal) * 100).toFixed(1) : 0;
     document.getElementById('dash-tx-cancelamento').innerText = `${txCanc}%`;
     document.getElementById('dash-num-cancelados').innerText = `${canceladosPeriodo} perdidos no período`;
@@ -1162,9 +1159,7 @@ async function loadAgendaData(silent = false) {
         }
       });
     }
-
     renderBoards();
-
   } catch (err) { console.error('Erro no loadAgendaData:', err); }
 }
 
@@ -1184,42 +1179,34 @@ function renderBoards() {
     }
   });
 
-  // Atualização com fallback para evitar quebra caso o HTML mude (o bug estava aqui)
   const elTotalCuts = document.getElementById('metric-total-cuts');
   if (elTotalCuts) elTotalCuts.innerText = todayCuts;
-
   const elTotalRev = document.getElementById('metric-total-revenue');
   if (elTotalRev) elTotalRev.innerText = `R$ ${todayRevenue.toFixed(2).replace('.',',')}`;
 
-  const countHojeEl = document.getElementById('count-hoje');
-  if (countHojeEl) countHojeEl.innerText = todayCuts;
-
   updateTodaySmartStats(todayAptsRaw, todayCuts, todayRevenue);
 
-  // Render Hoje
   let dailyHtml = '';
   const mergedToday = mergeBlocks(todayAptsRaw);
   if (!mergedToday.length) {
     dailyHtml = `
       <div class="col-span-full flex flex-col items-center justify-center py-20 text-zinc-600 border-2 border-dashed border-zinc-800/50 rounded-3xl bg-zinc-900/20">
-        <span class="text-3xl mb-3">✂️</span><span class="text-xs font-black uppercase tracking-widest">Agenda Livre</span><span class="text-[9px] mt-2 text-zinc-700 uppercase font-bold">Nenhum atendimento programado</span>
+        <span class="text-3xl mb-3">✂️</span><span class="text-xs font-black uppercase tracking-widest">Agenda Livre</span><span class="text-[9px] mt-2 text-zinc-700 uppercase font-bold">Nenhum atendimento programado para hoje</span>
       </div>`;
   } else { mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); }); }
   if (dailyContainer) dailyContainer.innerHTML = dailyHtml;
 
-  // Render Kanban (Dias ativos)
   const dateSet = new Set();
   allAppointments.forEach(a => dateSet.add(a.date));
-  dateSet.add(todayStr); // Garante que HOJE sempre aparece
+  dateSet.add(todayStr); 
 
   const diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const sortedDates = Array.from(dateSet).sort((a,b) => parseBrDateToObj(a) - parseBrDateToObj(b));
   
   let kanbanHtml = '';
-
   sortedDates.forEach(dStr => {
     const dObj = parseBrDateToObj(dStr);
-    if (dObj < new Date(now.getFullYear(), now.getMonth(), now.getDate())) return; // Ignora dias passados
+    if (dObj < new Date(now.getFullYear(), now.getMonth(), now.getDate())) return; 
 
     let dName = diasSemana[dObj.getDay()];
     if (dStr === todayStr) dName = 'HOJE';
@@ -1229,7 +1216,6 @@ function renderBoards() {
     const mergedApts = mergeBlocks(dayAptsRaw);
     
     let dayRev = 0, dayCuts = 0, cardsHtml = '';
-    
     if (!mergedApts.length) {
       cardsHtml = `<div class="p-5 text-center text-zinc-700 text-[9px] uppercase font-black tracking-widest">Agenda livre</div>`;
     } else {
@@ -1251,7 +1237,6 @@ function renderBoards() {
       </div>
     `;
   });
-
   if (kanbanContainer) kanbanContainer.innerHTML = kanbanHtml;
   filterAgendaCards();
 }
@@ -1284,7 +1269,7 @@ function updateTodaySmartStats(appointments, total, revenue) {
   });
   
   const elTodayComp = document.getElementById('today-completed');
-  if (elTodayComp) elTodayComp.innerText = `R$ ${completedRevenue.toFixed(2).replace('.',',')} realizados`;
+  if (elTodayComp) elTodayComp.innerText = `R$ ${completedRevenue.toFixed(2).replace('.',',')} realizados hoje`;
 
   const valid = appointments.filter(a => a.calendar_event_id !== 'blocked_time' && !(a.service || '').startsWith('🚫'));
   let occupiedMinutes = 0;
