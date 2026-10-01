@@ -4,14 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>RB Barbearia</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-
   <style>
     :root {
       --gold: #d9a441;
@@ -23,9 +20,7 @@
       --border: rgba(255,255,255,0.08);
     }
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0; background: #050505; color: white; font-family: 'DM Sans', sans-serif;
-    }
+    html, body { margin: 0; padding: 0; background: #050505; color: white; font-family: 'DM Sans', sans-serif; }
     body { min-height: 100vh; overscroll-behavior: none; }
     button, input { font-family: inherit; }
     input { font-size: 16px !important; }
@@ -33,72 +28,54 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .gold-text { color: var(--gold-light); }
-    .gold-gradient {
-      background: linear-gradient(135deg, #f3ca76 0%, #d9a441 45%, #a87520 100%);
-    }
-    .glass {
-      background: rgba(20,20,20,0.78);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .soft-shadow {
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.025);
-    }
-    .gold-shadow {
-      box-shadow: 0 12px 35px rgba(217,164,65,0.16), inset 0 1px 0 rgba(255,255,255,0.08);
-    }
-    .press { transition: transform 0.18s ease, opacity 0.18s ease; }
+    .gold-gradient { background: linear-gradient(135deg, #f3ca76 0%, #d9a441 45%, #a87520 100%); }
+    .gold-border { border-color: rgba(217,164,65,0.45); }
+    .glass { background: rgba(20,20,20,0.78); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.08); }
+    .soft-shadow { box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.025); }
+    .gold-shadow { box-shadow: 0 12px 35px rgba(217,164,65,0.16), inset 0 1px 0 rgba(255,255,255,0.08); }
+    .press { transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease; }
     .press:active { transform: scale(0.97); }
-    .service-card { transition: transform 0.2s ease, border-color 0.2s ease; }
+    .service-card { transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
     .service-card:active { transform: scale(0.985); }
     .safe-top { padding-top: max(18px, env(safe-area-inset-top)); }
     .safe-bottom { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
-    .hero-overlay {
-      background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.92) 100%);
-    }
+    .hero-overlay { background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.92) 100%); }
     .bottom-nav { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
     .nav-active { color: var(--gold-light); }
-    .nav-active .nav-icon {
-      background: rgba(217,164,65,0.12);
-      border-color: rgba(217,164,65,0.22);
-    }
+    .nav-active .nav-icon { background: rgba(217,164,65,0.12); border-color: rgba(217,164,65,0.22); }
+    .appointment-glow { position: relative; overflow: hidden; }
+    .appointment-glow::after { content: ""; position: absolute; width: 160px; height: 160px; right: -70px; top: -70px; border-radius: 999px; background: rgba(217,164,65,0.10); filter: blur(2px); pointer-events: none; }
     .date-option, .time-option { transition: all 0.18s ease; }
-    .date-option.selected, .time-option.selected {
-      border-color: var(--gold) !important;
-      background: rgba(217,164,65,0.16) !important;
-      color: white !important;
-      box-shadow: 0 0 0 1px rgba(217,164,65,0.25);
-    }
+    .date-option.selected, .time-option.selected { border-color: var(--gold); background: rgba(217,164,65,0.13); color: white; box-shadow: 0 0 0 1px rgba(217,164,65,0.12); }
     .time-option.available:hover { border-color: rgba(217,164,65,0.5); }
-    .modal-backdrop {
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .modal-backdrop { background: rgba(0,0,0,0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-up { animation: fadeUp 0.35s ease both; }
+    @keyframes pulseGold { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,164,65,0); } 50% { box-shadow: 0 0 0 7px rgba(217,164,65,0.08); } }
+    .pulse-gold { animation: pulseGold 2.5s infinite; }
   </style>
+  <meta property="og:title" content="RB Barbearia">
+  <meta property="og:description" content="Agende seu horário online de forma rápida e prática.">
+  <meta property="og:image" content="https://rb-barbearia.vercel.app/icone.png">
+  <meta property="og:url" content="https://rb-barbearia.vercel.app/">
+  <meta property="og:type" content="website">
 </head>
-
 <body class="antialiased select-none">
-
   <div id="toast-msg" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-[100] bg-[#181818] border border-emerald-500/30 text-white text-xs font-semibold px-5 py-3 rounded-full shadow-2xl"></div>
 
   <!-- MODAL WHATSAPP OBRIGATÓRIO -->
   <div id="modal-mandatory-phone" class="hidden fixed inset-0 z-[90] modal-backdrop flex flex-col justify-end">
     <div class="bg-[#111111] rounded-t-[30px] p-6 border-t border-white/10 space-y-5">
       <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-2xl gold-gradient flex items-center justify-center text-black font-bold">RB</div>
+        <div class="w-11 h-11 rounded-2xl gold-gradient flex items-center justify-center text-black">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 5.5A2.5 2.5 0 015.5 3h13A2.5 2.5 0 0121 5.5v13a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 18.5v-13z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 8h8M8 12h5"/></svg>
+        </div>
         <div>
           <p class="text-white font-bold">Último passo!</p>
           <p class="text-zinc-500 text-xs mt-0.5">Complete seu cadastro</p>
         </div>
       </div>
-      <p class="text-sm text-zinc-400">Precisamos do seu WhatsApp para confirmar seus horários.</p>
+      <p class="text-sm text-zinc-400 leading-relaxed">Precisamos do seu nome e WhatsApp para manter seu histórico de agendamentos.</p>
       <div class="space-y-4">
         <div>
           <label class="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.16em] mb-2 block">Nome e Sobrenome</label>
@@ -117,23 +94,18 @@
   <div id="view-login" class="flex flex-col justify-center min-h-screen p-6 z-40 bg-[#090909] absolute inset-0 overflow-y-auto">
     <div class="max-w-md w-full mx-auto">
       <div class="text-center mb-9">
-        <div class="relative w-28 h-28 rounded-full mx-auto mb-7 overflow-hidden border border-[#d9a441]/40 shadow-2xl bg-[#111]">
+        <div class="relative w-28 h-28 rounded-full mx-auto mb-7 overflow-hidden border border-[#d9a441]/40 shadow-2xl">
+          <div class="absolute inset-0 bg-[#111]"></div>
           <img src="./icone.png" alt="RB Barbearia" class="relative w-full h-full object-cover">
         </div>
         <p class="gold-text text-[10px] uppercase tracking-[0.35em] font-bold mb-3">RB Barbearia</p>
         <h1 class="display-font text-3xl text-white mb-3">Seu estilo começa aqui.</h1>
-        <p class="text-zinc-500 text-[13px] leading-relaxed max-w-xs mx-auto">Agende seu horário em tempo real de forma 100% segura.</p>
+        <p class="text-zinc-500 text-[13px] leading-relaxed max-w-xs mx-auto">Agende seu horário de forma rápida e acompanhe seus próximos cortes.</p>
       </div>
 
       <div id="last-login-badge" class="hidden mx-auto mb-6 bg-[#d9a441]/10 border border-[#d9a441]/20 text-[#e5b95c] px-4 py-2 rounded-full text-xs font-semibold items-center justify-center gap-2 w-fit">
         <span class="w-1.5 h-1.5 bg-[#d9a441] rounded-full"></span>
         <span id="last-login-text">Último acesso: --</span>
-      </div>
-
-      <!-- AVISO DE SEGURANÇA -->
-      <div class="text-center bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl mb-5">
-        <p class="text-xs text-emerald-400 font-bold mb-1">🔒 Ambiente Seguro</p>
-        <p class="text-[10px] text-zinc-400 leading-relaxed">Para garantir horários para todos e evitar contas falsas, o acesso agora é feito com segurança.</p>
       </div>
 
       <div class="space-y-3">
@@ -147,8 +119,11 @@
           Continuar com o LinkedIn
         </button>
 
-        <!-- SE PRECISAR REATIVAR O ACESSO POR WHATSAPP, DESCOMENTE O CÓDIGO ABAIXO -->
-        <!--
+        <button onclick="signInWithSpotify()" class="press w-full py-4 px-4 rounded-2xl font-semibold text-white bg-[#151515] border border-white/10 flex items-center justify-center gap-3 text-[14px]">
+          <svg class="w-5 h-5 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.54.659.301 1.02zm1.44-3.3c-.301.42-.84.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15.001 10.62 18.661 12.9c.42.18.6.78.3 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.721 1.62.539.3.719 1.02.419 1.56-.299.48-1.02.659-1.559.3z"/></svg>
+          Continuar com o Spotify
+        </button>
+
         <div class="flex items-center gap-4 py-3">
           <div class="h-px bg-white/10 flex-1"></div>
           <span class="text-zinc-600 text-[10px] uppercase tracking-widest">ou</span>
@@ -177,18 +152,17 @@
             <button onclick="executePhoneLogin()" class="press w-full py-4 rounded-2xl font-bold text-black bg-emerald-500 hover:bg-emerald-400 transition-colors text-sm">Entrar com WhatsApp</button>
           </div>
         </div>
-        -->
       </div>
     </div>
   </div>
 
-  <!-- APP PRINCIPAL -->
+  <!-- APP -->
   <div id="view-app" class="hidden fixed inset-0 flex-col bg-[#090909] max-w-md mx-auto overflow-hidden">
     <main id="app-scroll" class="flex-1 overflow-y-auto no-scrollbar pb-28">
-
+      
       <!-- HOME -->
       <section id="tab-content-inicio" class="animate-fade-up">
-        <div class="relative h-[340px] overflow-hidden">
+        <div class="relative h-[360px] overflow-hidden">
           <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=1200&auto=format&fit=crop&q=85" class="absolute inset-0 w-full h-full object-cover" alt="Barbearia">
           <div class="absolute inset-0 hero-overlay"></div>
           <div class="absolute inset-x-0 top-0 safe-top px-5">
@@ -200,18 +174,19 @@
                   <p id="home-greeting-name" class="font-semibold text-white text-sm mt-0.5">Olá!</p>
                 </div>
               </div>
-              <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Online
-              </span>
+              <button onclick="showToast('Você não possui novas notificações.')" class="press w-11 h-11 rounded-full bg-black/30 border border-white/10 backdrop-blur-md flex items-center justify-center relative">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M18 8a6 6 0 00-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                <span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d9a441]"></span>
+              </button>
             </div>
           </div>
-          <div class="absolute bottom-6 left-5 right-5">
-            <p class="text-[#edbc61] text-[10px] uppercase font-bold tracking-[0.3em] mb-1">Estilo • Respeito • Você</p>
-            <h1 class="display-font text-[32px] leading-tight text-white">Seu próximo corte<br>começa aqui.</h1>
+          <div class="absolute bottom-7 left-5 right-5">
+            <p class="text-[#edbc61] text-[10px] uppercase font-bold tracking-[0.3em] mb-2">Estilo • Respeito • Você</p>
+            <h1 class="display-font text-[34px] leading-tight text-white">Seu próximo corte<br>começa aqui.</h1>
           </div>
         </div>
 
-        <div class="px-5 -mt-4 relative z-10">
+        <div class="px-5 -mt-5 relative z-10">
           <button onclick="switchAppTab('servicos')" class="press gold-gradient gold-shadow rounded-2xl w-full p-4 flex items-center justify-between text-black">
             <div class="flex items-center gap-3">
               <div class="w-11 h-11 rounded-xl bg-black/10 flex items-center justify-center">
@@ -219,28 +194,26 @@
               </div>
               <div class="text-left">
                 <p class="font-bold text-sm">Agendar agora</p>
-                <p class="text-[11px] opacity-75">Horários sempre sincronizados</p>
+                <p class="text-[11px] opacity-65">Escolha seu serviço e horário</p>
               </div>
             </div>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
           </button>
         </div>
 
-        <!-- PRÓXIMO CORTE -->
         <div class="px-5 mt-7">
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-white font-bold text-lg">Seu próximo corte</h2>
             <span class="text-[10px] uppercase tracking-widest text-zinc-600">Agenda</span>
           </div>
-
-          <div id="home-next-appointment" class="glass rounded-3xl p-5 soft-shadow">
+          <div id="home-next-appointment" class="appointment-glow glass rounded-3xl p-5 soft-shadow">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-[#d9a441]/10 border border-[#d9a441]/20 flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 001 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
               </div>
               <div class="flex-1 min-w-0">
                 <p id="next-appointment-service" class="font-bold text-white truncate">Nenhum agendamento</p>
-                <p id="next-appointment-date" class="text-xs text-zinc-500 mt-1">Você não possui horário marcado.</p>
+                <p id="next-appointment-date" class="text-xs text-zinc-500 mt-1">Você ainda não possui um horário marcado.</p>
               </div>
               <span id="next-appointment-status" class="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-full bg-[#d9a441]/10 text-[#e4b75d] border border-[#d9a441]/20 shrink-0">Livre</span>
             </div>
@@ -248,117 +221,163 @@
           </div>
         </div>
 
-        <!-- SERVIÇOS CAROUSEL -->
         <div class="px-5 mt-8">
           <div class="flex items-end justify-between mb-4">
             <div>
               <p class="text-[9px] uppercase tracking-[0.25em] text-[#d9a441] font-bold">Serviços</p>
-              <h2 class="display-font text-2xl text-white mt-1">Mais procurados</h2>
+              <h2 class="display-font text-2xl text-white mt-1">Escolha seu estilo</h2>
             </div>
             <button onclick="switchAppTab('servicos')" class="text-xs text-[#d9a441] font-semibold">Ver todos</button>
           </div>
-
           <div class="flex gap-3 overflow-x-auto no-scrollbar -mx-5 px-5">
-            <button onclick="startBooking('Corte Masculino', 40, 30)" class="press shrink-0 w-[170px] text-left">
-              <div class="relative h-[200px] rounded-3xl overflow-hidden border border-white/10">
-                <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover">
+            <button onclick="startBooking('Corte Masculino', 40, 30)" class="press shrink-0 w-[190px] text-left">
+              <div class="relative h-[210px] rounded-3xl overflow-hidden border border-white/10">
+                <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover" alt="Corte Masculino">
                 <div class="absolute inset-0 hero-overlay"></div>
                 <div class="absolute bottom-0 left-0 right-0 p-4">
-                  <p class="font-bold text-white text-sm">Corte</p>
-                  <p class="text-[#e7b85e] text-xs font-semibold mt-0.5">R$ 40 • 30m</p>
+                  <p class="font-bold text-white">Corte Masculino</p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[#e7b85e] text-xs font-semibold">R$ 40</span>
+                    <span class="text-zinc-400 text-[10px]">• 30 min</span>
+                  </div>
                 </div>
               </div>
             </button>
+            <button onclick="startBooking('Barba', 30, 30)" class="press shrink-0 w-[190px] text-left">
+              <div class="relative h-[210px] rounded-3xl overflow-hidden border border-white/10">
+                <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover" alt="Barba">
+                <div class="absolute inset-0 hero-overlay"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                  <p class="font-bold text-white">Barba</p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[#e7b85e] text-xs font-semibold">R$ 30</span>
+                    <span class="text-zinc-400 text-[10px]">• 30 min</span>
+                  </div>
+                </div>
+              </div>
+            </button>
+            <button onclick="startBooking('Sobrancelha', 15, 20)" class="press shrink-0 w-[190px] text-left">
+              <div class="relative h-[210px] rounded-3xl overflow-hidden border border-white/10">
+                <img src="./sobrancelha.jpeg" class="absolute inset-0 w-full h-full object-cover" alt="Sobrancelha">
+                <div class="absolute inset-0 hero-overlay"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                  <p class="font-bold text-white">Sobrancelha</p>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[#e7b85e] text-xs font-semibold">R$ 15</span>
+                    <span class="text-zinc-400 text-[10px]">• 20 min</span>
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
 
-            <button onclick="startBooking('Barba', 30, 30)" class="press shrink-0 w-[170px] text-left">
-              <div class="relative h-[200px] rounded-3xl overflow-hidden border border-white/10">
-                <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 hero-overlay"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-4">
-                  <p class="font-bold text-white text-sm">Barba</p>
-                  <p class="text-[#e7b85e] text-xs font-semibold mt-0.5">R$ 30 • 30m</p>
-                </div>
-              </div>
-            </button>
-
-            <button onclick="startBooking('Corte e Barba', 65, 60)" class="press shrink-0 w-[170px] text-left">
-              <div class="relative h-[200px] rounded-3xl overflow-hidden border border-white/10">
-                <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=500&auto=format&fit=crop&q=80" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 hero-overlay"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-4">
-                  <p class="font-bold text-white text-sm">Corte + Barba</p>
-                  <p class="text-[#e7b85e] text-xs font-semibold mt-0.5">R$ 65 • 60m</p>
-                </div>
-              </div>
-            </button>
+        <div class="px-5 mt-8 mb-8">
+          <div class="glass rounded-3xl p-5 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-[#d9a441]/10 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-white">RB Barbearia</p>
+              <p class="text-xs text-zinc-500 mt-1">Novo Hamburgo / RS</p>
+            </div>
+            <div class="ml-auto text-right">
+              <p class="text-[#e5b75d] text-sm font-bold">★ 5.0</p>
+              <p class="text-[9px] text-zinc-600 mt-1">avaliação</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- ABA SERVIÇOS -->
+      <!-- SERVIÇOS -->
       <section id="tab-content-servicos" class="hidden px-5 pt-7 animate-fade-up">
         <div class="mb-7">
-          <p class="text-[10px] uppercase tracking-[0.28em] text-[#d9a441] font-bold">Catálogo</p>
-          <h2 class="display-font text-3xl text-white mt-1">Nossos Serviços</h2>
-          <p class="text-xs text-zinc-500 mt-1">Selecione para escolher o dia e horário.</p>
+          <p class="text-[10px] uppercase tracking-[0.28em] text-[#d9a441] font-bold">RB Barbearia</p>
+          <h2 class="display-font text-3xl text-white mt-2">Nossos serviços</h2>
+          <p class="text-xs text-zinc-500 mt-2">Escolha seu serviço e encontre o melhor horário.</p>
         </div>
 
         <div class="space-y-3">
-          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3.5 flex items-center justify-between">
-            <div>
+          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3 flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&auto=format&fit=crop&q=80" class="w-[76px] h-[76px] rounded-2xl object-cover shrink-0" alt="Corte Masculino">
+            <div class="flex-1 min-w-0">
               <p class="font-bold text-white text-sm">Corte Masculino</p>
-              <p class="text-[11px] text-zinc-500 mt-0.5">Corte e acabamento navalhado</p>
-              <p class="text-[#e4b55b] font-bold text-xs mt-1">R$ 40,00 <span class="text-zinc-500 font-normal">• 30 min</span></p>
-            </div>
-            <button onclick="startBooking('Corte Masculino', 40, 30)" class="press px-4 py-2.5 rounded-xl gold-gradient text-black font-bold text-xs">Agendar</button>
-          </div>
-
-          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3.5 flex items-center justify-between">
-            <div>
-              <p class="font-bold text-white text-sm">Barba Completa</p>
-              <p class="text-[11px] text-zinc-500 mt-0.5">Alinhamento, toalha quente e pós-barba</p>
-              <p class="text-[#e4b55b] font-bold text-xs mt-1">R$ 30,00 <span class="text-zinc-500 font-normal">• 30 min</span></p>
-            </div>
-            <button onclick="startBooking('Barba', 30, 30)" class="press px-4 py-2.5 rounded-xl gold-gradient text-black font-bold text-xs">Agendar</button>
-          </div>
-
-          <div class="service-card bg-[#111111] border border-[#d9a441]/30 rounded-3xl p-3.5 flex items-center justify-between">
-            <div>
-              <div class="flex items-center gap-2">
-                <p class="font-bold text-white text-sm">Corte e Barba</p>
-                <span class="text-[9px] font-bold bg-[#d9a441] text-black px-2 py-0.5 rounded-full uppercase">Combo</span>
+              <p class="text-[11px] text-zinc-500 mt-1">Corte e acabamento</p>
+              <div class="flex items-center gap-3 mt-2">
+                <span class="text-[#e4b55b] font-bold text-xs">R$ 40,00</span>
+                <span class="text-zinc-600 text-[10px]">30 min</span>
               </div>
-              <p class="text-[11px] text-zinc-500 mt-0.5">Experiência completa da barbearia</p>
-              <p class="text-[#e4b55b] font-bold text-xs mt-1">R$ 65,00 <span class="text-zinc-500 font-normal">• 60 min</span></p>
             </div>
-            <button onclick="startBooking('Corte e Barba', 65, 60)" class="press px-4 py-2.5 rounded-xl gold-gradient text-black font-bold text-xs">Agendar</button>
+            <button onclick="startBooking('Corte Masculino', 40, 30)" class="press w-10 h-10 rounded-xl gold-gradient text-black flex items-center justify-center shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
           </div>
 
-          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3.5 flex items-center justify-between">
-            <div>
+          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3 flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&auto=format&fit=crop&q=80" class="w-[76px] h-[76px] rounded-2xl object-cover shrink-0" alt="Barba">
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-white text-sm">Barba</p>
+              <p class="text-[11px] text-zinc-500 mt-1">Barba completa</p>
+              <div class="flex items-center gap-3 mt-2">
+                <span class="text-[#e4b55b] font-bold text-xs">R$ 30,00</span>
+                <span class="text-zinc-600 text-[10px]">30 min</span>
+              </div>
+            </div>
+            <button onclick="startBooking('Barba', 30, 30)" class="press w-10 h-10 rounded-xl gold-gradient text-black flex items-center justify-center shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+
+          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3 flex items-center gap-4">
+            <img src="./sobrancelha.jpeg" class="w-[76px] h-[76px] rounded-2xl object-cover shrink-0" alt="Sobrancelha">
+            <div class="flex-1 min-w-0">
               <p class="font-bold text-white text-sm">Sobrancelha</p>
-              <p class="text-[11px] text-zinc-500 mt-0.5">Alinhamento estético</p>
-              <p class="text-[#e4b55b] font-bold text-xs mt-1">R$ 15,00 <span class="text-zinc-500 font-normal">• 20 min</span></p>
+              <p class="text-[11px] text-zinc-500 mt-1">Alinhamento e acabamento</p>
+              <div class="flex items-center gap-3 mt-2">
+                <span class="text-[#e4b55b] font-bold text-xs">R$ 15,00</span>
+                <span class="text-zinc-600 text-[10px]">20 min</span>
+              </div>
             </div>
-            <button onclick="startBooking('Sobrancelha', 15, 20)" class="press px-4 py-2.5 rounded-xl gold-gradient text-black font-bold text-xs">Agendar</button>
+            <button onclick="startBooking('Sobrancelha', 15, 20)" class="press w-10 h-10 rounded-xl gold-gradient text-black flex items-center justify-center shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
           </div>
 
-          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3.5 flex items-center justify-between">
-            <div>
-              <p class="font-bold text-white text-sm">Progressiva Orgânica</p>
-              <p class="text-[11px] text-zinc-500 mt-0.5">Alinhamento térmico sem formol</p>
-              <p class="text-[#e4b55b] font-bold text-xs mt-1">R$ 180,00 <span class="text-zinc-500 font-normal">• 120 min</span></p>
+          <div class="service-card bg-[#111111] border border-[#d9a441]/25 rounded-3xl p-3 flex items-center gap-4">
+            <div class="relative shrink-0">
+              <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&auto=format&fit=crop&q=80" class="w-[76px] h-[76px] rounded-2xl object-cover" alt="Corte e Barba">
+              <span class="absolute -top-1.5 -right-1.5 text-[8px] font-bold uppercase bg-[#d9a441] text-black px-2 py-1 rounded-full">Combo</span>
             </div>
-            <button onclick="startBooking('Progressiva feminina orgânica', 180, 120)" class="press px-4 py-2.5 rounded-xl gold-gradient text-black font-bold text-xs">Agendar</button>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-white text-sm">Corte e Barba</p>
+              <p class="text-[11px] text-zinc-500 mt-1">O combo completo</p>
+              <div class="flex items-center gap-3 mt-2">
+                <span class="text-[#e4b55b] font-bold text-xs">R$ 65,00</span>
+                <span class="text-zinc-600 text-[10px]">60 min</span>
+              </div>
+            </div>
+            <button onclick="startBooking('Corte e Barba', 65, 60)" class="press w-10 h-10 rounded-xl gold-gradient text-black flex items-center justify-center shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
           </div>
+
+          <div class="service-card bg-[#111111] border border-white/10 rounded-3xl p-3 flex items-center gap-4">
+            <img src="./progressiva.jpg" class="w-[76px] h-[76px] rounded-2xl object-cover shrink-0" alt="Progressiva feminina orgânica">
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-white text-sm">Progressiva feminina orgânica</p>
+              <p class="text-[11px] text-zinc-500 mt-1">Tratamento completo</p>
+              <div class="flex items-center gap-3 mt-2">
+                <span class="text-[#e4b55b] font-bold text-xs">R$ 180,00</span>
+                <span class="text-zinc-600 text-[10px]">120 min</span>
+              </div>
+            </div>
+            <button onclick="startBooking('Progressiva feminina orgânica', 180, 120)" class="press w-10 h-10 rounded-xl gold-gradient text-black flex items-center justify-center shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+
+        <div class="mt-7 mb-5 text-center">
+          <p class="text-[10px] text-zinc-600">Escolha um serviço para começar seu agendamento.</p>
         </div>
       </section>
 
       <!-- HISTÓRICO -->
       <section id="tab-content-historico" class="hidden px-5 pt-7 animate-fade-up">
         <div class="mb-7">
-          <p class="text-[10px] uppercase tracking-[0.28em] text-[#d9a441] font-bold">Meus Registros</p>
-          <h2 class="display-font text-3xl text-white mt-1">Histórico</h2>
+          <p class="text-[10px] uppercase tracking-[0.28em] text-[#d9a441] font-bold">Sua conta</p>
+          <h2 class="display-font text-3xl text-white mt-2">Meus agendamentos</h2>
+          <p class="text-xs text-zinc-500 mt-2">Acompanhe seus horários e histórico.</p>
         </div>
         <div id="history-container" class="space-y-3"></div>
       </section>
@@ -366,96 +385,105 @@
       <!-- PERFIL -->
       <section id="tab-content-perfil" class="hidden px-5 pt-7 animate-fade-up">
         <div class="mb-7">
-          <p class="text-[10px] uppercase tracking-[0.28em] text-[#d9a441] font-bold">Minha Conta</p>
-          <h2 class="display-font text-3xl text-white mt-1">Meu Perfil</h2>
+          <p class="text-[10px] uppercase tracking-[0.28em] text-[#d9a441] font-bold">Minha conta</p>
+          <h2 class="display-font text-3xl text-white mt-2">Meu perfil</h2>
         </div>
 
-        <div class="bg-[#111111] border border-white/10 rounded-[28px] p-6 space-y-4">
-          <div>
-            <label class="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.15em] block mb-2">Nome</label>
-            <input type="text" id="profile-name-input" class="w-full px-4 py-3.5 bg-[#090909] border border-white/10 rounded-2xl text-white outline-none focus:border-[#d9a441] text-sm">
+        <div class="bg-[#111111] border border-white/10 rounded-[28px] p-6">
+          <div class="flex justify-center mb-7">
+            <label class="cursor-pointer relative group">
+              <img id="profile-avatar-preview" src="./icone.png" class="w-28 h-28 rounded-full object-cover border border-[#d9a441]/30 shadow-2xl">
+              <div class="absolute inset-0 bg-black/65 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <svg class="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="text-[9px] text-white font-bold uppercase tracking-wider">Alterar</span>
+              </div>
+              <input type="file" class="hidden" accept="image/*" onchange="handleAvatarUpload(this)">
+            </label>
           </div>
-          <div>
-            <label class="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.15em] block mb-2">WhatsApp</label>
-            <input type="text" id="profile-phone-input" readonly class="w-full px-4 py-3.5 bg-[#090909]/50 border border-white/5 rounded-2xl text-zinc-500 outline-none text-sm">
+
+          <div class="space-y-4">
+            <div>
+              <label class="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.15em] block mb-2">Nome e Sobrenome</label>
+              <input type="text" id="profile-name-input" class="w-full px-4 py-3.5 bg-[#090909] border border-white/10 rounded-2xl text-white outline-none focus:border-[#d9a441] text-sm">
+            </div>
+            <div>
+              <label class="text-[10px] text-zinc-500 uppercase font-bold tracking-[0.15em] block mb-2">WhatsApp</label>
+              <input type="text" id="profile-phone-input" readonly class="w-full px-4 py-3.5 bg-[#090909]/50 border border-white/5 rounded-2xl text-zinc-500 outline-none cursor-not-allowed text-sm">
+            </div>
+            <button onclick="saveProfile()" class="press w-full py-4 gold-gradient text-black font-bold rounded-2xl text-sm mt-2">Salvar alterações</button>
           </div>
-          <button onclick="saveProfile()" class="press w-full py-4 gold-gradient text-black font-bold rounded-2xl text-sm mt-2">Salvar alterações</button>
         </div>
 
         <button onclick="userSignOut()" class="press w-full mt-4 py-4 rounded-2xl border border-red-500/15 bg-red-500/5 text-red-400 text-xs font-semibold">Sair da conta</button>
+        <p class="text-center text-[9px] text-zinc-700 mt-6 mb-5 tracking-widest uppercase">RB Barbearia • Novo Hamburgo</p>
       </section>
     </main>
 
-    <!-- NAVEGAÇÃO BOTTOM -->
-    <nav class="bottom-nav absolute bottom-0 left-0 right-0 z-30 bg-[#090909]/95 backdrop-blur-2xl border-t border-white/10">
+    <!-- NAVEGAÇÃO INFERIOR -->
+    <nav class="bottom-nav absolute bottom-0 left-0 right-0 z-30 bg-[#090909]/92 backdrop-blur-2xl border-t border-white/10">
       <div class="grid grid-cols-4 h-[72px] px-2">
-        <button id="nav-inicio" onclick="switchAppTab('inicio')" class="nav-button nav-active flex flex-col items-center justify-center gap-1 text-zinc-600">
-          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10.5L12 3l9 7.5M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9"/></svg>
-          </span>
+        <button id="nav-inicio" onclick="switchAppTab('inicio')" class="nav-button nav-active flex flex-col items-center justify-center gap-1.5 text-zinc-600">
+          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center border border-transparent"><svg class="nav-icon-svg w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10.5L12 3l9 7.5M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9"/></svg></span>
           <span class="text-[9px] font-semibold">Início</span>
         </button>
-        <button id="nav-servicos" onclick="switchAppTab('servicos')" class="nav-button flex flex-col items-center justify-center gap-1 text-zinc-600">
-          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
-          </span>
+        <button id="nav-servicos" onclick="switchAppTab('servicos')" class="nav-button flex flex-col items-center justify-center gap-1.5 text-zinc-600">
+          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center border border-transparent"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg></span>
           <span class="text-[9px] font-semibold">Agendar</span>
         </button>
-        <button id="nav-historico" onclick="switchAppTab('historico')" class="nav-button flex flex-col items-center justify-center gap-1 text-zinc-600">
-          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </span>
+        <button id="nav-historico" onclick="switchAppTab('historico')" class="nav-button flex flex-col items-center justify-center gap-1.5 text-zinc-600">
+          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center border border-transparent"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
           <span class="text-[9px] font-semibold">Histórico</span>
         </button>
-        <button id="nav-perfil" onclick="switchAppTab('perfil')" class="nav-button flex flex-col items-center justify-center gap-1 text-zinc-600">
-          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"/></svg>
-          </span>
+        <button id="nav-perfil" onclick="switchAppTab('perfil')" class="nav-button flex flex-col items-center justify-center gap-1.5 text-zinc-600">
+          <span class="nav-icon w-9 h-8 rounded-xl flex items-center justify-center border border-transparent"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"/></svg></span>
           <span class="text-[9px] font-semibold">Perfil</span>
         </button>
       </div>
     </nav>
   </div>
 
-  <!-- TELA SELETOR DATA/HORA -->
+  <!-- TELA DE AGENDAMENTO -->
   <div id="view-datetime" class="hidden fixed inset-0 flex-col bg-[#090909] z-[70] max-w-md mx-auto overflow-hidden">
     <header class="safe-top px-5 pb-4 pt-4 flex items-center gap-4 bg-[#090909]/95 backdrop-blur-xl border-b border-white/10">
       <button onclick="cancelBooking()" class="press w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
       </button>
       <div class="flex-1 min-w-0">
-        <p class="text-[9px] uppercase tracking-[0.25em] text-[#d9a441] font-bold">Horário de Atendimento</p>
-        <h2 id="booking-service-name" class="font-bold text-white text-base truncate">Serviço</h2>
+        <p class="text-[9px] uppercase tracking-[0.25em] text-[#d9a441] font-bold">Agendamento</p>
+        <h2 id="booking-service-name" class="font-bold text-white text-base mt-1 truncate">Serviço</h2>
       </div>
     </header>
 
     <div class="flex-1 overflow-y-auto no-scrollbar pb-32">
-      <div class="px-5 pt-6">
-        <div class="flex items-end justify-between mb-3">
+      <div class="px-5 pt-7">
+        <div class="flex items-end justify-between mb-4">
           <div>
-            <p class="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">1. Escolha a data</p>
-            <h3 id="booking-month-title" class="display-font text-2xl text-white mt-0.5">Mês</h3>
+            <p class="text-[10px] text-zinc-600 uppercase tracking-widest">Escolha o dia</p>
+            <h3 id="booking-month-title" class="display-font text-2xl text-white mt-1">Mês</h3>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-[#d9a441]/10 border border-[#d9a441]/15 flex items-center justify-center">
+            <svg class="w-5 h-5 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
           </div>
         </div>
 
         <div class="flex gap-2.5 overflow-x-auto no-scrollbar pb-2" id="date-scroll-container"></div>
 
-        <div class="mt-7 mb-3 flex items-center justify-between">
+        <div class="mt-8 mb-4 flex items-center justify-between">
           <div>
-            <p class="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">2. Escolha o horário</p>
-            <h3 class="text-base font-bold text-white mt-0.5">Disponíveis</h3>
+            <p class="text-[10px] text-zinc-600 uppercase tracking-widest">Disponibilidade</p>
+            <h3 class="text-lg font-bold text-white mt-1">Horários disponíveis</h3>
           </div>
-          <span id="booking-duration-label" class="text-[10px] text-[#d9a441] font-semibold bg-[#d9a441]/10 px-2.5 py-1 rounded-md">30 min</span>
+          <span id="booking-duration-label" class="text-[10px] text-zinc-500">30 min</span>
         </div>
 
         <div class="grid grid-cols-3 gap-2.5" id="time-grid-container"></div>
 
-        <div id="booking-summary" class="hidden mt-6 bg-[#111111] border border-[#d9a441]/25 rounded-3xl p-4">
-          <p class="text-[9px] uppercase tracking-[0.2em] text-[#d9a441] font-bold">Confirmação</p>
-          <div class="flex items-center justify-between mt-2">
+        <div id="booking-summary" class="hidden mt-7 bg-[#111111] border border-[#d9a441]/20 rounded-3xl p-4">
+          <p class="text-[9px] uppercase tracking-[0.2em] text-[#d9a441] font-bold">Resumo</p>
+          <div class="flex items-center justify-between mt-3">
             <div>
               <p id="summary-service" class="text-sm font-bold text-white">Serviço</p>
-              <p id="summary-datetime" class="text-xs text-zinc-400 mt-0.5">Data • Horário</p>
+              <p id="summary-datetime" class="text-xs text-zinc-500 mt-1">Data • Horário</p>
             </div>
             <p id="summary-price" class="text-[#e5b75d] font-bold text-sm">R$ 0,00</p>
           </div>
@@ -464,7 +492,7 @@
     </div>
 
     <div class="absolute bottom-0 left-0 right-0 safe-bottom p-4 bg-[#090909]/95 backdrop-blur-xl border-t border-white/10">
-      <button id="btn-save-appointment" disabled onclick="confirmBooking()" class="press w-full py-4 rounded-2xl font-bold text-sm bg-[#202020] text-zinc-600 cursor-not-allowed transition-all">
+      <button id="btn-save-appointment" disabled onclick="confirmBooking()" class="press w-full py-4 rounded-2xl font-bold text-sm bg-[#202020] text-zinc-600 disabled:cursor-not-allowed transition-all">
         Escolha um horário
       </button>
     </div>
@@ -481,22 +509,22 @@
     let selectedPrice = null;
     let selectedDate = null;
     let selectedTime = null;
-
+    
     let shopSettings = {
       open: '09:00',
-      close: '20:30',
+      close: '20:00',
       break_start: '',
       break_end: ''
     };
 
     let realtimeSub = null;
-    let syncInterval = null;
+    let pollTimer = null;
+    let currentAvatarBase64 = null;
 
     function generateUUID() {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random() * 16 | 0;
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
       });
     }
 
@@ -520,131 +548,99 @@
       return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    function timeToMinutes(tStr) {
-      if (!tStr) return 0;
-      const [h, m] = tStr.split(':');
-      return (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0);
+    function setLastLoginMethod(method) {
+      localStorage.setItem('rb_last_login', method);
     }
 
-    function parseAppointmentDate(item) {
-      if (!item || !item.date || !item.time) return null;
-      const dateParts = item.date.split('/');
-      if (dateParts.length !== 3) return null;
-      const timeParts = item.time.split(':');
-      return new Date(
-        parseInt(dateParts[2], 10), 
-        parseInt(dateParts[1], 10) - 1, 
-        parseInt(dateParts[0], 10), 
-        parseInt(timeParts[0] || 0, 10), 
-        parseInt(timeParts[1] || 0, 10)
-      );
+    function checkLastLoginBadge() {
+      const method = localStorage.getItem('rb_last_login');
+      if (!method) return;
+      const badge = document.getElementById('last-login-badge');
+      document.getElementById('last-login-text').innerText = `Último acesso: ${method}`;
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
     }
 
     async function fetchSettings() {
-      try {
-        const { data } = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
-        if (data) {
-          shopSettings.open = data.open_time || '09:00';
-          shopSettings.close = data.close_time || '20:30';
-          shopSettings.break_start = data.break_start || '';
-          shopSettings.break_end = data.break_end || '';
-        }
-      } catch (e) {
-        console.warn('Configurações offline/padrão utilizadas:', e);
+      const { data } = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
+      if (data) {
+        shopSettings.open = data.open_time || '09:00';
+        shopSettings.close = data.close_time || '20:00';
+        shopSettings.break_start = data.break_start || '';
+        shopSettings.break_end = data.break_end || '';
       }
     }
 
     function initClientRealtime() {
       if (realtimeSub) return;
-
-      realtimeSub = sb.channel('public:realtime_sync')
+      
+      realtimeSub = sb.channel('public:appointments')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
-          triggerImmediateSync();
+          if (selectedDate && !document.getElementById('view-datetime').classList.contains('hidden')) {
+            renderTimeOptions(selectedDate, true); // re-render silencioso
+          }
+          if (clientUser) { loadHistory(); loadNextAppointment(); }
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, async () => {
           await fetchSettings();
-          triggerImmediateSync();
+          if (selectedDate && !document.getElementById('view-datetime').classList.contains('hidden')) {
+            renderTimeOptions(selectedDate, true); // re-render silencioso
+          }
         })
         .subscribe();
 
-      if (syncInterval) clearInterval(syncInterval);
-      syncInterval = setInterval(() => {
-        triggerImmediateSync(true);
+      // Fallback em caso do celular pausar o WebSocket
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(() => {
+        if (selectedDate && !document.getElementById('view-datetime').classList.contains('hidden')) {
+          renderTimeOptions(selectedDate, true);
+        }
       }, 4000);
     }
 
-    function triggerImmediateSync(silent = false) {
-      if (selectedDate && !document.getElementById('view-datetime').classList.contains('hidden')) {
-        renderTimeOptions(selectedDate, silent);
-      }
-      if (clientUser) {
-        loadHistory();
-        loadNextAppointment();
-      }
-    }
-
-    // Mantido por compatibilidade caso o dono reative o box no HTML
     async function executePhoneLogin() {
       const name = document.getElementById('phone-login-name').value.trim();
-      const cleanPhone = document.getElementById('phone-login-number').value.replace(/\D/g, '');
+      const phoneRaw = document.getElementById('phone-login-number').value;
+      const cleanPhone = phoneRaw.replace(/\D/g, '');
 
       if (!name.includes(' ')) { alert('Por favor, informe seu Nome e Sobrenome.'); return; }
       if (cleanPhone.length < 10) { alert('Informe um WhatsApp válido com DDD.'); return; }
 
       const { data: existingProfile } = await sb.from('profiles').select('*').eq('phone', cleanPhone).maybeSingle();
-      const finalUserId = existingProfile ? existingProfile.id : generateUUID();
+      let finalUserId = existingProfile ? existingProfile.id : generateUUID();
 
       if (!existingProfile) {
-        await sb.from('profiles').insert([{ id: finalUserId, full_name: name, phone: cleanPhone }]);
+        const { error } = await sb.from('profiles').insert([{ id: finalUserId, full_name: name, phone: cleanPhone }]);
+        if (error) { alert('Erro ao criar perfil. Tente novamente.'); return; }
       }
 
+      setLastLoginMethod('Telefone');
       clientUser = {
         id: finalUserId,
-        name: existingProfile?.full_name || name,
+        name: existingProfile ? (existingProfile.full_name || name) : name,
+        email: existingProfile ? existingProfile.email : '',
         phone: cleanPhone,
-        avatar_url: existingProfile?.avatar_url || null
+        avatar_url: existingProfile ? existingProfile.avatar_url : null
       };
 
       localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
       enterApp();
     }
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      await fetchSettings();
-      const savedSession = localStorage.getItem('rb_client_session');
-      if (savedSession) {
-        try {
-          clientUser = JSON.parse(savedSession);
-          enterApp();
-          return;
-        } catch (e) {
-          localStorage.removeItem('rb_client_session');
-        }
-      }
+    async function signInWithGoogle() {
+      setLastLoginMethod('Google');
+      await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+    }
 
-      sb.auth.onAuthStateChange(async (event, session) => {
-        if (session && session.user && !clientUser) {
-          const u = session.user;
-          const name = u.user_metadata?.full_name || 'Cliente';
-          const avatar = u.user_metadata?.avatar_url || null;
-          let phone = u.phone || u.user_metadata?.typed_phone || '';
-          const cleanPhone = phone.replace(/\D/g, '');
+    async function signInWithSpotify() {
+      setLastLoginMethod('Spotify');
+      await sb.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: window.location.origin } });
+    }
 
-          if (cleanPhone.length >= 10) {
-            await unifyAndEnterApp(u.id, name, u.email, cleanPhone, avatar);
-          } else {
-            const { data: prof } = await sb.from('profiles').select('*').eq('id', u.id).maybeSingle();
-            if (prof && prof.phone && prof.phone.length >= 10) {
-              await unifyAndEnterApp(u.id, prof.full_name || name, u.email, prof.phone, prof.avatar_url || avatar);
-            } else {
-              window.tempAuthUser = { ...u, tempAvatar: avatar };
-              if (name !== 'Cliente') document.getElementById('mandatory-name-input').value = name;
-              document.getElementById('modal-mandatory-phone').classList.remove('hidden');
-            }
-          }
-        }
-      });
-    });
+    async function signInWithLinkedIn() {
+      setLastLoginMethod('LinkedIn');
+      await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo: window.location.origin } });
+    }
 
     async function unifyAndEnterApp(authId, name, email, phone, avatarUrlFromAuth) {
       const cleanPhone = phone.replace(/\D/g, '');
@@ -673,6 +669,43 @@
       enterApp();
     }
 
+    window.addEventListener('DOMContentLoaded', async () => {
+      await fetchSettings();
+      checkLastLoginBadge();
+
+      const savedSession = localStorage.getItem('rb_client_session');
+      if (savedSession) {
+        try {
+          clientUser = JSON.parse(savedSession);
+          enterApp();
+          return;
+        } catch (e) { localStorage.removeItem('rb_client_session'); }
+      }
+
+      sb.auth.onAuthStateChange(async (event, session) => {
+        if (session && session.user && !clientUser) {
+          const u = session.user;
+          const name = u.user_metadata?.full_name || 'Cliente';
+          const avatar = u.user_metadata?.avatar_url || null;
+          let phone = u.phone || u.user_metadata?.typed_phone || '';
+          const cleanPhone = phone.replace(/\D/g, '');
+
+          if (cleanPhone.length >= 10) {
+            await unifyAndEnterApp(u.id, name, u.email, cleanPhone, avatar);
+          } else {
+            const { data: prof } = await sb.from('profiles').select('*').eq('id', u.id).maybeSingle();
+            if (prof && prof.phone && prof.phone.length >= 10) {
+              await unifyAndEnterApp(u.id, prof.full_name || name, u.email, prof.phone, prof.avatar_url || avatar);
+            } else {
+              window.tempAuthUser = { ...u, tempAvatar: avatar };
+              if (name !== 'Cliente') document.getElementById('mandatory-name-input').value = name;
+              document.getElementById('modal-mandatory-phone').classList.remove('hidden');
+            }
+          }
+        }
+      });
+    });
+
     async function submitMandatoryPhone() {
       const nameInput = document.getElementById('mandatory-name-input').value.trim();
       const phoneInput = document.getElementById('mandatory-phone-input').value;
@@ -687,25 +720,10 @@
       await unifyAndEnterApp(authUser.id, nameInput, authUser.email, cleanPhone, authUser.tempAvatar);
     }
 
-    async function signInWithGoogle() {
-      localStorage.setItem('rb_last_login', 'Google');
-      await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
-    }
-
-    async function signInWithSpotify() {
-      localStorage.setItem('rb_last_login', 'Spotify');
-      await sb.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: window.location.origin } });
-    }
-
-    async function signInWithLinkedIn() {
-      localStorage.setItem('rb_last_login', 'LinkedIn');
-      await sb.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo: window.location.origin } });
-    }
-
-    function userSignOut() {
+    async function userSignOut() {
       localStorage.removeItem('rb_client_session');
-      if (syncInterval) clearInterval(syncInterval);
-      try { sb.auth.signOut(); } catch(e){}
+      if (pollTimer) clearInterval(pollTimer);
+      try { await sb.auth.signOut(); } catch (e) {}
       window.location.reload();
     }
 
@@ -725,27 +743,49 @@
       if (!clientUser) return;
       document.getElementById('profile-name-input').value = clientUser.name || '';
       document.getElementById('profile-phone-input').value = clientUser.phone || '';
-      document.getElementById('home-greeting-name').innerText = `Olá, ${(clientUser.name || 'Cliente').split(' ')[0]}!`;
+      document.getElementById('home-greeting-name').innerText = `Olá, ${(clientUser.name || 'cliente').split(' ')[0]}!`;
+      if (clientUser.avatar_url) {
+        document.getElementById('profile-avatar-preview').src = clientUser.avatar_url;
+        document.getElementById('header-avatar').src = clientUser.avatar_url;
+      }
+    }
+
+    function handleAvatarUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { alert('A imagem é muito grande. Escolha uma foto de até 2MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentAvatarBase64 = e.target.result;
+        document.getElementById('profile-avatar-preview').src = currentAvatarBase64;
+      };
+      reader.readAsDataURL(file);
     }
 
     async function saveProfile() {
       const newName = document.getElementById('profile-name-input').value.trim();
-      if (!newName.includes(' ')) {
-        alert('Informe seu Nome e Sobrenome.');
-        return;
-      }
-      await sb.from('profiles').update({ full_name: newName }).eq('id', clientUser.id);
+      if (!newName.includes(' ')) { alert('Por favor, informe seu Nome e Sobrenome.'); return; }
+
+      const updates = { full_name: newName };
+      if (currentAvatarBase64) updates.avatar_url = currentAvatarBase64;
+
+      const { error } = await sb.from('profiles').update(updates).eq('id', clientUser.id);
+      if (error) { alert('Erro ao salvar perfil: ' + error.message); return; }
+
       clientUser.name = newName;
+      if (currentAvatarBase64) clientUser.avatar_url = currentAvatarBase64;
       localStorage.setItem('rb_client_session', JSON.stringify(clientUser));
+      currentAvatarBase64 = null;
       loadProfileDataIntoUI();
-      showToast('Perfil atualizado!');
+      showToast('Perfil atualizado com sucesso!');
     }
 
     function switchAppTab(tab) {
-      ['inicio', 'servicos', 'historico', 'perfil'].forEach(t => {
+      const tabs = ['inicio', 'servicos', 'historico', 'perfil'];
+      tabs.forEach(t => {
         const content = document.getElementById(`tab-content-${t}`);
-        const nav = document.getElementById(`nav-${t}`);
         if (content) content.classList.toggle('hidden', t !== tab);
+        const nav = document.getElementById(`nav-${t}`);
         if (nav) {
           nav.classList.toggle('nav-active', t === tab);
           nav.classList.toggle('text-zinc-600', t !== tab);
@@ -765,11 +805,9 @@
 
       document.getElementById('booking-service-name').innerText = service;
       document.getElementById('booking-duration-label').innerText = `${duration} min`;
-
       document.getElementById('view-app').classList.add('hidden');
       document.getElementById('view-datetime').classList.remove('hidden');
       document.getElementById('view-datetime').classList.add('flex');
-
       renderDateOptions();
     }
 
@@ -784,32 +822,18 @@
       const container = document.getElementById('date-scroll-container');
       const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
       const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      let html = '', added = 0, offset = 0, firstMonth = '', firstYear = '';
 
-      let html = '';
-      let added = 0;
-      let offset = 0;
-      let firstMonth = '', firstYear = '';
-
-      while (added < 14) {
-        const d = new Date();
+      while (added < 15) {
+        let d = new Date();
         d.setDate(d.getDate() + offset);
-
-        if (d.getDay() !== 0) { // Não abre domingo
-          if (added === 0) {
-            firstMonth = meses[d.getMonth()];
-            firstYear = d.getFullYear();
-          }
-
-          const dayName = dias[d.getDay()];
-          const dayNum = String(d.getDate()).padStart(2, '0');
-          const month = String(d.getMonth() + 1).padStart(2, '0');
-          const val = `${dayNum}/${month}/${d.getFullYear()}`;
-
+        if (d.getDay() !== 0) {
+          if (added === 0) { firstMonth = meses[d.getMonth()]; firstYear = d.getFullYear(); }
+          const val = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
           html += `
-            <button type="button" class="date-option shrink-0 w-[62px] h-[78px] rounded-2xl border border-white/10 bg-[#111111] flex flex-col items-center justify-center"
-              data-date="${val}" onclick="selectDateOption('${val}', this)">
-              <span class="text-[10px] text-zinc-500 font-semibold uppercase">${dayName}</span>
-              <span class="text-lg font-bold text-white mt-1">${dayNum}</span>
+            <button type="button" class="date-option shrink-0 w-[62px] h-[78px] rounded-2xl border border-white/10 bg-[#111111] flex flex-col items-center justify-center" data-date="${val}" onclick="selectDateOption('${val}', this)">
+              <span class="text-[10px] text-zinc-600 font-semibold uppercase">${dias[d.getDay()]}</span>
+              <span class="text-lg font-bold text-white mt-1">${String(d.getDate()).padStart(2, '0')}</span>
               <span class="text-[9px] text-zinc-600 mt-0.5">${meses[d.getMonth()].slice(0,3)}</span>
             </button>
           `;
@@ -817,12 +841,10 @@
         }
         offset++;
       }
-
       document.getElementById('booking-month-title').innerText = `${firstMonth} ${firstYear}`;
       container.innerHTML = html;
-
-      const firstBtn = container.querySelector('.date-option');
-      if (firstBtn) firstBtn.click();
+      const first = container.querySelector('.date-option');
+      if (first) first.click();
     }
 
     function selectDateOption(value, element) {
@@ -833,105 +855,92 @@
       renderTimeOptions(selectedDate);
     }
 
+    function timeToMinutes(timeStr) {
+      const p = timeStr.split(':');
+      return (parseInt(p[0], 10) * 60 + parseInt(p[1], 10));
+    }
+
     async function renderTimeOptions(targetDate, silent = false) {
       const container = document.getElementById('time-grid-container');
       if (!silent) {
         container.innerHTML = `
           <div class="col-span-3 text-center py-10">
-            <div class="w-6 h-6 border-2 border-[#d9a441]/20 border-t-[#d9a441] rounded-full animate-spin mx-auto"></div>
-            <p class="text-[10px] text-zinc-600 mt-2">Atualizando horários em tempo real...</p>
+            <div class="w-7 h-7 border-2 border-[#d9a441]/20 border-t-[#d9a441] rounded-full animate-spin mx-auto"></div>
+            <p class="text-[10px] text-zinc-600 mt-3">Verificando disponibilidade...</p>
           </div>
         `;
       }
 
       await fetchSettings();
-
       const parts = targetDate.split('/');
       const targetDateNoZero = `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}/${parts[2]}`;
 
-      const { data: booked } = await sb
-        .from('appointments')
-        .select('service, time, calendar_event_id')
-        .in('date', [targetDate, targetDateNoZero]);
-
+      const { data: booked } = await sb.from('appointments').select('service, time, calendar_event_id').in('date', [targetDate, targetDateNoZero]);
       let occupiedIntervals = [];
 
       if (booked) {
         booked.forEach(b => {
-          if (b.calendar_event_id === 'cancelled_by_barber' || b.calendar_event_id === 'cancelled_by_client') {
-            return;
-          }
-
+          if (b.calendar_event_id === 'cancelled_by_barber' || b.calendar_event_id === 'cancelled_by_client') return;
           const startMin = timeToMinutes(b.time);
           let dur = 30;
-
-          if (b.service) {
-            const s = b.service.toLowerCase();
-            if (s.includes('corte e barba') || s.includes('combo') || s.includes('completo')) dur = 60;
-            else if (s.includes('progressiva')) dur = 120;
-            else if (s.includes('sobrancelha')) dur = 20;
-          }
-
+          if (b.service && (b.service.includes('Corte e Barba') || b.service.includes('Combo'))) dur = 60;
+          else if (b.service && b.service.includes('Progressiva')) dur = 120;
+          else if (b.service && b.service.includes('Sobrancelha')) dur = 20;
           occupiedIntervals.push({ start: startMin, end: startMin + dur });
         });
       }
 
+      // Adiciona o intervalo de descanso caso configurado
       if (shopSettings.break_start && shopSettings.break_end) {
-        const bStart = timeToMinutes(shopSettings.break_start);
-        const bEnd = timeToMinutes(shopSettings.break_end);
-        if (bEnd > bStart) {
-          occupiedIntervals.push({ start: bStart, end: bEnd });
-        }
+        const bs = timeToMinutes(shopSettings.break_start);
+        const be = timeToMinutes(shopSettings.break_end);
+        if (bs < be) occupiedIntervals.push({ start: bs, end: be });
       }
 
-      const openMin = timeToMinutes(shopSettings.open);
-      const closeMin = timeToMinutes(shopSettings.close);
-
       const slots = [];
-      for (let t = openMin; t <= closeMin - selectedDuration; t += 30) {
-        const h = String(Math.floor(t / 60)).padStart(2, '0');
-        const m = String(t % 60).padStart(2, '0');
-        slots.push(`${h}:${m}`);
+      const startMin = timeToMinutes(shopSettings.open);
+      const endMin = timeToMinutes(shopSettings.close);
+
+      // Limita a geração de horários até (Fechamento - Duração do Serviço)
+      for (let t = startMin; t <= endMin - selectedDuration; t += 30) {
+        slots.push(`${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`);
       }
 
       const now = new Date();
-      const todayStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-      const isToday = targetDate === todayStr;
+      const isToday = targetDate === `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
       let html = '';
       slots.forEach(slot => {
         const slotStart = timeToMinutes(slot);
         const slotEnd = slotStart + selectedDuration;
-
         const isOccupied = occupiedIntervals.some(i => slotStart < i.end && slotEnd > i.start);
         const isPassed = isToday && slotStart <= currentMinutes;
-        const isSelected = selectedTime === slot;
 
         if (isOccupied || isPassed) {
+          if (selectedTime === slot) selectedTime = null; // desmarca se bloquearem enquanto olhava
           html += `
-            <div class="py-3 rounded-2xl border border-white/5 bg-[#0e0e0e] text-center opacity-30 cursor-not-allowed">
+            <div class="py-3.5 rounded-2xl border border-white/5 bg-[#0e0e0e] text-center opacity-30">
               <span class="text-zinc-600 font-medium text-xs line-through">${slot}</span>
             </div>
           `;
         } else {
           html += `
-            <button type="button" class="time-option available py-3 rounded-2xl border border-white/10 bg-[#111111] text-center text-zinc-300 font-semibold text-xs ${isSelected ? 'selected' : ''}"
-              data-time="${slot}" onclick="selectTimeOption('${slot}', this)">
+            <button type="button" class="time-option available py-3.5 rounded-2xl border border-white/10 bg-[#111111] text-center text-zinc-300 font-semibold text-xs ${selectedTime === slot ? 'selected' : ''}" data-time="${slot}" onclick="selectTimeOption('${slot}', this)">
               ${slot}
             </button>
           `;
         }
       });
 
-      if (!slots.length) {
+      if (!html) {
         html = `
-          <div class="col-span-3 text-center py-8 bg-[#111] rounded-3xl border border-white/5">
-            <p class="text-xs text-zinc-500">Sem horários para o serviço neste dia.</p>
+          <div class="col-span-3 text-center py-10 bg-[#111111] rounded-3xl border border-white/5">
+            <p class="text-sm text-zinc-400">Nenhum horário disponível.</p>
+            <p class="text-[10px] text-zinc-600 mt-2">Tente outra data.</p>
           </div>
         `;
       }
-
       container.innerHTML = html;
       updateBookingButton();
     }
@@ -946,14 +955,13 @@
     function updateBookingButton() {
       const btn = document.getElementById('btn-save-appointment');
       const summary = document.getElementById('booking-summary');
-
       if (selectedDate && selectedTime) {
         btn.disabled = false;
         btn.innerText = 'Confirmar agendamento';
         btn.className = 'press w-full py-4 rounded-2xl font-bold text-sm gold-gradient text-black gold-shadow transition-all';
         summary.classList.remove('hidden');
         document.getElementById('summary-service').innerText = selectedService;
-        document.getElementById('summary-datetime').innerText = `${selectedDate} às ${selectedTime}`;
+        document.getElementById('summary-datetime').innerText = `${selectedDate} • ${selectedTime}`;
         document.getElementById('summary-price').innerText = formatCurrency(selectedPrice);
       } else {
         btn.disabled = true;
@@ -965,40 +973,8 @@
 
     async function confirmBooking() {
       if (!selectedDate || !selectedTime || !selectedService) return;
-
       const btn = document.getElementById('btn-save-appointment');
       btn.disabled = true;
-      btn.innerText = 'Verificando segurança...';
-
-      // --- CAMADA DE SEGURANÇA 1: BLOQUEIO ANTI-SPAM DE AGENDAMENTOS MÚLTIPLOS ---
-      const { data: futureApts } = await sb.from('appointments')
-        .select('date, time')
-        .eq('user_id', clientUser.id)
-        .neq('calendar_event_id', 'cancelled_by_client')
-        .neq('calendar_event_id', 'cancelled_by_barber')
-        .neq('calendar_event_id', 'blocked_time');
-
-      if (futureApts && futureApts.length > 0) {
-        const now = new Date();
-        let hasActiveFuture = false;
-
-        for (const apt of futureApts) {
-          const aptDateObj = parseAppointmentDate(apt);
-          if (aptDateObj && aptDateObj > now) {
-            hasActiveFuture = true;
-            break;
-          }
-        }
-
-        if (hasActiveFuture) {
-          alert('⚠️ ANTI-SPAM: Você já possui um agendamento futuro ativo. Por favor, aguarde a conclusão do seu corte atual ou cancele-o antes de agendar um novo.');
-          btn.disabled = false;
-          btn.innerText = 'Confirmar agendamento';
-          return;
-        }
-      }
-      // ----------------------------------------------------------------------------
-
       btn.innerText = 'Confirmando...';
 
       const { error } = await sb.from('appointments').insert([{
@@ -1011,7 +987,7 @@
       }]);
 
       if (error) {
-        alert('Erro ao agendar: ' + error.message);
+        alert('Erro: ' + error.message);
         btn.disabled = false;
         btn.innerText = 'Confirmar agendamento';
         return;
@@ -1024,80 +1000,99 @@
       switchAppTab('inicio');
     }
 
+    function parseAppointmentDate(item) {
+      if (!item || !item.date || !item.time) return null;
+      const dateParts = item.date.split('/');
+      if (dateParts.length !== 3) return null;
+      const timeParts = item.time.split(':');
+      return new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[0], 10), parseInt(timeParts[0] || 0, 10), parseInt(timeParts[1] || 0, 10));
+    }
+
     async function loadNextAppointment() {
       if (!clientUser) return;
-      const { data } = await sb.from('appointments')
-        .select('*')
-        .eq('user_id', clientUser.id)
-        .order('created_at', { ascending: false });
-
+      const { data } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).order('created_at', { ascending: false });
       const now = new Date();
       const next = (data || []).filter(item => {
-        if (!item.service || item.service.startsWith('🚫')) return false;
-        if (item.calendar_event_id === 'cancelled_by_barber' || item.calendar_event_id === 'cancelled_by_client') return false;
-        const d = parseAppointmentDate(item);
-        return d && d >= now;
+        if (!item.service || item.service.startsWith('🚫') || item.calendar_event_id === 'cancelled_by_barber' || item.calendar_event_id === 'cancelled_by_client') return false;
+        const date = parseAppointmentDate(item);
+        return (date && date >= now);
       }).sort((a, b) => parseAppointmentDate(a) - parseAppointmentDate(b))[0];
 
-      const sEl = document.getElementById('next-appointment-service');
-      const dEl = document.getElementById('next-appointment-date');
-      const stEl = document.getElementById('next-appointment-status');
-      const aEl = document.getElementById('next-appointment-action');
+      const serviceEl = document.getElementById('next-appointment-service');
+      const dateEl = document.getElementById('next-appointment-date');
+      const statusEl = document.getElementById('next-appointment-status');
+      const actionEl = document.getElementById('next-appointment-action');
 
       if (!next) {
-        sEl.innerText = 'Nenhum agendamento';
-        dEl.innerText = 'Você não possui horário marcado.';
-        stEl.innerText = 'Livre';
-        aEl.innerText = 'Agendar meu horário';
-        aEl.onclick = () => switchAppTab('servicos');
+        serviceEl.innerText = 'Nenhum agendamento';
+        dateEl.innerText = 'Você ainda não possui um horário marcado.';
+        statusEl.innerText = 'Livre';
+        actionEl.innerText = 'Agendar meu horário';
+        actionEl.onclick = () => switchAppTab('servicos');
       } else {
-        sEl.innerText = next.service;
-        dEl.innerText = `${next.date} às ${next.time}`;
-        stEl.innerText = 'Confirmado';
-        aEl.innerText = 'Ver no histórico';
-        aEl.onclick = () => switchAppTab('historico');
+        serviceEl.innerText = next.service;
+        dateEl.innerText = `${next.date} às ${next.time}`;
+        statusEl.innerText = 'Confirmado';
+        actionEl.innerText = 'Ver meus agendamentos';
+        actionEl.onclick = () => switchAppTab('historico');
       }
     }
 
     async function loadHistory() {
       const container = document.getElementById('history-container');
       if (!clientUser) return;
+      container.innerHTML = `
+        <div class="text-center py-12">
+          <div class="w-7 h-7 border-2 border-[#d9a441]/20 border-t-[#d9a441] rounded-full animate-spin mx-auto"></div>
+          <p class="text-[10px] text-zinc-600 mt-3">Carregando seus agendamentos...</p>
+        </div>
+      `;
 
-      const { data } = await sb.from('appointments')
-        .select('*')
-        .eq('user_id', clientUser.id)
-        .neq('calendar_event_id', 'blocked_time')
-        .order('created_at', { ascending: false });
+      const { data, error } = await sb.from('appointments').select('*').eq('user_id', clientUser.id).neq('calendar_event_id', 'blocked_time').order('created_at', { ascending: false });
+      if (error) { container.innerHTML = `<div class="bg-red-500/5 border border-red-500/10 rounded-3xl p-5 text-center"><p class="text-sm text-red-400">Não foi possível carregar seus agendamentos.</p></div>`; return; }
 
-      const filtered = (data || []).filter(item => item.service && !item.service.startsWith('🚫'));
-
-      if (!filtered.length) {
+      const filteredData = (data || []).filter(item => item.service && !item.service.startsWith('🚫'));
+      if (filteredData.length === 0) {
         container.innerHTML = `
-          <div class="bg-[#111] border border-white/5 rounded-3xl p-8 text-center">
-            <p class="text-white font-semibold text-sm">Sua agenda está vazia</p>
-            <p class="text-zinc-600 text-xs mt-1">Marque seu corte quando quiser.</p>
+          <div class="bg-[#111111] border border-white/5 rounded-3xl p-8 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-[#d9a441]/10 border border-[#d9a441]/15 flex items-center justify-center mx-auto">
+              <svg class="w-6 h-6 gold-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
+            </div>
+            <p class="text-white font-semibold text-sm mt-4">Sua agenda está vazia</p>
+            <p class="text-zinc-600 text-xs mt-2">Que tal marcar seu próximo corte?</p>
+            <button onclick="switchAppTab('servicos')" class="press mt-5 px-5 py-3 rounded-xl gold-gradient text-black text-xs font-bold">Agendar agora</button>
           </div>
         `;
         return;
       }
 
       let html = '';
-      filtered.forEach(item => {
-        const isCancelled = item.calendar_event_id === 'cancelled_by_barber' || item.calendar_event_id === 'cancelled_by_client';
+      filteredData.forEach(item => {
+        const isCancelBarber = item.calendar_event_id === 'cancelled_by_barber';
+        const isCancelClient = item.calendar_event_id === 'cancelled_by_client';
+        const isCancelled = isCancelBarber || isCancelClient;
+        let statusMsg = isCancelBarber ? 'Cancelado pela barbearia' : (isCancelClient ? 'Cancelado por você' : '');
+
         html += `
-          <div class="bg-[#111111] border ${isCancelled ? 'border-white/5 opacity-50' : 'border-white/10'} rounded-3xl p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="font-bold text-white text-sm ${isCancelled ? 'line-through' : ''}">${item.service}</p>
-                <p class="text-zinc-400 text-xs mt-0.5">${item.date} às ${item.time}</p>
-                <p class="text-[#d9a441] text-xs font-semibold mt-1">${formatCurrency(item.price)}</p>
+          <div class="bg-[#111111] border ${isCancelled ? 'border-white/5' : 'border-white/10'} rounded-3xl p-4 ${isCancelled ? 'opacity-45' : ''}">
+            <div class="flex items-center gap-4">
+              <div class="w-11 h-11 rounded-2xl ${isCancelled ? 'bg-zinc-800' : 'bg-[#d9a441]/10 border border-[#d9a441]/15'} flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 ${isCancelled ? 'text-zinc-600' : 'gold-text'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>
               </div>
-              ${!isCancelled ? `
-                <button onclick="executeCancel('${item.id}')" class="press text-red-400 text-[10px] font-semibold bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-xl">Cancelar</button>
-              ` : `
-                <span class="text-[10px] text-red-400 uppercase font-bold">Cancelado</span>
-              `}
+              <div class="flex-1 min-w-0">
+                <p class="font-bold text-white text-sm ${isCancelled ? 'line-through' : ''}">${item.service}</p>
+                <p class="text-zinc-500 text-xs mt-1">${item.date} • ${item.time}</p>
+                <p class="text-[#d9a441] text-[10px] font-semibold mt-1">${formatCurrency(item.price)}</p>
+              </div>
             </div>
+            ${isCancelled ? `
+              <div class="mt-3 pt-3 border-t border-white/5"><span class="text-[10px] text-red-400">${statusMsg}</span></div>
+            ` : `
+              <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                <span class="text-[9px] uppercase tracking-widest text-emerald-400">Confirmado</span>
+                <button onclick="executeCancel('${item.id}')" class="press text-red-400 text-[10px] font-semibold bg-red-500/5 border border-red-500/10 px-3 py-2 rounded-xl">Cancelar</button>
+              </div>
+            `}
           </div>
         `;
       });
@@ -1105,12 +1100,9 @@
     }
 
     async function executeCancel(id) {
-      if (!confirm('Deseja realmente cancelar este horário?')) return;
-      await sb.from('appointments').update({
-        calendar_event_id: 'cancelled_by_client',
-        created_at: new Date().toISOString()
-      }).eq('id', id);
-
+      if (!confirm('Tem a certeza que deseja cancelar este agendamento?')) return;
+      const { error } = await sb.from('appointments').update({ calendar_event_id: 'cancelled_by_client', created_at: new Date().toISOString() }).eq('id', id);
+      if (error) { alert('Não foi possível cancelar: ' + error.message); return; }
       showToast('Agendamento cancelado.');
       loadHistory();
       loadNextAppointment();
