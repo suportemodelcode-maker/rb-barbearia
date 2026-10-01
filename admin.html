@@ -13,26 +13,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #050505; color: #ffffff; overscroll-behavior-y: none; }
+    /* Nova paleta baseada em Zinc (Cinza chumbo elegante, sem preto puro) */
+    body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #fafafa; overscroll-behavior-y: none; }
+    
     .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f97316; }
-    input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+    input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
     
-    .bg-grid { background-image: repeating-linear-gradient(#121214 0 1px, transparent 1px 100%); background-size: 100% 90px; }
+    /* Grid de fundo mais sutil e sofisticado */
+    .bg-grid { background-image: repeating-linear-gradient(#18181b 0 1px, transparent 1px 100%); background-size: 100% 90px; }
     .drag-scroll { cursor: grab; }
     .drag-scroll:active { cursor: grabbing; }
     .no-select { user-select: none; }
     
-    /* Carteira Glassmorphism & Neon Glow */
-    @keyframes glow { 0% { box-shadow: 0 0 15px rgba(249,115,22,0.1); } 100% { box-shadow: 0 0 35px rgba(249,115,22,0.4); } }
-    .wallet-card { animation: glow 4s infinite alternate; background: linear-gradient(135deg, rgba(30,12,4,0.9) 0%, rgba(10,4,1,0.95) 100%); border: 1px solid rgba(249,115,22,0.3); backdrop-filter: blur(10px); }
+    /* Carteira Glassmorphism & Neon Glow aprimorado */
+    @keyframes glow { 0% { box-shadow: 0 0 15px rgba(249,115,22,0.1); } 100% { box-shadow: 0 0 35px rgba(249,115,22,0.3); } }
+    .wallet-card { animation: glow 4s infinite alternate; background: linear-gradient(135deg, rgba(24,24,27,0.9) 0%, rgba(9,9,11,0.95) 100%); border: 1px solid rgba(249,115,22,0.2); backdrop-filter: blur(12px); }
     
-    .stat-card { background: linear-gradient(180deg, #121214 0%, #0a0a0c 100%); border: 1px solid #27272a; transition: all 0.3s ease; }
-    .stat-card:hover { border-color: rgba(249,115,22,0.4); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+    .stat-card { background: linear-gradient(180deg, #18181b 0%, #09090b 100%); border: 1px solid #27272a; transition: all 0.3s ease; }
+    .stat-card:hover { border-color: #3f3f46; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
     
-    /* Estilos para Imagem de Fundo nos Cards */
+    /* Estilos para Imagem de Fundo nos Cards - NOVO EFEITO */
     .card-bg-image {
         background-size: cover;
         background-position: center;
@@ -40,32 +43,32 @@
     }
   </style>
 </head>
-<body class="h-[100dvh] w-full flex overflow-hidden select-none antialiased text-sm bg-[#050505]">
+<body class="h-[100dvh] w-full flex overflow-hidden select-none antialiased text-sm bg-zinc-950">
 
   <audio id="notification-sound" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/water_droplet.mp3" preload="auto"></audio>
 
   <!-- TELA DE SENHA -->
-  <div id="auth-screen" class="fixed inset-0 bg-[#050505] z-50 flex items-center justify-center p-4">
-    <div class="bg-[#0f0f11] border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-[0_0_50px_rgba(249,115,22,0.05)] relative overflow-hidden">
+  <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900/80 border border-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl relative overflow-hidden backdrop-blur-xl">
       <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-32 bg-orange-500/10 blur-[50px] pointer-events-none"></div>
-      <div class="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center bg-black border border-orange-500/40 overflow-hidden shadow-[0_0_20px_rgba(249,115,22,0.2)] relative z-10">
-        <img src="./icone.png" alt="Logo" class="w-full h-full object-cover">
+      <div class="w-24 h-24 rounded-full mx-auto mb-5 flex items-center justify-center bg-zinc-950 border border-orange-500/30 overflow-hidden shadow-[0_0_20px_rgba(249,115,22,0.15)] relative z-10">
+        <img src="./icone.png" alt="Logo" class="w-full h-full object-cover opacity-90">
       </div>
       <h2 class="text-2xl font-black text-white tracking-widest uppercase mb-1 relative z-10">Painel RB</h2>
       <p class="text-[11px] text-zinc-400 mb-8 font-medium uppercase tracking-widest relative z-10">Acesso Restrito</p>
       
       <form id="login-form" onsubmit="checkAdmin(event)" class="relative z-10">
-        <input type="password" id="admin-pass" autocomplete="current-password" placeholder="SENHA MESTRA" class="w-full py-3.5 px-4 rounded-xl bg-[#18181b] border border-zinc-700 text-white focus:border-orange-500 outline-none mb-4 text-center tracking-widest font-bold transition-all placeholder:text-zinc-600">
-        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all transform hover:scale-[1.02]">Desbloquear</button>
+        <input type="password" id="admin-pass" autocomplete="current-password" placeholder="SENHA MESTRA" class="w-full py-3.5 px-4 rounded-xl bg-zinc-950 border border-zinc-700 text-white focus:border-orange-500 outline-none mb-4 text-center tracking-widest font-bold transition-all placeholder:text-zinc-600">
+        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-black font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-all transform hover:scale-[1.02]">Desbloquear</button>
       </form>
     </div>
   </div>
 
   <!-- MODAL DETALHES -->
-  <div id="modal-details" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#0f0f11] border border-zinc-800 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl relative">
-      <button onclick="closeDetailsModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white bg-zinc-900 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
-      <div class="flex items-center gap-4 border-b border-zinc-800/80 pb-4">
+  <div id="modal-details" class="hidden fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700/50 rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl relative">
+      <button onclick="closeDetailsModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
+      <div class="flex items-center gap-4 border-b border-zinc-800 pb-4">
         <div id="detail-img-container" class="w-14 h-14 rounded-xl object-cover border border-zinc-700 overflow-hidden shadow-lg"></div>
         <div>
           <h3 id="detail-service" class="font-bold text-white text-lg leading-tight">Serviço</h3>
@@ -73,10 +76,10 @@
         </div>
       </div>
       <div class="space-y-3 pt-2">
-        <div class="bg-[#18181b] p-3 rounded-xl"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Cliente</p><p id="detail-client" class="text-sm font-bold text-white">Nome</p></div>
+        <div class="bg-zinc-800/50 p-3 rounded-xl"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Cliente</p><p id="detail-client" class="text-sm font-bold text-white">Nome</p></div>
         <div class="flex gap-3">
-          <div class="bg-[#18181b] p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Data Agendada</p><p id="detail-date" class="text-sm font-bold text-orange-400">Data</p></div>
-          <div class="bg-[#18181b] p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Modificado em</p><p id="detail-modified" class="text-xs font-semibold text-zinc-300">Data</p></div>
+          <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Data Agendada</p><p id="detail-date" class="text-sm font-bold text-orange-400">Data</p></div>
+          <div class="bg-zinc-800/50 p-3 rounded-xl flex-1"><p class="text-[9px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Modificado em</p><p id="detail-modified" class="text-xs font-semibold text-zinc-300">Data</p></div>
         </div>
         <div id="detail-whatsapp-container" class="pt-2"></div>
       </div>
@@ -84,30 +87,30 @@
   </div>
 
   <!-- MODAL BLOQUEIO -->
-  <div id="modal-block" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col justify-end md:items-center md:justify-center p-0 md:p-4">
-    <div class="bg-[#0f0f11] border border-zinc-800 md:rounded-3xl rounded-t-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-zinc-800/80 pb-4">
+  <div id="modal-block" class="hidden fixed inset-0 z-50 bg-zinc-950/80 backdrop-blur-sm flex flex-col justify-end md:items-center md:justify-center p-0 md:p-4">
+    <div class="bg-zinc-900 border border-zinc-700/50 md:rounded-3xl rounded-t-3xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
         <h3 class="font-black text-white text-lg flex items-center gap-2 tracking-wide"><span class="text-red-500">🚫</span> Bloquear Horário</h3>
-        <button onclick="closeBlockModal()" class="text-zinc-500 hover:text-white bg-zinc-900 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
+        <button onclick="closeBlockModal()" class="text-zinc-400 hover:text-white bg-zinc-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
       </div>
       <div class="space-y-4 pt-2">
         <div>
           <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Data do Bloqueio</label>
-          <input type="date" id="block-date" class="w-full px-4 py-3 bg-[#18181b] border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+          <input type="date" id="block-date" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
         </div>
         <div class="flex gap-3">
           <div class="flex-1">
             <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Início</label>
-            <input type="time" id="block-start" value="12:00" class="w-full px-4 py-3 bg-[#18181b] border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+            <input type="time" id="block-start" value="12:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
           </div>
           <div class="flex-1">
             <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Fim</label>
-            <input type="time" id="block-end" value="14:00" class="w-full px-4 py-3 bg-[#18181b] border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+            <input type="time" id="block-end" value="14:00" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
           </div>
         </div>
         <div>
           <label class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider block mb-1.5">Motivo (Visível no Painel)</label>
-          <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga..." class="w-full px-4 py-3 bg-[#18181b] border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
+          <input type="text" id="block-reason" placeholder="Ex: Almoço, Folga..." class="w-full px-4 py-3 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-red-500 text-sm transition-colors">
         </div>
         <button id="btn-confirm-block" onclick="confirmBlock()" class="w-full py-3.5 mt-2 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-widest rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)] transform hover:scale-[1.02]">Confirmar Bloqueio</button>
       </div>
@@ -118,48 +121,43 @@
   <div id="main-panel" class="hidden w-full h-full flex overflow-hidden">
     
     <!-- SIDEBAR ESQUERDA -->
-    <aside class="w-[65px] md:w-[72px] h-full bg-[#0a0a0c] border-r border-zinc-800/60 flex flex-col items-center py-5 gap-6 shrink-0 z-20 shadow-[5px_0_15px_rgba(0,0,0,0.5)] relative">
-      <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-black font-black text-lg shadow-[0_0_20px_rgba(249,115,22,0.4)]">RB</div>
+    <aside class="w-[65px] md:w-[72px] h-full bg-zinc-950 border-r border-zinc-800 flex flex-col items-center py-5 gap-6 shrink-0 z-20 shadow-[5px_0_15px_rgba(0,0,0,0.2)] relative">
+      <div class="w-11 h-11 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-zinc-900 font-black text-lg shadow-[0_0_20px_rgba(249,115,22,0.3)]">RB</div>
       
       <nav class="flex flex-col gap-4 w-full px-3 mt-2 flex-1">
-        <!-- Hoje -->
-        <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Hoje">
+        <button onclick="switchTab('hoje')" id="nav-btn-hoje" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Hoje">
           <div id="nav-ind-hoje" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
         </button>
-        <!-- Kanban -->
-        <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Agenda Kanban">
+        <button onclick="switchTab('kanban')" id="nav-btn-kanban" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Agenda Kanban">
           <div id="nav-ind-kanban" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </button>
-        <!-- Histórico -->
-        <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Histórico">
+        <button onclick="switchTab('historico')" id="nav-btn-historico" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Histórico">
           <div id="nav-ind-historico" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
         </button>
-        <!-- FINANCEIRO (DASHBOARD) -->
-        <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group" title="Dashboard & Finanças">
+        <button onclick="switchTab('financeiro')" id="nav-btn-financeiro" class="w-full aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group" title="Dashboard & Finanças">
           <div id="nav-ind-financeiro" class="hidden absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
           <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </button>
       </nav>
       
-      <!-- Ajustes no rodapé da Sidebar -->
-      <button onclick="switchTab('config')" id="nav-btn-config" class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white hover:bg-zinc-800/80 relative transition-all group mb-2" title="Configurações">
+      <button onclick="switchTab('config')" id="nav-btn-config" class="w-[44px] md:w-[48px] aspect-square rounded-2xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 relative transition-all group mb-2" title="Configurações">
         <div id="nav-ind-config" class="hidden absolute left-[-12px] md:left-[-14px] top-1/2 -translate-y-1/2 w-1 h-6 bg-orange-500 rounded-r-full shadow-[0_0_10px_#f97316]"></div>
         <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </button>
     </aside>
 
     <!-- CONTAINER DIREITO -->
-    <main class="flex-1 flex flex-col h-full bg-[#050505] overflow-hidden relative">
+    <main class="flex-1 flex flex-col h-full bg-zinc-950 overflow-hidden relative">
       
       <!-- HEADER COMUM -->
-      <header class="h-[72px] flex items-center justify-between px-5 md:px-8 border-b border-zinc-800/50 bg-[#0a0a0c]/80 backdrop-blur-md shrink-0 z-20">
+      <header class="h-[72px] flex items-center justify-between px-5 md:px-8 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md shrink-0 z-20">
         <div class="flex flex-col">
           <div class="flex items-center gap-3">
             <h1 class="text-xl font-black text-white tracking-wider">Painel RB</h1>
-            <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+            <span class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(16,185,129,0.05)]">
               <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
               <span class="text-[9px] text-emerald-400 uppercase font-black tracking-widest">Live</span>
             </span>
@@ -168,19 +166,19 @@
         </div>
         
         <div class="flex items-center gap-4 md:gap-6">
-          <button onclick="openBlockModal()" class="hidden md:flex items-center gap-2 px-4 py-2.5 bg-[#18181b] border border-zinc-700 text-zinc-300 rounded-xl text-xs hover:bg-zinc-800 hover:text-white transition-all font-bold shadow-sm">
+          <button onclick="openBlockModal()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl text-xs hover:bg-zinc-800 hover:text-white transition-all font-bold shadow-sm">
             <span class="text-red-500">🚫</span> Bloquear
           </button>
-          <button onclick="openBlockModal()" class="flex md:hidden items-center justify-center w-10 h-10 bg-[#18181b] border border-zinc-700 text-zinc-300 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm">🚫</button>
+          <button onclick="openBlockModal()" class="flex md:hidden items-center justify-center w-10 h-10 bg-zinc-900 border border-zinc-700/50 text-zinc-300 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm">🚫</button>
           
           <div class="h-8 w-px bg-zinc-800 hidden md:block"></div>
           
           <div class="flex items-center gap-3">
             <div class="hidden md:block text-right">
               <p class="text-[13px] font-bold text-white leading-tight">Administrador</p>
-              <button onclick="logoutAdmin()" class="text-[10px] text-red-500 hover:text-red-400 font-bold uppercase tracking-wider transition-colors">Sair da Conta</button>
+              <button onclick="logoutAdmin()" class="text-[10px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider transition-colors">Sair da Conta</button>
             </div>
-            <div onclick="logoutAdmin()" class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-300 border-2 border-zinc-700 cursor-pointer md:cursor-default overflow-hidden">
+            <div onclick="logoutAdmin()" class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-sm text-zinc-300 border-2 border-zinc-700 cursor-pointer md:cursor-default overflow-hidden shadow-sm">
               <img src="./icone.png" class="w-full h-full object-cover" alt="Admin">
             </div>
           </div>
@@ -188,14 +186,14 @@
       </header>
 
       <!-- BARRA DE ESTATÍSTICAS (Aparece em Hoje e Kanban) -->
-      <div id="top-stats-bar" class="bg-[#0a0a0c] border-b border-zinc-800/50 shrink-0 relative z-10 hidden">
+      <div id="top-stats-bar" class="bg-zinc-950 border-b border-zinc-800 shrink-0 relative z-10 hidden">
         <div class="px-5 md:px-8 py-3 flex items-center justify-between text-[11px] font-medium overflow-x-auto custom-scroll">
           <div class="flex items-center gap-6 whitespace-nowrap">
-            <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Atendimentos (Hoje)</span> <span id="metric-total-cuts" class="text-white font-black text-sm">0</span></p>
+            <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_#3b82f6]"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Atendimentos (Hoje)</span> <span id="metric-total-cuts" class="text-white font-black text-sm">0</span></p>
             <div class="h-4 w-px bg-zinc-800"></div>
-            <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento (Hoje)</span> <span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span></p>
+            <p class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></span> <span class="text-zinc-400 uppercase tracking-widest text-[9px] font-bold">Faturamento (Hoje)</span> <span id="metric-total-revenue" class="text-emerald-400 font-black text-sm">R$ 0,00</span></p>
           </div>
-          <div class="flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6">
+          <div class="flex items-center gap-3 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap ml-6 opacity-80">
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Corte</div>
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Barba</div>
             <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Completo</div>
@@ -207,28 +205,28 @@
 
       <!-- ABA 1: HOJE -->
       <main id="tab-hoje" class="hidden flex-1 flex-col min-h-0 p-5 md:p-8 overflow-y-auto custom-scroll relative z-0">
-        <h2 class="text-xl font-black text-white mb-5 tracking-wide">Agenda Diária</h2>
+        <h2 class="text-xl font-black text-zinc-100 mb-5 tracking-wide">Agenda Diária</h2>
         <div id="daily-view-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
       </main>
 
       <!-- ABA 2: KANBAN -->
-      <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0 relative z-0">
-        <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 bg-[#050505] p-2 md:p-4 gap-3 md:gap-4 drag-scroll"></div>
+      <main id="tab-kanban" class="hidden flex-1 flex-col min-h-0 relative z-0 bg-grid">
+        <div id="kanban-board" class="flex-1 flex overflow-x-auto overflow-y-hidden custom-scroll items-start min-h-0 p-3 md:p-5 gap-4 md:gap-5 drag-scroll backdrop-blur-[1px]"></div>
       </main>
 
       <!-- ABA 3: HISTÓRICO -->
       <main id="tab-historico" class="hidden flex-1 flex-col p-5 md:p-8 min-h-0 relative z-0">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4 shrink-0">
-          <h2 class="text-xl font-black text-white tracking-wide">Registro Completo</h2>
-          <div class="flex items-center bg-[#0f0f11] border border-zinc-800 p-1.5 rounded-xl shadow-sm">
-            <button onclick="setHistoryFilter('hoje')" id="filter-hoje" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-white bg-zinc-800 transition-all">Hoje</button>
-            <button onclick="setHistoryFilter('7dias')" id="filter-7dias" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-500 hover:text-white transition-all">7 Dias</button>
-            <button onclick="setHistoryFilter('tudo')" id="filter-tudo" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-500 hover:text-white transition-all">Tudo</button>
+          <h2 class="text-xl font-black text-zinc-100 tracking-wide">Registro Completo</h2>
+          <div class="flex items-center bg-zinc-900 border border-zinc-800 p-1.5 rounded-xl shadow-sm">
+            <button onclick="setHistoryFilter('hoje')" id="filter-hoje" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-white bg-zinc-700/50 transition-all">Hoje</button>
+            <button onclick="setHistoryFilter('7dias')" id="filter-7dias" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white transition-all">7 Dias</button>
+            <button onclick="setHistoryFilter('tudo')" id="filter-tudo" class="px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white transition-all">Tudo</button>
           </div>
         </div>
-        <div class="overflow-auto custom-scroll flex-1 border border-zinc-800/80 rounded-2xl bg-[#0f0f11] shadow-xl min-h-0">
+        <div class="overflow-auto custom-scroll flex-1 border border-zinc-800 rounded-2xl bg-zinc-900/50 shadow-xl min-h-0 backdrop-blur-sm">
           <table class="w-full text-left text-sm whitespace-nowrap">
-            <thead class="bg-[#18181b] text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800 shadow-sm">
+            <thead class="bg-zinc-900 text-zinc-400 text-[10px] uppercase font-black tracking-widest sticky top-0 z-10 border-b border-zinc-800 shadow-sm">
               <tr>
                 <th class="px-5 py-4">Data Registro ▼</th>
                 <th class="px-5 py-4">Agendado Para</th>
@@ -238,98 +236,91 @@
                 <th class="px-5 py-4">Status</th>
               </tr>
             </thead>
-            <tbody id="history-table-body" class="divide-y divide-zinc-800/50"></tbody>
+            <tbody id="history-table-body" class="divide-y divide-zinc-800/60"></tbody>
           </table>
         </div>
       </main>
 
-      <!-- ABA 4: FINANCEIRO & DASHBOARD (VISÃO EXECUTIVA) -->
-      <main id="tab-financeiro" class="hidden flex-1 flex-col p-5 md:p-8 overflow-y-auto custom-scroll bg-[#050505] relative z-0">
+      <!-- ABA 4: FINANCEIRO & DASHBOARD -->
+      <main id="tab-financeiro" class="hidden flex-1 flex-col p-5 md:p-8 overflow-y-auto custom-scroll relative z-0">
         
         <div class="flex flex-col xl:flex-row justify-between xl:items-end mb-8 gap-5">
           <div>
-            <h2 class="text-2xl font-black text-white tracking-wide mb-1">Inteligência & Resultados</h2>
-            <p class="text-xs text-zinc-500 font-medium uppercase tracking-widest">Dashboard Executivo</p>
+            <h2 class="text-2xl font-black text-zinc-100 tracking-wide mb-1">Inteligência & Resultados</h2>
+            <p class="text-xs text-zinc-400 font-medium uppercase tracking-widest">Dashboard Executivo</p>
           </div>
           
-          <div class="flex flex-col sm:flex-row items-center gap-3 bg-[#0f0f11] p-2 rounded-2xl border border-zinc-800 shadow-lg">
+          <div class="flex flex-col sm:flex-row items-center gap-3 bg-zinc-900/80 p-2 rounded-2xl border border-zinc-800 shadow-lg backdrop-blur-sm">
             <div class="flex gap-1 overflow-x-auto custom-scroll max-w-full">
-              <button onclick="setDashFilter('hoje')" id="d-filter-hoje" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-500 hover:text-white transition-all">Hoje</button>
-              <button onclick="setDashFilter('7dias')" id="d-filter-7dias" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-500 hover:text-white transition-all">7 Dias</button>
-              <button onclick="setDashFilter('mes')" id="d-filter-mes" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-white bg-zinc-800 shadow-sm transition-all">Este Mês</button>
-              <button onclick="setDashFilter('ano')" id="d-filter-ano" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-500 hover:text-white transition-all">Este Ano</button>
-              <button onclick="setDashFilter('custom')" id="d-filter-custom" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-500 hover:text-white transition-all">Manual</button>
+              <button onclick="setDashFilter('hoje')" id="d-filter-hoje" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">Hoje</button>
+              <button onclick="setDashFilter('7dias')" id="d-filter-7dias" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">7 Dias</button>
+              <button onclick="setDashFilter('mes')" id="d-filter-mes" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-white bg-zinc-700/50 shadow-sm transition-all">Este Mês</button>
+              <button onclick="setDashFilter('ano')" id="d-filter-ano" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">Este Ano</button>
+              <button onclick="setDashFilter('custom')" id="d-filter-custom" class="px-4 py-2.5 rounded-xl text-[10px] uppercase tracking-wider font-black text-zinc-400 hover:text-white transition-all">Manual</button>
             </div>
             
             <div id="custom-date-filters" class="hidden flex items-center gap-2 px-2 pb-1 sm:pb-0 border-t sm:border-t-0 sm:border-l border-zinc-800 pt-2 sm:pt-0">
-              <input type="date" id="dash-start" class="bg-black border border-zinc-700 text-white text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
-              <span class="text-zinc-600 text-[10px] font-bold">ATÉ</span>
-              <input type="date" id="dash-end" class="bg-black border border-zinc-700 text-white text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
-              <button onclick="applyCustomDashFilter()" class="bg-orange-500 hover:bg-orange-400 text-black px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">IR</button>
+              <input type="date" id="dash-start" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
+              <span class="text-zinc-500 text-[10px] font-bold">ATÉ</span>
+              <input type="date" id="dash-end" class="bg-zinc-950 border border-zinc-700 text-zinc-300 text-xs px-2 py-1.5 rounded-lg outline-none focus:border-orange-500">
+              <button onclick="applyCustomDashFilter()" class="bg-orange-500 hover:bg-orange-400 text-zinc-900 px-3 py-1.5 rounded-lg text-xs font-black transition-colors">IR</button>
             </div>
           </div>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          
           <div class="wallet-card rounded-3xl p-7 relative overflow-hidden flex flex-col justify-center gap-6">
-            <div class="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/20 rounded-full blur-[40px] pointer-events-none"></div>
-            
+            <div class="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/15 rounded-full blur-[40px] pointer-events-none"></div>
             <div class="flex items-center justify-between relative z-10">
               <span class="text-orange-400 text-[11px] uppercase font-black tracking-widest flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Wallet RB</span>
-              <span class="bg-orange-500/20 text-orange-400 text-[9px] px-2.5 py-1.5 rounded-md border border-orange-500/30 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
+              <span class="bg-orange-500/10 text-orange-400 text-[9px] px-2.5 py-1.5 rounded-md border border-orange-500/20 font-bold uppercase tracking-wider shadow-sm">Mês Atual</span>
             </div>
-            
             <div class="relative z-10">
-              <p class="text-orange-200/60 text-xs font-bold uppercase tracking-widest mb-1.5">Receita Líquida Realizada</p>
-              <h3 id="dash-wallet-saldo" class="text-5xl font-black text-white tracking-tighter drop-shadow-md">R$ 0,00</h3>
+              <p class="text-orange-200/50 text-xs font-bold uppercase tracking-widest mb-1.5">Receita Líquida Realizada</p>
+              <h3 id="dash-wallet-saldo" class="text-5xl font-black text-white tracking-tighter drop-shadow-lg">R$ 0,00</h3>
             </div>
           </div>
 
           <div class="lg:col-span-2 grid grid-cols-2 gap-5">
-            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group">
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
               <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
-              <span class="text-zinc-500 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Faturamento Periodo</span>
-              <p id="dash-fat-periodo" class="text-3xl font-black text-white tracking-tight">R$ 0,00</p>
-              <span id="dash-cortes-periodo" class="text-xs text-zinc-400 mt-1.5 font-semibold">0 atendimentos</span>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Faturamento Periodo</span>
+              <p id="dash-fat-periodo" class="text-3xl font-black text-zinc-100 tracking-tight">R$ 0,00</p>
+              <span id="dash-cortes-periodo" class="text-xs text-zinc-500 mt-1.5 font-semibold">0 atendimentos</span>
             </div>
-            
-            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group">
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
               <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
-              <span class="text-zinc-500 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span> Ticket Médio</span>
-              <p id="dash-ticket-medio" class="text-3xl font-black text-white tracking-tight">R$ 0,00</p>
-              <span class="text-xs text-zinc-400 mt-1.5 font-semibold">Por cliente no período</span>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span> Ticket Médio</span>
+              <p id="dash-ticket-medio" class="text-3xl font-black text-zinc-100 tracking-tight">R$ 0,00</p>
+              <span class="text-xs text-zinc-500 mt-1.5 font-semibold">Por cliente no período</span>
             </div>
-
-            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group">
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
               <div class="absolute top-0 right-0 w-20 h-20 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-colors"></div>
-              <span class="text-zinc-500 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span> Agendados (Futuro)</span>
-              <p id="dash-agendamentos-futuros" class="text-3xl font-black text-white tracking-tight">0</p>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></span> Agendados (Futuro)</span>
+              <p id="dash-agendamentos-futuros" class="text-3xl font-black text-zinc-100 tracking-tight">0</p>
               <span id="dash-fat-futuro" class="text-xs text-emerald-400 mt-1.5 font-bold">Projeção: R$ 0,00</span>
             </div>
-
-            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group">
+            <div class="stat-card rounded-3xl p-6 flex flex-col justify-center relative overflow-hidden group backdrop-blur-sm bg-zinc-900/60">
               <div class="absolute top-0 right-0 w-20 h-20 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-colors"></div>
-              <span class="text-zinc-500 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span> Tx. Cancelamento</span>
-              <p id="dash-tx-cancelamento" class="text-3xl font-black text-white tracking-tight">0%</p>
-              <span id="dash-num-cancelados" class="text-xs text-zinc-400 mt-1.5 font-semibold">0 perdidos no período</span>
+              <span class="text-zinc-400 text-[10px] uppercase font-black tracking-widest mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span> Tx. Cancelamento</span>
+              <p id="dash-tx-cancelamento" class="text-3xl font-black text-zinc-100 tracking-tight">0%</p>
+              <span id="dash-num-cancelados" class="text-xs text-zinc-500 mt-1.5 font-semibold">0 perdidos no período</span>
             </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="lg:col-span-2 bg-[#0f0f11] border border-zinc-800/80 rounded-3xl p-6 shadow-xl relative">
+          <div class="lg:col-span-2 bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 shadow-xl relative backdrop-blur-sm">
             <h3 id="chart-title" class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-6">Curva de Receita</h3>
             <div class="w-full h-[250px] relative"><canvas id="revenueChart"></canvas></div>
           </div>
 
           <div class="flex flex-col gap-6">
-            <div class="bg-[#0f0f11] border border-zinc-800/80 rounded-3xl p-6 shadow-xl flex-1 flex flex-col">
+            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 shadow-xl flex-1 flex flex-col backdrop-blur-sm">
               <h3 class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-5">🏆 Top Serviços (Volume)</h3>
               <div id="dash-top-services" class="flex-1 flex flex-col justify-center gap-3"></div>
             </div>
-            
-            <div class="bg-[#0f0f11] border border-zinc-800/80 rounded-3xl p-6 shadow-xl flex-1 flex flex-col">
+            <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-6 shadow-xl flex-1 flex flex-col backdrop-blur-sm">
               <h3 class="text-[11px] uppercase font-black tracking-widest text-zinc-400 mb-5">💎 Top Clientes (Receita)</h3>
               <div id="dash-top-clients" class="flex-1 flex flex-col justify-center gap-3"></div>
             </div>
@@ -338,20 +329,20 @@
       </main>
 
       <!-- ABA 5: CONFIGURAÇÕES -->
-      <main id="tab-config" class="hidden flex-1 flex-col items-start p-5 md:p-8 overflow-y-auto min-h-0 bg-[#050505] relative z-0">
-        <h2 class="text-xl font-black text-white tracking-wide mb-6">Ajustes da Plataforma</h2>
-        <div class="bg-[#0f0f11] border border-zinc-800/80 rounded-3xl p-8 w-full max-w-md shadow-2xl">
+      <main id="tab-config" class="hidden flex-1 flex-col items-start p-5 md:p-8 overflow-y-auto min-h-0 relative z-0">
+        <h2 class="text-xl font-black text-zinc-100 tracking-wide mb-6">Ajustes da Plataforma</h2>
+        <div class="bg-zinc-900/80 border border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl backdrop-blur-sm">
           <h3 class="text-sm font-black tracking-widest uppercase text-orange-500 mb-6 border-b border-zinc-800/50 pb-3">Horário Operacional</h3>
           <div class="space-y-5">
             <div>
               <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Abertura</label>
-              <input type="time" id="set-open" class="w-full px-5 py-3.5 bg-[#18181b] border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
+              <input type="time" id="set-open" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
             </div>
             <div>
               <label class="text-[10px] text-zinc-400 uppercase font-black tracking-widest block mb-2">Fecho</label>
-              <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-[#18181b] border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
+              <input type="time" id="set-close" class="w-full px-5 py-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-white outline-none focus:border-orange-500 text-sm font-bold transition-all shadow-inner">
             </div>
-            <button onclick="saveSettings()" class="w-full py-4 mt-4 bg-white hover:bg-zinc-200 text-black font-black uppercase tracking-widest rounded-xl text-xs transition-all shadow-[0_5px_15px_rgba(255,255,255,0.2)] transform hover:scale-[1.02]">
+            <button onclick="saveSettings()" class="w-full py-4 mt-4 bg-zinc-200 hover:bg-white text-zinc-900 font-black uppercase tracking-widest rounded-xl text-xs transition-all shadow-[0_5px_15px_rgba(255,255,255,0.1)] transform hover:scale-[1.02]">
               Salvar Alterações
             </button>
           </div>
@@ -374,34 +365,27 @@
     let dashFilter = 'mes';
     let revenueChartInstance = null;
 
-    const KANBAN_THEMES = [
-      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
-      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' },
-      { circleBg: 'bg-zinc-600', acc: 'text-zinc-500' }
-    ];
-
-    // DEFINIÇÃO DAS CORES E IMAGENS DOS SERVIÇOS
+    // DEFINIÇÃO DAS CORES E IMAGENS DOS SERVIÇOS (Tailwind class returns)
     function getServiceTheme(serviceName) {
       const s = (serviceName || '').toLowerCase();
       
       if (s.includes('corte e barba') || s.includes('combo') || s.includes('completo')) {
-          return { bg: 'bg-[#1a1528]', border: 'border-purple-500/30', borderL: 'border-l-purple-500', text: 'text-purple-400', hover: 'hover:border-purple-500/60', img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80' };
+          return { borderL: 'bg-purple-500', borderHover: 'hover:border-purple-500/50', text: 'text-purple-300', img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300&auto=format&fit=crop&q=80' };
       }
       if (s.includes('progressiva')) {
-          return { bg: 'bg-[#2a0e17]', border: 'border-pink-500/30', borderL: 'border-l-pink-500', text: 'text-pink-400', hover: 'hover:border-pink-500/60', img: './progressiva.jpg' };
+          return { borderL: 'bg-pink-500', borderHover: 'hover:border-pink-500/50', text: 'text-pink-300', img: './progressiva.jpg' };
       }
       if (s.includes('barba')) {
-          return { bg: 'bg-[#2d180b]', border: 'border-orange-500/30', borderL: 'border-l-orange-500', text: 'text-orange-400', hover: 'hover:border-orange-500/60', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80' };
+          return { borderL: 'bg-orange-500', borderHover: 'hover:border-orange-500/50', text: 'text-orange-300', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=300&auto=format&fit=crop&q=80' };
       }
       if (s.includes('sobrancelha')) {
-          return { bg: 'bg-[#0c241c]', border: 'border-teal-500/30', borderL: 'border-l-teal-500', text: 'text-teal-400', hover: 'hover:border-teal-500/60', img: './sobrancelha.jpeg' };
+          return { borderL: 'bg-teal-500', borderHover: 'hover:border-teal-500/50', text: 'text-teal-300', img: './sobrancelha.jpeg' };
       }
       
       // Default (Corte Masculino)
-      return { bg: 'bg-[#0d1b2a]', border: 'border-blue-500/30', borderL: 'border-l-blue-500', text: 'text-blue-400', hover: 'hover:border-blue-500/60', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80' };
+      return { borderL: 'bg-blue-500', borderHover: 'hover:border-blue-500/50', text: 'text-blue-300', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=300&auto=format&fit=crop&q=80' };
     }
 
-    // Usado nos detalhes do Modal (reaproveitando a lógica de imagem)
     function getServiceImage(serviceName) {
         return getServiceTheme(serviceName).img;
     }
@@ -468,7 +452,7 @@
       document.getElementById('tab-'+tab).classList.remove('hidden'); document.getElementById('tab-'+tab).classList.add('flex');
       
       const activeBtn = document.getElementById('nav-btn-'+tab); const activeInd = document.getElementById('nav-ind-'+tab);
-      activeBtn.className = "w-full aspect-square rounded-2xl flex items-center justify-center text-white bg-zinc-800 relative transition-all group shadow-inner border border-zinc-700";
+      activeBtn.className = "w-full aspect-square rounded-2xl flex items-center justify-center text-white bg-zinc-800 relative transition-all group shadow-inner border border-zinc-700/50";
       activeInd.classList.remove('hidden');
 
       if (tab === 'hoje' || tab === 'kanban') document.getElementById('top-stats-bar').classList.remove('hidden');
@@ -576,8 +560,8 @@
       currentHistoryFilter = filter;
       ['hoje', '7dias', 'tudo'].forEach(b => {
         document.getElementById('filter-'+b).className = (b === filter) 
-          ? "px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-white bg-zinc-800 transition-all"
-          : "px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-500 hover:text-white transition-all";
+          ? "px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-white bg-zinc-700/50 transition-all"
+          : "px-4 py-2 rounded-lg text-[10px] uppercase tracking-wider font-bold text-zinc-400 hover:text-white transition-all";
       });
       renderHistoryTable();
     }
@@ -640,19 +624,18 @@
       document.getElementById('detail-status').innerHTML = statusMsg;
 
       const wAppContainer = document.getElementById('detail-whatsapp-container');
-      if (whatsLink && !isBlock) wAppContainer.innerHTML = `<a href="${whatsLink}" target="_blank" class="flex items-center justify-center gap-2 bg-[#18181b] hover:bg-zinc-800 text-emerald-400 border border-emerald-500/20 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all mt-3 w-full shadow-sm">💬 Chamar WhatsApp</a>`;
+      if (whatsLink && !isBlock) wAppContainer.innerHTML = `<a href="${whatsLink}" target="_blank" class="flex items-center justify-center gap-2 bg-zinc-800/80 hover:bg-zinc-700 text-emerald-400 border border-emerald-500/20 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all mt-3 w-full shadow-sm">💬 Chamar WhatsApp</a>`;
       else wAppContainer.innerHTML = '';
       document.getElementById('modal-details').classList.remove('hidden');
     }
     function closeDetailsModal() { document.getElementById('modal-details').classList.add('hidden'); }
 
-    // --- DASHBOARD CORE ---
     function setDashFilter(filter) {
       dashFilter = filter;
       ['hoje', '7dias', 'mes', 'ano', 'custom'].forEach(b => {
         let el = document.getElementById('d-filter-'+b);
-        if(b === filter) { el.classList.remove('text-zinc-500','hover:text-white'); el.classList.add('text-white','bg-zinc-800','shadow-sm'); }
-        else { el.classList.remove('text-white','bg-zinc-800','shadow-sm'); el.classList.add('text-zinc-500','hover:text-white'); }
+        if(b === filter) { el.classList.remove('text-zinc-400','hover:text-white'); el.classList.add('text-white','bg-zinc-700/50','shadow-sm'); }
+        else { el.classList.remove('text-white','bg-zinc-700/50','shadow-sm'); el.classList.add('text-zinc-400','hover:text-white'); }
       });
       const c = document.getElementById('custom-date-filters');
       if(filter === 'custom') c.classList.remove('hidden'); else { c.classList.add('hidden'); calculateDashboard(); }
@@ -753,12 +736,12 @@
       const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
       let topServ = Object.keys(serviceCounter).map(k => ({name: k, count: serviceCounter[k]})).sort((a,b) => b.count - a.count).slice(0, 5);
       let sHtml = topServ.length===0 ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center mt-4">Sem dados</p>` : '';
-      topServ.forEach((s, i) => { sHtml += `<div class="flex items-center justify-between p-3.5 bg-[#18181b] border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><span class="text-white text-xs font-black uppercase tracking-wider">${s.name}</span></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">${s.count}x</span></div>`; });
+      topServ.forEach((s, i) => { sHtml += `<div class="flex items-center justify-between p-3.5 bg-zinc-800/30 border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><span class="text-zinc-100 text-xs font-black uppercase tracking-wider">${s.name}</span></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">${s.count}x</span></div>`; });
       document.getElementById('dash-top-services').innerHTML = sHtml;
 
       let topCli = Object.keys(clientCounter).map(k => ({name: k, rev: clientCounter[k].rev, count: clientCounter[k].count})).sort((a,b) => b.rev - a.rev).slice(0, 5);
       let cHtml = topCli.length===0 ? `<p class="text-zinc-600 text-[10px] uppercase font-bold tracking-widest text-center mt-4">Sem dados</p>` : '';
-      topCli.forEach((c, i) => { cHtml += `<div class="flex items-center justify-between p-3.5 bg-[#18181b] border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><div class="flex flex-col"><span class="text-white text-xs font-black uppercase tracking-wider truncate max-w-[140px]">${c.name}</span><span class="text-[9px] text-zinc-500 font-bold uppercase">${c.count} visitas</span></div></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">R$ ${c.rev}</span></div>`; });
+      topCli.forEach((c, i) => { cHtml += `<div class="flex items-center justify-between p-3.5 bg-zinc-800/30 border border-zinc-800/80 rounded-2xl hover:border-zinc-700 transition-colors"><div class="flex items-center gap-3"><span class="text-lg drop-shadow-md">${medals[i]}</span><div class="flex flex-col"><span class="text-zinc-100 text-xs font-black uppercase tracking-wider truncate max-w-[140px]">${c.name}</span><span class="text-[9px] text-zinc-500 font-bold uppercase">${c.count} visitas</span></div></div><span class="text-emerald-400 font-black text-xs bg-emerald-500/10 px-2 py-1 rounded shadow-sm">R$ ${c.rev}</span></div>`; });
       document.getElementById('dash-top-clients').innerHTML = cHtml;
 
       chartData = chartLabels.map(l => chartMap[l]);
@@ -777,8 +760,8 @@
           }]
         },
         options: {
-          responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(9, 9, 11, 0.9)', titleColor: '#a1a1aa', bodyColor: '#fff', bodyFont: { weight: 'bold', size: 14 }, padding: 12, borderColor: '#27272a', borderWidth: 1, callbacks: { label: function(context) { return ' R$ ' + context.parsed.y.toFixed(2).replace('.',','); } } } },
-          scales: { y: { beginAtZero: true, grid: { color: '#27272a', drawBorder: false }, ticks: { color: '#71717a', font: { size: 10, weight: 'bold' } } }, x: { grid: { display: false, drawBorder: false }, ticks: { color: '#71717a', font: { size: 10, weight: 'bold' } } } }
+          responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(24, 24, 27, 0.9)', titleColor: '#a1a1aa', bodyColor: '#fff', bodyFont: { weight: 'bold', size: 14 }, padding: 12, borderColor: '#3f3f46', borderWidth: 1, callbacks: { label: function(context) { return ' R$ ' + context.parsed.y.toFixed(2).replace('.',','); } } } },
+          scales: { y: { beginAtZero: true, grid: { color: '#27272a', drawBorder: false }, ticks: { color: '#a1a1aa', font: { size: 10, weight: 'bold' } } }, x: { grid: { display: false, drawBorder: false }, ticks: { color: '#a1a1aa', font: { size: 10, weight: 'bold' } } } }
         }
       });
     }
@@ -804,7 +787,7 @@
       if (currentBlock) merged.push(currentBlock); return merged;
     }
 
-    // Geração de Card com Imagem de Fundo (Para Kanban e Agenda Diária)
+    // Geração de Card (Glassmorphism Escuro + Imagem)
     function generateCardHtml(item) {
       const isBlock = item.type === 'block';
       const clientName = item.profiles ? item.profiles.full_name : (isBlock ? 'Barbearia' : 'Cliente Não Id.');
@@ -815,35 +798,37 @@
         const idsStr = item.block_ids.join(',');
         const timeDisplay = item.time === item.end_time ? `Às ${item.time}` : `Das ${item.time} até ${item.end_time}`;
         return `
-          <div class="bg-red-950/20 border border-red-900/40 border-l-4 border-l-red-600 rounded-xl p-3 relative shrink-0 mb-3 shadow-md">
-            <div class="flex items-center justify-between mb-2 relative z-10">
-              <span class="text-[9px] font-black text-red-400 bg-red-500/10 px-2 py-0.5 rounded shadow-sm uppercase tracking-widest">🚫 Bloqueio</span>
-              <button onclick="deleteAppointment('${idsStr}', true)" class="text-zinc-500 hover:text-red-400 text-[10px] font-black uppercase tracking-wider transition-colors">Liberar ✕</button>
+          <div class="bg-red-950/30 border border-red-900/40 border-l-4 border-l-red-600 rounded-2xl p-4 relative shrink-0 mb-4 shadow-md backdrop-blur-sm">
+            <div class="flex items-center justify-between mb-2.5 relative z-10">
+              <span class="text-[9px] font-black text-red-400 bg-red-500/10 px-2 py-0.5 rounded shadow-sm uppercase tracking-widest border border-red-500/20">🚫 Bloqueio</span>
+              <button onclick="deleteAppointment('${idsStr}', true)" class="text-zinc-400 hover:text-red-400 text-[10px] font-black uppercase tracking-wider transition-colors">Liberar ✕</button>
             </div>
-            <p class="font-black text-zinc-300 text-xs relative z-10">${timeDisplay}</p>
-            <p class="text-[10px] text-zinc-500 mt-1 truncate uppercase font-bold tracking-wide relative z-10">${(item.service || '').replace('🚫 ', '')}</p>
+            <p class="font-black text-zinc-100 text-sm relative z-10">${timeDisplay}</p>
+            <p class="text-[10px] text-zinc-400 mt-1.5 truncate uppercase font-bold tracking-wide relative z-10">${(item.service || '').replace('🚫 ', '')}</p>
           </div>`;
       } else {
         const sTheme = getServiceTheme(item.service);
 
         return `
-          <div class="card-bg-image rounded-xl flex flex-col mb-3 shrink-0 ${sTheme.hover} transition-all transform hover:-translate-y-0.5 shadow-lg group w-full border ${sTheme.border} border-l-4 ${sTheme.borderL} relative overflow-hidden" style="background-image: url('${sTheme.img}');">
+          <div class="card-bg-image rounded-2xl flex flex-col mb-4 shrink-0 transition-all transform hover:-translate-y-1 shadow-lg group w-full border border-zinc-800 ${sTheme.borderHover} relative overflow-hidden" style="background-image: url('${sTheme.img}');">
             
-            <!-- Camada Escura sobre a Imagem para garantir a leitura -->
-            <div class="absolute inset-0 bg-black/85 group-hover:bg-black/75 transition-colors"></div>
+            <!-- Efeito de Vidro Escuro (Deixa a imagem como textura sutil) -->
+            <div class="absolute inset-0 bg-zinc-950/75 backdrop-blur-[3px] group-hover:bg-zinc-950/60 transition-all duration-300"></div>
 
-            <!-- Conteúdo do Card -->
-            <div class="relative z-10 p-3.5">
-                <div class="flex items-center justify-between mb-2.5">
-                <span class="text-[11px] font-black ${sTheme.text} tracking-wider bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">${item.time}</span>
-                <span class="text-[11px] font-black text-emerald-400 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">R$ ${item.price}</span>
+            <!-- Faixa lateral colorida com Opacidade suave -->
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sTheme.borderL} opacity-70 group-hover:opacity-100 transition-opacity"></div>
+
+            <div class="relative z-10 p-4">
+                <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-black ${sTheme.text} tracking-wider bg-zinc-900/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-zinc-700/50 shadow-sm">${item.time}</span>
+                <span class="text-[11px] font-black text-emerald-400 bg-emerald-950/50 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-emerald-500/20 shadow-sm">R$ ${item.price}</span>
                 </div>
-                <p class="font-black text-white text-sm leading-tight truncate tracking-wide">${clientName}</p>
-                <p class="text-[10px] ${sTheme.text} truncate mt-1 font-bold uppercase tracking-wider opacity-90">${item.service}</p>
+                <p class="font-black text-zinc-50 text-[15px] leading-tight truncate tracking-wide drop-shadow-md">${clientName}</p>
+                <p class="text-[10px] ${sTheme.text} truncate mt-1.5 font-bold uppercase tracking-widest drop-shadow-md opacity-90">${item.service}</p>
                 
-                <div class="pt-3 mt-3 border-t border-zinc-500/30 flex items-center justify-between opacity-70 group-hover:opacity-100 transition-opacity">
-                ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-emerald-300 text-[9px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2 py-1.5 rounded shadow-sm border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">💬 Chamar</a>` : `<span class="text-zinc-400 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
-                <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-400 hover:text-red-500 text-[9px] uppercase font-black tracking-widest bg-black/50 backdrop-blur-sm px-2 py-1.5 rounded transition-colors shadow-sm border border-zinc-700/50 hover:border-red-500/50">Cancelar</button>
+                <div class="pt-3.5 mt-3.5 border-t border-zinc-700/50 flex items-center justify-between">
+                ${cleanPhone ? `<a href="${whatsLink}" target="_blank" class="text-emerald-400 hover:text-white text-[10px] uppercase tracking-widest font-black flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500 px-3 py-1.5 rounded-lg shadow-sm border border-emerald-500/20 hover:border-emerald-500 transition-all">💬 Chamar</a>` : `<span class="text-zinc-500 font-bold text-[9px] uppercase tracking-widest">Sem contato</span>`}
+                <button onclick="deleteAppointment('${item.id}', false)" class="text-zinc-400 hover:text-white text-[10px] uppercase font-black tracking-widest bg-zinc-900/80 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-all shadow-sm border border-zinc-700/50 hover:border-red-500">Cancelar</button>
                 </div>
             </div>
           </div>`;
@@ -903,31 +888,31 @@
         daysList.forEach((day, index) => {
           const dayAptsRaw = (apts || []).filter(a => a.date === day.label).sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
           const mergedApts = mergeBlocks(dayAptsRaw);
-          const headerTheme = KANBAN_THEMES[index % KANBAN_THEMES.length];
           
           let dayRev = 0; let dayCuts = 0; let cardsHtml = '';
-          const isToday = day.label === strHoje; const bgHeader = isToday ? 'bg-[#0f0f11]' : 'bg-transparent';
+          const isToday = day.label === strHoje; 
+          const bgHeader = isToday ? 'bg-zinc-900/90' : 'bg-transparent';
 
-          if (mergedApts.length === 0) cardsHtml = `<div class="h-full border-2 border-dashed border-zinc-800/40 rounded-2xl flex flex-col items-center justify-center text-center p-3 text-zinc-700 bg-transparent"><span class="text-[10px] uppercase font-black tracking-widest">Sem Agenda</span></div>`;
+          if (mergedApts.length === 0) cardsHtml = `<div class="h-full border-2 border-dashed border-zinc-800/40 rounded-2xl flex flex-col items-center justify-center text-center p-3 text-zinc-600 bg-transparent"><span class="text-[10px] uppercase font-black tracking-widest">Sem Agenda</span></div>`;
           else { mergedApts.forEach(item => { if (item.type !== 'block') { dayRev += parseFloat(item.price || 0); dayCuts++; } cardsHtml += generateCardHtml(item); }); }
 
           boardHtml += `
-            <div class="w-[280px] shrink-0 bg-[#0f0f11] border border-zinc-800/80 rounded-3xl flex flex-col h-full max-h-full shadow-lg overflow-hidden relative">
+            <div class="w-[290px] shrink-0 bg-zinc-900/30 border border-zinc-800/60 rounded-3xl flex flex-col h-full max-h-full shadow-lg overflow-hidden relative backdrop-blur-md">
               ${isToday ? `<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>` : ''}
-              <div class="${bgHeader} p-4 border-b border-zinc-800/80 flex items-center justify-between shrink-0 transition-colors z-10">
+              <div class="${bgHeader} p-5 border-b border-zinc-800/50 flex items-center justify-between shrink-0 transition-colors z-10">
                 <div>
-                  <span class="text-[13px] uppercase font-black ${headerTheme.acc} block tracking-widest drop-shadow-sm">${day.dayName}</span>
+                  <span class="text-[13px] uppercase font-black text-zinc-400 block tracking-widest drop-shadow-sm">${day.dayName}</span>
                   <span class="text-[10px] text-zinc-500 font-bold block mt-1 uppercase tracking-wider">${dayCuts} Cli - R$ ${dayRev}</span>
                 </div>
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-lg ${headerTheme.circleBg}">${day.dayNumber.split('/')[0]}</div>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-zinc-300 bg-zinc-800 border border-zinc-700 text-sm shadow-sm">${day.dayNumber.split('/')[0]}</div>
               </div>
-              <div class="p-3.5 overflow-y-auto flex-1 custom-scroll bg-grid relative pointer-events-auto z-0">${cardsHtml}</div>
+              <div class="p-4 overflow-y-auto flex-1 custom-scroll bg-grid relative pointer-events-auto z-0">${cardsHtml}</div>
             </div>`;
         });
         board.innerHTML = boardHtml;
 
         let dailyHtml = ''; const mergedToday = mergeBlocks(todayAptsRaw);
-        if (mergedToday.length === 0) dailyHtml = `<div class="col-span-full flex items-center justify-center py-20 text-zinc-600 text-xs font-black uppercase tracking-widest border-2 border-dashed border-zinc-800/50 rounded-3xl bg-[#0f0f11]">Agenda Livre / Sem Movimento</div>`;
+        if (mergedToday.length === 0) dailyHtml = `<div class="col-span-full flex items-center justify-center py-20 text-zinc-600 text-xs font-black uppercase tracking-widest border-2 border-dashed border-zinc-800/50 rounded-3xl bg-zinc-900/20">Agenda Livre / Sem Movimento</div>`;
         else mergedToday.forEach(item => { dailyHtml += generateCardHtml(item); });
         dailyContainer.innerHTML = dailyHtml;
 
