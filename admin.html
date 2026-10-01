@@ -381,13 +381,15 @@
     ];
 
     // DEFINIÇÃO DAS CORES DOS SERVIÇOS
-    function getServiceTheme(serviceName) {
+   function getServiceTheme(serviceName) {
       const s = (serviceName || '').toLowerCase();
-      if (s.includes('completo') || s.includes('combo')) return { bg: 'bg-[#1a1528]', border: 'border-purple-500/30', borderL: 'border-l-purple-500', text: 'text-purple-400', hover: 'hover:bg-[#251e38]' };
+      
+      if (s.includes('corte e barba') || s.includes('combo')) return { bg: 'bg-[#1a1528]', border: 'border-purple-500/30', borderL: 'border-l-purple-500', text: 'text-purple-400', hover: 'hover:bg-[#251e38]' };
       if (s.includes('progressiva')) return { bg: 'bg-[#2a0e17]', border: 'border-pink-500/30', borderL: 'border-l-pink-500', text: 'text-pink-400', hover: 'hover:bg-[#38111e]' };
       if (s.includes('barba')) return { bg: 'bg-[#2d180b]', border: 'border-orange-500/30', borderL: 'border-l-orange-500', text: 'text-orange-400', hover: 'hover:bg-[#3a1d0d]' };
       if (s.includes('sobrancelha')) return { bg: 'bg-[#0c241c]', border: 'border-teal-500/30', borderL: 'border-l-teal-500', text: 'text-teal-400', hover: 'hover:bg-[#113126]' };
-      // Default (Corte)
+      
+      // Default (Corte Masculino)
       return { bg: 'bg-[#0d1b2a]', border: 'border-blue-500/30', borderL: 'border-l-blue-500', text: 'text-blue-400', hover: 'hover:bg-[#13263a]' };
     }
 
@@ -483,6 +485,10 @@
     function closeBlockModal() { document.getElementById('modal-block').classList.add('hidden'); document.getElementById('modal-block').classList.remove('flex'); }
 
     async function confirmBlock() {
+      // Substitua o if de duração dentro da função confirmBlock:
+if (apt.service.includes("Corte e Barba")) dur = 60; 
+else if (apt.service.includes("Progressiva")) dur = 120; 
+else if (apt.service.includes("Sobrancelha")) dur = 20;
       const dateVal = document.getElementById('block-date').value; const start = document.getElementById('block-start').value;
       const end = document.getElementById('block-end').value; const reason = document.getElementById('block-reason').value.trim() || 'Bloqueado';
       if (!dateVal) return alert('Selecione uma data.');
